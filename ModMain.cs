@@ -18,18 +18,18 @@ namespace TrafficReport
 
         public TestMod()
         {
-            Assembly asembly = Assembly.GetAssembly(typeof(TestMod));
-            this.verison = asembly.GetName().Version;
-            Log.info("Mod class created " + this.verison);
+            //Assembly asembly = Assembly.GetAssembly(typeof(TestMod));
+            //this.verison = asembly.GetName().Version;
+            //Log.info("Mod class created " + this.verison);
         }
         
         public string Name
         {
-            get { return "Traffic Query Tool"; }
+            get { return "Traffic Report Tool"; }
         }
         public string Description
         {
-            get { return "Select vehicle with this tool active to see path drawn to their destination"; }
+            get { return "Display traffic information for a single vehicle, a secotion of road or a building"; }
         }
     }
 
@@ -53,7 +53,7 @@ namespace TrafficReport
             button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
 
             // Set the text to show on the button.
-            button.text = "Traffic Query Tool";
+            button.text = "Traffic Report Tool";
 
             // Set the button dimensions.
             button.width = 150;

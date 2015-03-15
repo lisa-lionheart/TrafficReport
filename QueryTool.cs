@@ -11,10 +11,14 @@ namespace TrafficReport
     public class QueryTool : DefaultTool
     {
 
-
-        NetManager netMan = Singleton<NetManager>.instance;
-        
+        TrafficAnalyzer analyzer;
         List<GameObject> visualizations;
+        Material lineMaterial;
+
+        public QueryTool()
+        {
+            analyzer = new TrafficAnalyzer(this);
+        }
 
         protected override void Awake()
         {
@@ -22,6 +26,12 @@ namespace TrafficReport
             m_cursor = new CursorInfo();
             m_cursor.m_texture = ResourceLoader.loadTexture(128, 128, "Cursor.png");
             m_cursor.m_hotspot = new Vector2(42, 41);
+
+
+            lineMaterial = new Material(Shader.Find("VertexLit"));
+            lineMaterial.color = Color.red;
+            lineMaterial.mainTexture = ResourceLoader.loadTexture(80, 90, "Arrow.png");
+            lineMaterial.SetTextureScale("_MainTex", new Vector2(10, 1));
             base.Awake();
         }
 
@@ -31,6 +41,10 @@ namespace TrafficReport
             {
                 return;
             }
+
+            //Animate the traffic lines
+	        lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f,0));
+
 
             Event current = Event.current;
             if (current.type == EventType.MouseDown)
@@ -45,11 +59,26 @@ namespace TrafficReport
                     {
                         Log.debug("You clicked on " + hoverInstance.ToString());
                         Log.debug(hoverInstance.Type.ToString());
+
                         
                         if (hoverInstance.Type == InstanceType.Vehicle)
                         {
-                            this.ReportOnVehicle(hoverInstance.Vehicle);
+                            HideAllVisualizations();
+                            analyzer.ReportOnVehicle(hoverInstance.Vehicle);
                         }
+
+                        if (hoverInstance.Type == InstanceType.NetSegment)
+                        {
+                            HideAllVisualizations();
+                            analyzer.ReportOnSegment(hoverInstance.NetSegment);
+                        }
+
+                        if (hoverInstance.Type == InstanceType.Building)
+                        {
+                            HideAllVisualizations();
+                            analyzer.ReportOnBuilding(hoverInstance.Building);
+                        }
+
                     }
                     catch (Exception e)
                     {
@@ -62,95 +91,29 @@ namespace TrafficReport
             base.OnToolGUI();
         }
 
-        void ReportOnVehicle(ushort id)
+        
+        public override NetSegment.Flags GetSegmentIgnoreFlags()
         {
-            Vehicle vehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id];
-
-            Log.info("Vechicle Name: " + vehicle.Info.name);
-
-            Vector3[] path = this.GatherPathVerticies(vehicle.m_path);
-
-            this.HideAllVisualizations();
-            this.DumpPath(path);
-            this.VisualizePath(path);
+            return NetSegment.Flags.None;
         }
 
-        void DumpPath(Vector3[] path)
+        internal void OnGotBuildingReport(TrafficAnalyzer.Report report)
         {
-            string filename = ResourceLoader.BaseDir + "path.txt";
-            Log.debug("Dumping path to " + filename);
-
-            StreamWriter fs = new StreamWriter(filename);
-            for (int i = 0; i < path.Length; i++)
-            {
-                fs.WriteLine(path[i].x + " " + path[i].y + " " + path[i].z);
-            }
-            fs.Close();
+            OnGotSegmentReport(report);
         }
 
-        Vector3[] GatherPathVerticies(uint pathID) 
+        internal void OnGotSegmentReport(TrafficAnalyzer.Report report)
         {
-            List<Vector3> verts = new List<Vector3>();
-
-            Log.debug("Gathering path...");
-
-            PathUnit path = this.getPath(pathID);
-            NetSegment segment = netMan.m_segments.m_buffer[path.GetPosition(0).m_segment];
-            NetNode startNode, endNode;
-            Vector3 lastPoint;
-            startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
-            lastPoint = startNode.m_position;
-            verts.Add(lastPoint);
-            while (true)
-            {
-                for (int i = 0; i < path.m_positionCount; i++)
-                {
-                    PathUnit.Position p = path.GetPosition(i);
-
-                    if (p.m_segment != 0)
-                    {
-                        segment = netMan.m_segments.m_buffer[p.m_segment];
-
-                        startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
-                        endNode = netMan.m_nodes.m_buffer[segment.m_endNode];
-
-
-                        
-                        //List<Vector3> segmentVerts = new List<Vector3>();
-
-                        //verts.Add(startNode.m_position);
-                        /*
-                        if (!NetSegment.IsStraight(startNode.m_position, segment.m_startDirection, endNode.m_position, segment.m_endDirection))
-                        {
-                            Vector3 mp1, mp2;
-                            NetSegment.CalculateMiddlePoints(
-                                    startNode.m_position, segment.m_startDirection, 
-                                    endNode.m_position, segment.m_endDirection, 
-                                    true, true, out mp1, out mp2);
-                            verts.Add(mp1);
-                            verts.Add(mp2);
-                        }*/
-                        verts.Add(endNode.m_position);
-                    }
-                }
-
-                if (path.m_nextPathUnit == 0)
-                {
-                    Log.debug("Done");
-                    return verts.ToArray();
-                }
-                path = this.getPath(path.m_nextPathUnit);
+            foreach(Vector3[] path in report.paths) {
+                OnGotVehiclePath(path);
             }
         }
 
-
-        void VisualizePath(Vector3[] positions)
+        internal void OnGotVehiclePath(Vector3[] positions)
         {
 
             Vector3 offset = new Vector3(0, 10, 0);
 
-            Material lineMaterial = new Material(Shader.Find("Diffuse"));
-            lineMaterial.color = Color.red;
                 
 
             for (int i = 0; i < positions.Length - 1 ; i++)
@@ -169,18 +132,7 @@ namespace TrafficReport
 
         }
 
-        PathUnit getPath(uint id)
-        {
-            return Singleton<PathManager>.instance.m_pathUnits.m_buffer[id];
-        }
-
-        void ReportBuilding(uint id)
-        {
-            Building b = Singleton<BuildingManager>.instance.m_buildings.m_buffer[id];
-            Log.info(id + " = " + b.Info.GetLocalizedTitle());
-        }
-
-
+        
         void HideAllVisualizations()
         {
 
@@ -202,5 +154,10 @@ namespace TrafficReport
         {
  	         base.RenderOverlay(cameraInfo);
         }
+
+
+
+
+       
     }
 }

@@ -41,6 +41,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="ResourceLoader.cs" />
+    <Compile Include="TrafficAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">
