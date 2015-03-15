@@ -29,7 +29,7 @@ namespace TrafficReport
         }
         public string Description
         {
-            get { return "Display traffic information for a single vehicle, a secotion of road or a building"; }
+            get { return "Display traffic information for a single vehicle, a section of road or a building"; }
         }
     }
 
