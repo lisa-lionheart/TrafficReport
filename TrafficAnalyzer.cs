@@ -235,7 +235,7 @@ namespace TrafficReport
             Vector3 lastPoint;
             startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
             lastPoint = startNode.m_position;
-            verts.Add(lastPoint);
+            //verts.Add(lastPoint);
             while (true)
             {
                 for (int i = 0; i < path.m_positionCount; i++)
@@ -249,6 +249,14 @@ namespace TrafficReport
                         startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
                         endNode = netMan.m_nodes.m_buffer[segment.m_endNode];
 
+
+                        Vector3 startPos = startNode.m_position;// +(Vector3.Cross(Vector3.up, segment.m_startDirection) * 5.0f); 
+                        Vector3 endPos = endNode.m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
+
+                        Vector3 direction = (endPos - startPos);
+
+                        verts.Add(startPos + direction * ((float)p.m_offset / 255.0f)); 
+                       // verts.Add(endPos);
                         //List<Vector3> segmentVerts = new List<Vector3>();
 
                         //verts.Add(startNode.m_position);
@@ -263,7 +271,7 @@ namespace TrafficReport
                             verts.Add(mp1);
                             verts.Add(mp2);
                         }*/
-                        verts.Add(endNode.m_position);
+                        //verts.Add(endNode.m_position);
                     }
                 }
 
