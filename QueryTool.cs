@@ -92,8 +92,9 @@ namespace TrafficReport
             loadingCursor = new CursorInfo();
             loadingCursor.m_texture = ResourceLoader.loadTexture(64, 64, "Hourglass.png");
 
-            lineMaterial = new Material(ResourceLoader.loadResourceString("TransparentDiffuse.shader"));
+            lineMaterial = new Material(ResourceLoader.loadResourceString("TransparentVertexLit.shader"));
             lineMaterial.color = new Color(1.0f, 0.0f, 0.0f, 0.3f);
+            lineMaterial.SetColor("_Emission", new Color(1, 0, 0));
             lineMaterial.mainTexture = ResourceLoader.loadTexture(80, 90, "Arrow.png");
             lineMaterial.SetTextureScale("_MainTex", new Vector2(10, 1));
             base.Awake();

@@ -47,7 +47,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <EmbeddedResource Include="resources\TransparentDiffuse.shader" />
+    <EmbeddedResource Include="resources\TransparentVertexLit.shader" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="resources\Arrow.png" />
