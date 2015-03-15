@@ -32,7 +32,6 @@
   <ItemGroup>
     <Compile Include="QueryTool.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="TestPanel.cs" />
     <Compile Include="ModMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -48,6 +47,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <EmbeddedResource Include="resources\TransparentDiffuse.shader" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="resources\Arrow.png" />
@@ -100,6 +100,13 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="resources\Cursor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Button.active.png" />
+    <EmbeddedResource Include="resources\Button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Hourglass.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

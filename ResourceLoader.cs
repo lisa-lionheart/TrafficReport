@@ -51,6 +51,23 @@ namespace TrafficReport
             return read.ReadBytes((int)stream.Length);
         }
 
+        public static string loadResourceString(string name)
+        {
+            name = "TrafficReport.resources." + name;
+
+            UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
+            if (stream == null)
+            {
+                Log.error("Could not find resource: " + name);
+                return null;
+            }
+
+            StreamReader read = new StreamReader(stream);
+            return read.ReadToEnd();
+        }
+
+
+
 
         public static Texture2D loadTexture(int x, int y, string filename)
         {

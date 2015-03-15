@@ -33,6 +33,9 @@ namespace TrafficReport
         }
     }
 
+    
+
+
 
     public class LoadingExtension : LoadingExtensionBase
     {
@@ -45,6 +48,7 @@ namespace TrafficReport
             queryTool = GameObject.FindWithTag("GameController").AddComponent<QueryTool>();
             ToolsModifierControl.SetTool<DefaultTool>();
 
+            /*
             UIView uiView = UIView.GetAView();
 
           
@@ -75,6 +79,7 @@ namespace TrafficReport
             button.transformPosition = new Vector3(-1.65f, 0.97f);
 
             button.eventClick += toggleQueryTool;
+             * */
         }
 
         void toggleQueryTool(UIComponent component, UIMouseEventParameter eventParam)
