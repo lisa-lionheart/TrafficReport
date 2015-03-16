@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TrafficReport</RootNamespace>
     <AssemblyName>TrafficReport</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,27 +31,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="QueryTool.cs" />
-    <Compile Include="Log.cs" />
-    <Compile Include="ModMain.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="ResourceLoader.cs" />
-    <Compile Include="TrafficAnalyzer.cs" />
+    <Compile Include="Source\AssemblyInfo.cs" />
+    <Compile Include="Source\Common\CapsELineRenderer.cs" />
+    <Compile Include="Source\Log.cs" />
+    <Compile Include="Source\ModMain.cs" />
+    <Compile Include="Source\Common\PathMeshBuilder.cs" />
+    <Compile Include="Source\QueryTool.cs" />
+    <Compile Include="Source\ResourceLoader.cs" />
+    <Compile Include="Source\TrafficAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <EmbeddedResource Include="resources\TransparentVertexLit.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="resources\Arrow.png" />
+    <None Include="Assets\Materials\NewSkin.mat" />
+    <None Include="Assets\Materials\NewSkin.mat.meta" />
+    <None Include="Assets\Materials\NewSkin.png.meta" />
+    <EmbeddedResource Include="Assets\TransparentVertexLit.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -99,18 +93,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="resources\Cursor.png" />
+    <EmbeddedResource Include="Assets\Arrow.png" />
+    <EmbeddedResource Include="Assets\Button.active.png" />
+    <EmbeddedResource Include="Assets\Button.png" />
+    <EmbeddedResource Include="Assets\Cursor.png" />
+    <EmbeddedResource Include="Assets\Hourglass.png" />
+    <Content Include="Assets\Materials\NewSkin.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="resources\Button.active.png" />
-    <EmbeddedResource Include="resources\Button.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="resources\Hourglass.png" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y /F "$(TargetPath)" "C:\Steam\steamapps\workshop\content\255710\408092246"</PostBuildEvent>
+    <PostBuildEvent>del  "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report\TrafficReport.dll"
+xcopy /y /F "$(TargetPath)" "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report"
+rem xcopy /y /F "$(TargetPath)" "C:\Steam\steamapps\workshop\content\255710\408092246"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
