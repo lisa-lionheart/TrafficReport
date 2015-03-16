@@ -12,8 +12,11 @@ using System;
 namespace TrafficReport
 {
       
-    public class TestMod : IUserMod
+	public class TrafficReportMod : IUserMod
     {
+		public TrafficReportMod() {
+			Log.info("Mod Loaded");
+		}
         
         public string Name
         {
@@ -34,7 +37,16 @@ namespace TrafficReport
 
         //QueryTool queryTool;
         //UIButton button;
-        
+		//Thread: Main
+		public override void OnCreated(ILoading loading) {
+		
+			Log.info ("onLoaded");
+		}
+
+		public override void OnReleased() {
+			Log.info ("onReleased");
+		}
+
         public override void OnLevelLoaded(LoadMode mode)
         {
             GameObject.FindWithTag("GameController").AddComponent<QueryTool>();
@@ -46,7 +58,7 @@ namespace TrafficReport
           
 
             // Add a new button to the view.
-            button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
+            UIButton button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
 
             // Set the text to show on the button.
             button.text = "Traffic Report Tool";
