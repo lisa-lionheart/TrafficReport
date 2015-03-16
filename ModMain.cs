@@ -14,14 +14,6 @@ namespace TrafficReport
       
     public class TestMod : IUserMod
     {
-        System.Version verison;
-
-        public TestMod()
-        {
-            //Assembly asembly = Assembly.GetAssembly(typeof(TestMod));
-            //this.verison = asembly.GetName().Version;
-            //Log.info("Mod class created " + this.verison);
-        }
         
         public string Name
         {
@@ -40,12 +32,12 @@ namespace TrafficReport
     public class LoadingExtension : LoadingExtensionBase
     {
 
-        QueryTool queryTool;
-        UIButton button;
+        //QueryTool queryTool;
+        //UIButton button;
         
         public override void OnLevelLoaded(LoadMode mode)
         {
-            queryTool = GameObject.FindWithTag("GameController").AddComponent<QueryTool>();
+            GameObject.FindWithTag("GameController").AddComponent<QueryTool>();
             ToolsModifierControl.SetTool<DefaultTool>();
 
             /*
@@ -84,7 +76,7 @@ namespace TrafficReport
 
         void toggleQueryTool(UIComponent component, UIMouseEventParameter eventParam)
         {
-
+			/*
             if(ToolsModifierControl.toolController.CurrentTool == queryTool) {
                 ToolsModifierControl.SetTool<DefaultTool>();
                 button.normalBgSprite = "ButtonMenu";
@@ -94,7 +86,7 @@ namespace TrafficReport
                 Log.info("Selecting query tool");
                 ToolsModifierControl.toolController.CurrentTool = queryTool;
                 button.normalBgSprite = "ButtonMenuPressed";
-            }
+            }*/
         }
     }
 

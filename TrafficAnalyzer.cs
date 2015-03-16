@@ -3,9 +3,6 @@ using ColossalFramework.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TrafficReport
@@ -233,9 +230,7 @@ namespace TrafficReport
             PathUnit path = this.getPath(pathID);
             NetSegment segment = netMan.m_segments.m_buffer[path.GetPosition(0).m_segment];
             NetNode startNode, endNode;
-            Vector3 lastPoint;
             startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
-            lastPoint = startNode.m_position;
             //verts.Add(lastPoint);
             while (true)
             {
