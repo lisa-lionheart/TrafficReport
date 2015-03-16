@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using ColossalFramework.Plugins;
 using ColossalFramework;
@@ -14,26 +13,26 @@ namespace TrafficReport
     {
         public static void error(string message)
         {
-            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, message);
             Console.WriteLine("ERROR: " + message);
         }
 
 
         public static void info(string message)
         {
-            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
             Console.WriteLine("INFO: " + message);
         }
 
         public static void debug(string message)
         {
-          //  DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
             Console.WriteLine("DEBUG: " + message);
         }
 
         public static void warn(string message)
         {
-            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning, message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning, message);
             Console.WriteLine("WARN: " + message);
         }
     }

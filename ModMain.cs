@@ -12,16 +12,11 @@ using System;
 namespace TrafficReport
 {
       
-    public class TestMod : IUserMod
+	public class TrafficReportMod : IUserMod
     {
-        System.Version verison;
-
-        public TestMod()
-        {
-            //Assembly asembly = Assembly.GetAssembly(typeof(TestMod));
-            //this.verison = asembly.GetName().Version;
-            //Log.info("Mod class created " + this.verison);
-        }
+		public TrafficReportMod() {
+			Log.info("Mod Loaded");
+		}
         
         public string Name
         {
@@ -29,7 +24,7 @@ namespace TrafficReport
         }
         public string Description
         {
-            get { return "Display traffic information for a single vehicle, a secotion of road or a building"; }
+            get { return "Display traffic information for a single vehicle, a section of road or a building"; }
         }
     }
 
@@ -40,12 +35,21 @@ namespace TrafficReport
     public class LoadingExtension : LoadingExtensionBase
     {
 
-        QueryTool queryTool;
-        UIButton button;
-        
+        //QueryTool queryTool;
+        //UIButton button;
+		//Thread: Main
+		public override void OnCreated(ILoading loading) {
+		
+			Log.info ("onLoaded");
+		}
+
+		public override void OnReleased() {
+			Log.info ("onReleased");
+		}
+
         public override void OnLevelLoaded(LoadMode mode)
         {
-            queryTool = GameObject.FindWithTag("GameController").AddComponent<QueryTool>();
+            GameObject.FindWithTag("GameController").AddComponent<QueryTool>();
             ToolsModifierControl.SetTool<DefaultTool>();
 
             /*
@@ -54,7 +58,7 @@ namespace TrafficReport
           
 
             // Add a new button to the view.
-            button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
+            UIButton button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
 
             // Set the text to show on the button.
             button.text = "Traffic Report Tool";
@@ -84,7 +88,7 @@ namespace TrafficReport
 
         void toggleQueryTool(UIComponent component, UIMouseEventParameter eventParam)
         {
-
+			/*
             if(ToolsModifierControl.toolController.CurrentTool == queryTool) {
                 ToolsModifierControl.SetTool<DefaultTool>();
                 button.normalBgSprite = "ButtonMenu";
@@ -94,7 +98,7 @@ namespace TrafficReport
                 Log.info("Selecting query tool");
                 ToolsModifierControl.toolController.CurrentTool = queryTool;
                 button.normalBgSprite = "ButtonMenuPressed";
-            }
+            }*/
         }
     }
 

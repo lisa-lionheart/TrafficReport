@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TrafficReport
@@ -25,13 +24,8 @@ namespace TrafficReport
 
                 Log.debug(ResourceAssembly.Location);
 
-                try
-                {
-                    return Path.GetDirectoryName(ResourceAssembly.Location) + Path.PathSeparator;
-                }catch(Exception e) {
-                    //return InvalidProgramException.
-                    return "";
-                }
+                return Path.GetDirectoryName(ResourceAssembly.Location) + Path.PathSeparator;
+                
             }
         }
 

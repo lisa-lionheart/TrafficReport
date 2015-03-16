@@ -3,9 +3,6 @@ using ColossalFramework.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TrafficReport
@@ -43,11 +40,11 @@ namespace TrafficReport
             {
                 try
                 {
-                    Vehicle vehicle = vehicleManager.m_vehicles.m_buffer[id];
+                    Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
-                    Log.info("Vechicle Name: " + vehicle.Info.name);
+                    Log.info("Vechicle Name: " + vehicles[id].Info.name);
 
-                    Vector3[] path = this.GatherPathVerticies(vehicle.m_path);
+					Vector3[] path = this.GatherPathVerticies(vehicles[id].m_path);
 
                     this.DumpPath(path);
 
@@ -124,27 +121,27 @@ namespace TrafficReport
 
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
-            foreach (Vehicle vehicle in vehicles)
+            for (int i = 0; i < vehicles.Length; i++)
             {
 
-                if ((vehicle.m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
+                if ((vehicles[i].m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
                 {
                     continue;
                 }
 
-                Log.debug("Analyzing vehicle" + vehicle.Info.GetLocalizedDescriptionShort());
+                //Log.debug("Analyzing vehicle" + vehicles[i].Info.GetLocalizedDescriptionShort());
 
-                if (vehicle.m_path == 0)
+                if (vehicles[i].m_path == 0)
                 {
                     continue;
                 }
 
-                Log.info("Vehcile valid, checking if path intersects segment...");
+                //Log.info("Vehcile valid, checking if path intersects segment...");
 
-                if (this.PathContainsSegment(vehicle.m_path, segmentID))
+                if (this.PathContainsSegment(vehicles[i].m_path, segmentID))
                 {
                     Log.info("Found vehicle on segemnt, getting path....");
-                    Vector3[] path = this.GatherPathVerticies(vehicle.m_path);
+                    Vector3[] path = this.GatherPathVerticies(vehicles[i].m_path);
                     report.paths.Add(path);
                     Log.info("Got Path");
                 }
@@ -163,28 +160,29 @@ namespace TrafficReport
 
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
-            foreach (Vehicle vehicle in vehicles)
+            for (int i = 0; i < vehicles.Length; i++)
             {
 
-                if ((vehicle.m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
+                if ((vehicles[i].m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
                 {
                     continue;
                 }
 
-                Log.debug("Analyzing vehicle" + vehicle.Info.GetLocalizedDescriptionShort());
+                //Log.debug("Analyzing vehicle" + vehicles[i].Info.GetLocalizedDescriptionShort());
 
-                if (vehicle.m_path == 0)
+                if (vehicles[i].m_path == 0)
                 {
                     continue;
                 }
 
-                Log.info("Vehcile valid, checking if path intersects segment...");
+                //Log.info("Vehcile valid, checking if path intersects segment...");
 
-              
-                if(vehicle.m_sourceBuilding == buildingID || vehicle.m_targetBuilding == buildingID) {
+
+                if (vehicles[i].m_sourceBuilding == buildingID || vehicles[i].m_targetBuilding == buildingID)
+                {
 
                     Log.info("Found vehicle associated with building, getting path....");
-                    Vector3[] path = this.GatherPathVerticies(vehicle.m_path);
+                    Vector3[] path = this.GatherPathVerticies(vehicles[i].m_path);
                     report.paths.Add(path);
                     Log.info("Got Path");
                 }
@@ -232,9 +230,7 @@ namespace TrafficReport
             PathUnit path = this.getPath(pathID);
             NetSegment segment = netMan.m_segments.m_buffer[path.GetPosition(0).m_segment];
             NetNode startNode, endNode;
-            Vector3 lastPoint;
             startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
-            lastPoint = startNode.m_position;
             //verts.Add(lastPoint);
             while (true)
             {
