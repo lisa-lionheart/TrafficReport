@@ -15,8 +15,11 @@ public class Test : MonoBehaviour {
 
 
 	void Update() {
+
 		
-		material.SetTextureOffset ("_MainTex", new Vector2 (Time.time * 0.5f, 0));
+		Debug.DrawLine(points[0], points[0] + Vector3.up* 10.0f, Color.blue);
+		
+		material.SetTextureOffset ("_MainTex", new Vector2 (Time.time * -0.5f, 0));
 		foreach (Vector3 p in points) {
 			Debug.DrawLine(p, p + Vector3.up* 5.0f, Color.red);
 		}
@@ -43,6 +46,8 @@ public class Test : MonoBehaviour {
 
 		PathMeshBuilder pb = new PathMeshBuilder ();
 		
+		pb.driveLane = -1;
+		
 		pb.AddPoints (points.ToArray());
 
 		Mesh m = pb.GetMesh ();
@@ -54,6 +59,7 @@ public class Test : MonoBehaviour {
 		go.GetComponent<Renderer> ().material = material;
 
 		pb = new PathMeshBuilder ();
+		pb.driveLane = -1;
 
 		points.Reverse ();
 

@@ -8,20 +8,18 @@ namespace TrafficReport
 
 
 		public float width = 5f;
-		public int driveLane = 1; // set -1 for lefthand drive
+		public float laneOffset = -2.0f;
 
-		public Vector3[] p;
-		public Material material;
+		public int driveLane = 1; // 1=rhd, -1 =lhd, 0=down the middle
 
-
-		private float textureOffset = 0.0f;
 
 		List<Vector3> verts = new List<Vector3> ();
 		List<int> triangles = new List<int> ();
 		List<Vector2> uvs = new List<Vector2> ();
 		Vector3 lastPoint;
+		float textureOffset = 0.0f;
 
-		//Generates a new Mesh and applies it to the gameObject
+
 		public void AddPoints(Vector3[] points){
 
 			lastPoint = points[0];
@@ -110,35 +108,28 @@ namespace TrafficReport
 		}
 
 		void AddVertexPair(Vector3 point, Vector3 fwd) {
-			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized * width /2;
+			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized ;
 
-			point += offset * (float)driveLane * 0.8f;
+			point += offset * ((float)driveLane * laneOffset);
 			
 			textureOffset += (point-lastPoint).magnitude / width;
-			//Add the vertices and UVs (4 for every segement of the line)
-			verts.Add (point - offset);              
-			uvs.Add (new Vector2 (-textureOffset, 1.0f));
 
-		
-			verts.Add (point + offset);
-			uvs.Add (new Vector2 (-textureOffset, 0.5f));
+			verts.Add (point - offset * (width /2));              
+			verts.Add (point + offset * (width /2));
+			
+			uvs.Add (new Vector2 (textureOffset, 0.6f));
+			uvs.Add (new Vector2 (textureOffset, 0.9f));
 
 			lastPoint = point;
 		}
 
 		public Mesh GetMesh() {
-
-			//Creating the Mesh and assigning it to the gameObject
 			Mesh m = new Mesh();
-			m.name = "line";
 			m.vertices = verts.ToArray();
 			m.triangles = triangles.ToArray();
 			m.uv = uvs.ToArray();
 			m.RecalculateNormals();
-
 			return m;
-
-		
 		}
 	}
 }
