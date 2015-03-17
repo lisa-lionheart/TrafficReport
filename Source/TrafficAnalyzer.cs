@@ -224,33 +224,32 @@ namespace TrafficReport
         {
             List<Vector3> verts = new List<Vector3>();
 
+			PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
+			NetSegment[] segments = netMan.m_segments.m_buffer;
+			NetNode[] nodes = netMan.m_nodes.m_buffer;
+
             //Log.debug("Gathering path...");
 
-            PathUnit path = this.getPath(pathID);
-            NetSegment segment = netMan.m_segments.m_buffer[path.GetPosition(0).m_segment];
-            NetNode startNode, endNode;
-            startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
+			uint segment = paths[pathID].GetPosition(0).m_segment;
+			uint startNode, endNode;
+			startNode = segments[segment].m_startNode;
             //verts.Add(lastPoint);
             while (true)
             {
-                for (int i = 0; i < path.m_positionCount; i++)
+				for (int i = 0; i < paths[pathID].m_positionCount; i++)
                 {
-                    PathUnit.Position p = path.GetPosition(i);
+					PathUnit.Position p = paths[pathID].GetPosition(i);
 
                     if (p.m_segment != 0)
                     {
-                        segment = netMan.m_segments.m_buffer[p.m_segment];
+                        segment = p.m_segment;
+						startNode = segments[segment].m_startNode;
+                        endNode = segments[segment].m_endNode;
 
-                        startNode = netMan.m_nodes.m_buffer[segment.m_startNode];
-                        endNode = netMan.m_nodes.m_buffer[segment.m_endNode];
+                        Vector3 startPos = nodes[startNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_startDirection) * 5.0f); 
+                        Vector3 endPos = nodes[endNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
 
-
-                        Vector3 startPos = startNode.m_position;// +(Vector3.Cross(Vector3.up, segment.m_startDirection) * 5.0f); 
-                        Vector3 endPos = endNode.m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
-
-                        Vector3 direction = (endPos - startPos);
-
-                        verts.Add(startPos + direction * ((float)p.m_offset / 255.0f)); 
+                        verts.Add(Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f)); 
                        // verts.Add(endPos);
                         //List<Vector3> segmentVerts = new List<Vector3>();
 
@@ -270,12 +269,13 @@ namespace TrafficReport
                     }
                 }
 
-                if (path.m_nextPathUnit == 0)
+				if (paths[pathID].m_nextPathUnit == 0)
                 {
                     //Log.debug("Done");
                     return verts.ToArray();
                 }
-                path = this.getPath(path.m_nextPathUnit);
+
+				pathID = paths[pathID].m_nextPathUnit;
             }
         }
 

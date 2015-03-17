@@ -61,7 +61,7 @@ public class Test : MonoBehaviour {
 		pb = new PathMeshBuilder ();
 		pb.driveLane = -1;
 
-		points.Reverse ();
+		/*points.Reverse ();
 
 		pb.AddPoints (points.ToArray());
 		
@@ -71,7 +71,7 @@ public class Test : MonoBehaviour {
 		go.AddComponent<MeshRenderer> ();
 		go.GetComponent<MeshFilter> ().mesh = m;
 		go.GetComponent<MeshFilter>().sharedMesh = m;
-		go.GetComponent<Renderer> ().material = material;
+		go.GetComponent<Renderer> ().material = material;*/
 	
 	}
 
