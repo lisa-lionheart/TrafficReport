@@ -100,8 +100,7 @@ namespace TrafficReport
                 lineMaterial = new Material(ResourceLoader.loadResourceString("TransparentVertexLit.shader"));
                 lineMaterial.color = new Color(1.0f, 0.0f, 0.0f, 0.3f);
                 lineMaterial.SetColor("_Emission", new Color(1, 0, 0));
-                lineMaterial.mainTexture = ResourceLoader.loadTexture(80, 90, "Arrow.png");
-                lineMaterial.SetTextureScale("_MainTex", new Vector2(10, 1));
+                lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "NewSkin.png");
 
 
                 GameObject go = new GameObject();
@@ -167,6 +166,14 @@ namespace TrafficReport
                             analyzer.ReportOnBuilding(hoverInstance.Building);
                         }
 
+
+                        if (hoverInstance.Type == InstanceType.CitizenInstance)
+                        {
+                            HideAllVisualizations();
+                            base.ToolCursor = loadingCursor;
+                            analyzer.ReportOnCitizen(hoverInstance.CitizenInstance);
+                        }
+
                     }
                     catch (Exception e)
                     {
@@ -201,7 +208,7 @@ namespace TrafficReport
                 VisualizePath(path);
             }
 
-            float alpha = 3.0f / report.paths.Count;
+            float alpha = 30.0f / report.paths.Count;
 
             if (alpha > 1)
             {
@@ -211,7 +218,7 @@ namespace TrafficReport
             lineMaterial.color = new Color(1, 0, 0, alpha);
         }
 
-        internal void OnGotVehicleReport(Vector3[] positions)
+        internal void OnGotSinglePathReport(Vector3[] positions)
         {
             base.ToolCursor = m_cursor;
             VisualizePath(positions);
@@ -221,22 +228,27 @@ namespace TrafficReport
 
             lineMaterial.color = new Color(1, 0, 0, 1);
 
-            Vector3 offset = new Vector3(0, 10, 0);
+            PathMeshBuilder pb = new PathMeshBuilder();
 
-            for (int i = 0; i < positions.Length - 1 ; i++)
+
+            if (Singleton<SimulationManager>.instance.m_metaData.m_invertTraffic == SimulationMetaData.MetaBool.True)
             {
-                GameObject lineGameObject = new GameObject();
-                LineRenderer theLine = lineGameObject.AddComponent<LineRenderer>();
-                theLine.material = lineMaterial;
-                theLine.enabled = true;
-                theLine.SetWidth(5, 5);
-                theLine.SetVertexCount(2);
-                theLine.SetPosition(0, positions[i + 0] + offset);
-                theLine.SetPosition(1, positions[i + 1] + offset);
+                pb.driveLane = -1;
+            }
 
-                visualizations.Add(lineGameObject);
-            }          
+            pb.AddPoints(positions);
 
+            Mesh m = pb.GetMesh();
+            GameObject go = new GameObject(); ;
+            go.AddComponent<MeshFilter>();
+            go.AddComponent<MeshRenderer>();
+            go.GetComponent<MeshFilter>().mesh = m;
+            go.GetComponent<MeshFilter>().sharedMesh = m;
+            go.GetComponent<Renderer>().material = lineMaterial;
+
+            go.transform.localPosition = new Vector3(0, 3, 0);
+
+            visualizations.Add(go);
         }
 
         

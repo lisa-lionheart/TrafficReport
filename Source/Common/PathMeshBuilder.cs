@@ -107,7 +107,7 @@ namespace TrafficReport
 				float angle = (step * anglePerStep);
 
 				Vector3 p = new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
-				verts.Add(point + (p*width/2));
+				verts.Add(point + (p*width*2));
 				uvs.Add (new Vector2 (0.5f, v2));
 			}
 
@@ -160,7 +160,7 @@ namespace TrafficReport
 
 			point += offset * ((float)driveLane * laneOffset);
 			
-			textureOffset += (point-lastPoint).magnitude / width;
+			textureOffset += (point-lastPoint).magnitude * 2 / width;
 
 			verts.Add (point - offset * (width /2));              
 			verts.Add (point + offset * (width /2));

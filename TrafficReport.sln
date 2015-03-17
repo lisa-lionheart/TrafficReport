@@ -1,32 +1,30 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 2008
+
+Project("{50E20769-F9A6-AE87-AE43-3FF915EF1012}") = "TrafficReport", "Assembly-CSharp.csproj", "{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		Policies = $0
-		$0.TextStylePolicy = $1
-		$1.inheritsSet = null
-		$1.scope = text/x-csharp
-		$0.CSharpFormattingPolicy = $2
-		$2.inheritsSet = Mono
-		$2.inheritsScope = text/x-csharp
-		$2.scope = text/x-csharp
-		$0.TextStylePolicy = $3
-		$3.FileWidth = 120
-		$3.TabsToSpaces = False
-		$3.EolMarker = Unix
-		$3.inheritsSet = VisualStudio
-		$3.inheritsScope = text/plain
-		$3.scope = text/plain
-		GlobalSection(MonoDevelopProperties) = preSolution
+		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+																GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.FileWidth = 120
+		$1.TabsToSpaces = False
+		$1.inheritsSet = VisualStudio
+		$1.inheritsScope = text/plain
+	EndGlobalSection
+
 EndGlobal

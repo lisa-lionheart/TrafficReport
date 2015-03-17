@@ -51,7 +51,7 @@ namespace TrafficReport
 
 
                     working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotVehicleReport(path));
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotSinglePathReport(path));
 
                 }
                 catch (Exception e)
@@ -61,6 +61,42 @@ namespace TrafficReport
                 }
             });
             
+        }
+
+        internal void ReportOnCitizen(ushort id)
+        {
+
+            if (working)
+            {
+                Log.warn("Job in progress bailing!");
+                return;
+            }
+            Log.info("badger");
+
+            working = true;
+
+            Singleton<SimulationManager>.instance.AddAction(() =>
+            {
+                try
+                {
+                    CitizenInstance[] citzens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
+
+                    Log.info("Vechicle Name: " + citzens[id].Info.name);
+
+                    Vector3[] path = this.GatherPathVerticies(citzens[id].m_path);
+
+                    this.DumpPath(path);
+
+                    working = false;
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotSinglePathReport(path));
+
+                }
+                catch (Exception e)
+                {
+                    Log.error(e.Message);
+                    Log.error(e.StackTrace);
+                }
+            });
         }
 
         public void ReportOnSegment(ushort segmentID)
@@ -120,8 +156,8 @@ namespace TrafficReport
             Report report;
             report.paths = new List<Vector3[]>();
 
+            Log.debug("Looking at vehicles...");
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
-
             for (int i = 0; i < vehicles.Length; i++)
             {
 
@@ -147,7 +183,29 @@ namespace TrafficReport
                     Log.info("Got Path");
                 }
             }
-                        
+
+            Log.debug("Looking at citzens...");
+            CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
+            for (int i = 0; i < citzens.Length; i++)
+            {
+                if((citzens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None) {
+                    continue;
+                }
+
+                if (citzens[i].m_path == 0)
+                {
+                    continue;
+                }
+
+                if (this.PathContainsSegment(citzens[i].m_path, segmentID))
+                {
+                    Log.info("Found citizen on segemnt, getting path....");
+                    Vector3[] path = this.GatherPathVerticies(citzens[i].m_path);
+                    report.paths.Add(path);
+                    Log.info("Got Path");
+                }
+
+            }
 
             Log.debug("End DoReportOnSegment");
 
@@ -292,5 +350,7 @@ namespace TrafficReport
             fs.Close();
         }
 
+
+       
     }
 }

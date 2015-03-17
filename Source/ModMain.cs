@@ -54,7 +54,7 @@ namespace TrafficReport
                         GameObject.Destroy(existinggui);
                     }
                 }
-                catch (UnityException e)
+                catch (UnityException)
                 {
                     Log.info("No gui exist yet");
                 }

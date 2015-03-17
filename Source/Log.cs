@@ -19,7 +19,7 @@ namespace TrafficReport
             get {
 
                 if(_logFile == null) {
-                    _logFile = new StreamWriter(new FileStream("TrafficReport.log", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read));
+                    _logFile = new StreamWriter(new FileStream("TrafficReport.log", FileMode.Append, FileAccess.Write, FileShare.Read));
                     _logFile.WriteLine("Loggin started at" + DateTime.Now.ToString());
                 }
                 return _logFile;
@@ -29,8 +29,6 @@ namespace TrafficReport
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void error(string message)
         {
-
-           // DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, message);
             logFile.WriteLine("ERROR: " + message);
             logFile.Flush();
         }
@@ -39,8 +37,6 @@ namespace TrafficReport
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void info(string message)
         {
-            
-            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
             logFile.WriteLine("INFO: " + message);
             logFile.Flush();
         }
@@ -48,7 +44,6 @@ namespace TrafficReport
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void debug(string message)
         {
-            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
             logFile.WriteLine("DEBUG: " + message);
             logFile.Flush();
         }
@@ -56,7 +51,6 @@ namespace TrafficReport
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void warn(string message)
         {
-            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Warning, message);
             logFile.WriteLine("WARN: " + message);
             logFile.Flush();
         }
