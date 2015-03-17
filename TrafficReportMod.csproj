@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -17,20 +17,27 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>.\</OutputPath>
+    <OutputPath>build\bin</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="rm &quot;/Volumes/MoreSpace/Users/lisa/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrafficReport/TrafficReport.dll&quot;" />
+        <Command type="AfterBuild" command="cp -vf &quot;${TargetFile}&quot; &quot;/Volumes/MoreSpace/Users/lisa/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrafficReport&quot;" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>build\bin</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Compile Include="Source\AssemblyInfo.cs" />
     <Compile Include="Source\Common\CapsELineRenderer.cs" />
     <Compile Include="Source\Log.cs" />
@@ -39,8 +46,18 @@
     <Compile Include="Source\QueryTool.cs" />
     <Compile Include="Source\ResourceLoader.cs" />
     <Compile Include="Source\TrafficAnalyzer.cs" />
+=======
+    <Compile Include="QueryTool.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="ModMain.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceLoader.cs" />
+    <Compile Include="TrafficAnalyzer.cs" />
+    <Compile Include="PathMeshBuilder.cs" />
+>>>>>>> Stash
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <None Include="Assets\Materials\NewSkin.mat" />
     <None Include="Assets\Materials\NewSkin.mat.meta" />
     <None Include="Assets\Materials\NewSkin.png.meta" />
@@ -91,6 +108,16 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityScript.Lang.dll</HintPath>
     </Reference>
+=======
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <EmbeddedResource Include="resources\TransparentDiffuse.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Arrow.png" />
+>>>>>>> Stash
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Arrow.png" />
@@ -105,9 +132,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+<<<<<<< HEAD
     <PostBuildEvent>del  "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report\TrafficReport.dll"
 xcopy /y /F "$(TargetPath)" "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report"
 rem xcopy /y /F "$(TargetPath)" "C:\Steam\steamapps\workshop\content\255710\408092246"</PostBuildEvent>
+=======
+>>>>>>> Stash
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -116,4 +146,21 @@ rem xcopy /y /F "$(TargetPath)" "C:\Steam\steamapps\workshop\content\255710\4080
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\Volumes\MoreSpace\Users\lisa\Library\Application Support\Steam\SteamApps\common\Cities_Skylines\Cities.app\Contents\Resources\Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICities">
+      <HintPath>..\..\..\Volumes\MoreSpace\Users\lisa\Library\Application Support\Steam\SteamApps\common\Cities_Skylines\Cities.app\Contents\Resources\Data\Managed\ICities.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\Volumes\MoreSpace\Users\lisa\Library\Application Support\Steam\SteamApps\common\Cities_Skylines\Cities.app\Contents\Resources\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="ColossalManaged">
+      <HintPath>..\..\..\Volumes\MoreSpace\Users\lisa\Library\Application Support\Steam\SteamApps\common\Cities_Skylines\Cities.app\Contents\Resources\Data\Managed\ColossalManaged.dll</HintPath>
+    </Reference>
+    <Reference Include="ExtendedRoadUpgrade">
+      <HintPath>..\..\..\Volumes\MoreSpace\Users\lisa\Library\Application Support\Steam\SteamApps\workshop\content\255710\408209297\ExtendedRoadUpgrade.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
