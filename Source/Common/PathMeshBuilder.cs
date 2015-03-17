@@ -23,8 +23,6 @@ namespace TrafficReport
 		//Generates a new Mesh and applies it to the gameObject
 		public void AddPoints(Vector3[] points){
 
-			float o = width / 2;
-			Vector3 offset = new Vector3 (o, 0, o);
 			lastPoint = points[0];
 
 			for (int i = 0; i < points.Length - 1; i++) {
@@ -45,8 +43,7 @@ namespace TrafficReport
 					end += (start-end).normalized * (width*1.0f);
 				}
 
-				
-				textureOffset += (start-lastPoint).magnitude / width;
+
 				AddSegment(start, end);
 
 
@@ -67,14 +64,12 @@ namespace TrafficReport
 					Vector3 startDir = (end-start).normalized;
 					Vector3 endDir = (nextEnd-nextStart).normalized;
 
-					float step = 0.2;
+					float step = 0.2f;
 					for(float a = step ; a < 1.0f; a += step) {
-						Vector3 point = Beizer.CalculateBezierPoint(0.25f, p0,p1,p2,p3);
-						Vector3 fwd = Vector3.Lerp(
+						Vector3 point = Beizer.CalculateBezierPoint(a, p0,p1,p2,p3);
+						Vector3 fwd = Vector3.Lerp(startDir,endDir, a);
+						AddVertexPair(point,fwd);
 					}
-
-
-
 				} 
 			}
 
@@ -116,12 +111,13 @@ namespace TrafficReport
 		void AddVertexPair(Vector3 point, Vector3 fwd) {
 			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized * width /2;
 			
+			textureOffset += (point-lastPoint).magnitude / width;
 			//Add the vertices and UVs (4 for every segement of the line)
-			verts.Add (start - offset);              
+			verts.Add (point - offset);              
 			uvs.Add (new Vector2 (textureOffset, 1.0f));
 
 		
-			verts.Add (start + offset);
+			verts.Add (point + offset);
 			uvs.Add (new Vector2 (textureOffset, 0.5f));
 
 			lastPoint = point;
