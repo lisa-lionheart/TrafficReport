@@ -1,8 +1,10 @@
-﻿using ColossalFramework;
+﻿
+using ColossalFramework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+
 
 
 namespace TrafficReport
@@ -185,15 +187,18 @@ namespace TrafficReport
 
         internal void OnGotBuildingReport(TrafficAnalyzer.Report report)
         {
+            base.ToolCursor = m_cursor;
+
             OnGotSegmentReport(report);
         }
 
         internal void OnGotSegmentReport(TrafficAnalyzer.Report report)
         {
-            
+
+            base.ToolCursor = m_cursor;
 
             foreach(Vector3[] path in report.paths) {
-                OnGotVehiclePath(path);
+                VisualizePath(path);
             }
 
             float alpha = 3.0f / report.paths.Count;
@@ -206,9 +211,13 @@ namespace TrafficReport
             lineMaterial.color = new Color(1, 0, 0, alpha);
         }
 
-        internal void OnGotVehiclePath(Vector3[] positions)
+        internal void OnGotVehicleReport(Vector3[] positions)
         {
             base.ToolCursor = m_cursor;
+            VisualizePath(positions);
+        }
+
+        private void VisualizePath(Vector3[] positions) {
 
             lineMaterial.color = new Color(1, 0, 0, 1);
 

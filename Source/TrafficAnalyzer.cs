@@ -51,7 +51,7 @@ namespace TrafficReport
 
 
                     working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotVehiclePath(path));
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotVehicleReport(path));
 
                 }
                 catch (Exception e)
@@ -168,9 +168,7 @@ namespace TrafficReport
                 {
                     continue;
                 }
-
-                //Log.debug("Analyzing vehicle" + vehicles[i].Info.GetLocalizedDescriptionShort());
-
+                
                 if (vehicles[i].m_path == 0)
                 {
                     continue;
@@ -283,7 +281,7 @@ namespace TrafficReport
 
         void DumpPath(Vector3[] path)
         {
-            string filename = ResourceLoader.BaseDir + "path.txt";
+            string filename = "path.txt";
             //Log.debug("Dumping path to " + filename);
 
             StreamWriter fs = new StreamWriter(filename);
