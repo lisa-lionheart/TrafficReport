@@ -11,11 +11,12 @@ public class Test : MonoBehaviour {
 	List<Vector3> points = new List<Vector3> ();
 
 	void OnPreRender() {
-		material.SetTextureOffset ("_MainTex", new Vector2 (Time.time * 0.5f, 0));
 	}
 
 
 	void Update() {
+		
+		material.SetTextureOffset ("_MainTex", new Vector2 (Time.time * -0.5f, 0));
 		foreach (Vector3 p in points) {
 			Debug.DrawLine(p, p + Vector3.up* 5.0f, Color.red);
 		}
