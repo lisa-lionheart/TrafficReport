@@ -8,10 +8,11 @@ namespace TrafficReport
 
 
 		public float width = 5f;
-		public float laneOffset = 5f; // set -5 for lefthand drive
+		public int driveLane = 1; // set -1 for lefthand drive
 
 		public Vector3[] p;
 		public Material material;
+
 
 		private float textureOffset = 0.0f;
 
@@ -110,15 +111,17 @@ namespace TrafficReport
 
 		void AddVertexPair(Vector3 point, Vector3 fwd) {
 			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized * width /2;
+
+			point += offset * (float)driveLane * 0.8f;
 			
 			textureOffset += (point-lastPoint).magnitude / width;
 			//Add the vertices and UVs (4 for every segement of the line)
 			verts.Add (point - offset);              
-			uvs.Add (new Vector2 (textureOffset, 1.0f));
+			uvs.Add (new Vector2 (-textureOffset, 1.0f));
 
 		
 			verts.Add (point + offset);
-			uvs.Add (new Vector2 (textureOffset, 0.5f));
+			uvs.Add (new Vector2 (-textureOffset, 0.5f));
 
 			lastPoint = point;
 		}

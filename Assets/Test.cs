@@ -16,7 +16,7 @@ public class Test : MonoBehaviour {
 
 	void Update() {
 		
-		material.SetTextureOffset ("_MainTex", new Vector2 (Time.time * -0.5f, 0));
+		material.SetTextureOffset ("_MainTex", new Vector2 (Time.time * 0.5f, 0));
 		foreach (Vector3 p in points) {
 			Debug.DrawLine(p, p + Vector3.up* 5.0f, Color.red);
 		}
@@ -47,6 +47,20 @@ public class Test : MonoBehaviour {
 
 		Mesh m = pb.GetMesh ();
 		GameObject go = new GameObject ();;
+		go.AddComponent<MeshFilter> ();
+		go.AddComponent<MeshRenderer> ();
+		go.GetComponent<MeshFilter> ().mesh = m;
+		go.GetComponent<MeshFilter>().sharedMesh = m;
+		go.GetComponent<Renderer> ().material = material;
+
+		pb = new PathMeshBuilder ();
+
+		points.Reverse ();
+
+		pb.AddPoints (points.ToArray());
+		
+		m = pb.GetMesh ();
+		go = new GameObject ();;
 		go.AddComponent<MeshFilter> ();
 		go.AddComponent<MeshRenderer> ();
 		go.GetComponent<MeshFilter> ().mesh = m;
