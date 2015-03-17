@@ -8,6 +8,8 @@ namespace TrafficReport
 
 
 		public float width = 5f;
+		public float laneOffset = 5f; // set -5 for lefthand drive
+
 		public Vector3[] p;
 		public Material material;
 
@@ -16,22 +18,14 @@ namespace TrafficReport
 		List<Vector3> verts = new List<Vector3> ();
 		List<int> triangles = new List<int> ();
 		List<Vector2> uvs = new List<Vector2> ();
-
-		// Calculates the distance from the given Points to the edges of the line you want to render
-		private Vector3 RotateVector(Vector3 a, Vector3 b, float width){
-			Vector3 delta = a - b;  //Get the X,Y and Z Distances between point A and B
-			float dist = Mathf.Sqrt(delta[0]*delta[0] + delta[2] * delta[2]); //Calculate the distance in 2D (Pythagoras)
-			float alpha = Mathf.Asin(delta[2] / dist) - Mathf.PI; //Calculate the angle between the two points
-			return new Vector3(Mathf.Sin (alpha)* width, 0, Mathf.Cos(alpha)*width); //Calculate the X and Z distance from the points
-		}
-
+		Vector3 lastPoint;
 
 		//Generates a new Mesh and applies it to the gameObject
 		public void AddPoints(Vector3[] points){
 
 			float o = width / 2;
 			Vector3 offset = new Vector3 (o, 0, o);
-			Vector3 lastEnd = points[0];
+			lastPoint = points[0];
 
 			for (int i = 0; i < points.Length - 1; i++) {
 
@@ -43,24 +37,54 @@ namespace TrafficReport
 				}
 
 				if(i != 0) {
-					start += (end-start).normalized * (width*0.5f);
+					start += (end-start).normalized * (width*1.0f);
 
 				}
 				
 				if(i != points.Length - 1) {
-					end += (start-end).normalized * (width*0.5f);
+					end += (start-end).normalized * (width*1.0f);
 				}
 
 				
-				//textureOffset += 1; //(lastEnd-start).magnitude;
+				textureOffset += (start-lastPoint).magnitude / width;
 				AddSegment(start, end);
 
 
-				lastEnd = end;
+				if(i < points.Length - 2) {
+
+					Vector3 cornerPoint = points[i+1];
+
+					Vector3 nextStart = cornerPoint;
+					Vector3 nextEnd = points[i+2];
+					nextStart -= (nextStart-nextEnd).normalized * (width*1.0f);
+
+
+					Vector3 p0 = end;
+					Vector3 p1 = Vector3.Lerp (end,cornerPoint, 0.5f);
+					Vector3 p2 = Vector3.Lerp (nextStart,cornerPoint, 0.5f);
+					Vector3 p3 = nextStart;
+
+					Vector3 startDir = (end-start).normalized;
+					Vector3 endDir = (nextEnd-nextStart).normalized;
+
+					float step = 0.2;
+					for(float a = step ; a < 1.0f; a += step) {
+						Vector3 point = Beizer.CalculateBezierPoint(0.25f, p0,p1,p2,p3);
+						Vector3 fwd = Vector3.Lerp(
+					}
+
+
+
+				} 
 			}
 
+			GenerateIndiciesAsLineStrip ();
+		}
+
+		void GenerateIndiciesAsLineStrip(){
+
 			for(int i = 0;  i < verts.Count-2; i +=2) {
-								
+				
 				triangles.Add (i);
 				triangles.Add (i + 2);
 				triangles.Add (i + 1);
@@ -77,26 +101,30 @@ namespace TrafficReport
 				triangles.Add (i + 2);
 				triangles.Add (i + 1);
 			}
+
 		}
 
 		void AddSegment(Vector3 start, Vector3 end) {
 
-			Vector3 offset = Vector3.Cross ((end-start), Vector3.up).normalized * width /2;
+			Vector3 fwd = (end - start).normalized;
 
+			AddVertexPair (start, fwd);
+			AddVertexPair (end, fwd);
+
+		}
+
+		void AddVertexPair(Vector3 point, Vector3 fwd) {
+			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized * width /2;
+			
 			//Add the vertices and UVs (4 for every segement of the line)
 			verts.Add (start - offset);              
-			uvs.Add (new Vector2 (textureOffset, 0));
+			uvs.Add (new Vector2 (textureOffset, 1.0f));
 
+		
 			verts.Add (start + offset);
 			uvs.Add (new Vector2 (textureOffset, 0.5f));
 
-			textureOffset += (end - start).magnitude / width;
-
-			verts.Add (end - offset);
-			uvs.Add (new Vector2 (textureOffset, 0));
-			verts.Add (end + offset);
-			uvs.Add (new Vector2 (textureOffset, 0.5f));
-
+			lastPoint = point;
 		}
 
 		public Mesh GetMesh() {
