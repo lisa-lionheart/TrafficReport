@@ -42,13 +42,9 @@ namespace TrafficReport
                 try
                 {
                     Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
-
-                    Log.info("Vechicle Name: " + vehicles[id].Info.name);
-
 					Vector3[] path = this.GatherPathVerticies(vehicles[id].m_path);
 
                     this.DumpPath(path);
-
 
                     working = false;
                     ThreadHelper.dispatcher.Dispatch(() => tool.OnGotSinglePathReport(path));
@@ -80,8 +76,6 @@ namespace TrafficReport
                 try
                 {
                     CitizenInstance[] citzens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
-
-                    Log.info("Vechicle Name: " + citzens[id].Info.name);
 
                     Vector3[] path = this.GatherPathVerticies(citzens[id].m_path);
 

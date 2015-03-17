@@ -103,6 +103,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Assets\NewSkin.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del  "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report\TrafficReport.dll"

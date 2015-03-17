@@ -1,5 +1,6 @@
 ﻿
 using ColossalFramework;
+using ColossalFramework.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +29,11 @@ namespace TrafficReport
 
         void OnGUI()
         {
-
+            UIView ui = UnityEngine.Object.FindObjectOfType<UIView>();
+                        if (!ui.enabled)
+            {
+                return;
+            }
 
             
             //GUI.Label(new Rect(70, 150, 100, 30), "This is a test label");
@@ -43,8 +48,7 @@ namespace TrafficReport
 
             if (ToolsModifierControl.toolController.CurrentTool == queryTool)
             {
-                GUI.DrawTexture(buttonPos, activeIcon);
-
+                Graphics.DrawTexture(buttonPos, activeIcon);
                 if(GUI.Button(buttonPos," ",GUIStyle.none)) {
 
                     ToolsModifierControl.SetTool<DefaultTool>();
@@ -52,7 +56,7 @@ namespace TrafficReport
             }
             else
             {
-                GUI.DrawTexture(buttonPos, icon);
+                Graphics.DrawTexture(buttonPos, icon);
                 if (GUI.Button(buttonPos, " " , GUIStyle.none))
                 {
 
