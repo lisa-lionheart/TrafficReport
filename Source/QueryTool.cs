@@ -11,9 +11,37 @@ using UnityEngine;
 namespace TrafficReport
 {
 
-	public class QueryToolGUI: QueryToolGUIBase {
+	public class QueryToolGUI : QueryToolGUIBase {
 
 		//Implent logic that interfaces with Colossal code
+        public QueryTool queryTool;
+        UIView ui;
+        public QueryToolGUI()
+        {
+            ui = UnityEngine.Object.FindObjectOfType<UIView>();
+        }
+
+        public override bool toolActive
+        {
+            get
+            {
+                return ToolsModifierControl.toolController.CurrentTool == queryTool;
+            }
+            set
+            {
+                if (value)
+                {
+                    ToolsModifierControl.toolController.CurrentTool = queryTool;
+                } else {
+                    ToolsModifierControl.SetTool<DefaultTool>();
+                }
+            }
+        }
+
+        public override bool guiVisible
+        {
+            get { return ui.enabled; }
+        }
 
 	}
 
@@ -25,40 +53,36 @@ namespace TrafficReport
         Material lineMaterial;
 
         CursorInfo loadingCursor;
-
-        public QueryTool()
-        {
-            Log.info("Badger");
-            analyzer = new TrafficAnalyzer(this);
-        }
-
+        
         protected override void Awake()
         {
 
             try
             {
 
+                analyzer = new TrafficAnalyzer(this);
 
                 visualizations = new List<GameObject>();
 
+                Log.info("Load Cursor...");
                 m_cursor = new CursorInfo();
-                m_cursor.m_texture = ResourceLoader.loadTexture(128, 128, "Cursor.png");
+                m_cursor.m_texture = ResourceLoader.loadTexture(128, 128, "Materials.Cursor.png");
                 m_cursor.m_hotspot = new Vector2(42, 41);
 
                 loadingCursor = new CursorInfo();
-                loadingCursor.m_texture = ResourceLoader.loadTexture(64, 64, "Hourglass.png");
+                loadingCursor.m_texture = ResourceLoader.loadTexture(64, 64, "Materials.Hourglass.png");
 
-                lineMaterial = new Material(ResourceLoader.loadResourceString("TransparentVertexLit.shader"));
+                Log.info("Load Line Material...");
+                lineMaterial = new Material(ResourceLoader.loadResourceString("Materials.Shaders.TransparentVertexLit.shader"));
                 lineMaterial.color = new Color(1.0f, 0.0f, 0.0f, 0.3f);
                 lineMaterial.SetColor("_Emission", new Color(1, 0, 0));
-                lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "NewSkin.png");
+                lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials.NewSkin.png");
 
-
-                GameObject go = new GameObject();
-                QueryToolGUI gui = go.AddComponent<QueryToolGUI>();
+                Log.info("Create GUI...");
+                QueryToolGUI gui = new GameObject("QueryToolGUI").AddComponent<QueryToolGUI>();
                 gui.queryTool = this;
-                go.tag = "QueryToolGUI";
 
+                Log.info("QueryTool awoken");
             }
             catch (Exception e)
             {
@@ -143,23 +167,17 @@ namespace TrafficReport
             return NetSegment.Flags.None;
         }
 
-        internal void OnGotBuildingReport(TrafficAnalyzer.Report report)
-        {
-            base.ToolCursor = m_cursor;
-
-            OnGotSegmentReport(report);
-        }
-
-        internal void OnGotSegmentReport(TrafficAnalyzer.Report report)
+        internal void OnGotReport(Report report)
         {
 
             base.ToolCursor = m_cursor;
 
-            foreach(Vector3[] path in report.paths) {
-                VisualizePath(path);
+            foreach (Report.EntityInfo info in report.allEntities)
+            {
+                VisualizePath(info.path);
             }
 
-            float alpha = 30.0f / report.paths.Count;
+            float alpha = 30.0f / report.allEntities.Length;
 
             if (alpha > 1)
             {
@@ -169,11 +187,6 @@ namespace TrafficReport
             lineMaterial.color = new Color(1, 0, 0, alpha);
         }
 
-        internal void OnGotSinglePathReport(Vector3[] positions)
-        {
-            base.ToolCursor = m_cursor;
-            VisualizePath(positions);
-        }
 
         private void VisualizePath(Vector3[] positions) {
 

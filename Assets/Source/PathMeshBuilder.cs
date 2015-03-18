@@ -75,17 +75,18 @@ namespace TrafficReport
 
 			GenerateIndiciesAsLineStrip ();
 
-//			Vector3 startFwd = (points [0] - points [1]);
-////			if (startFwd.magnitude < width * 3.0f) {
-////				startFwd = (points[0] - points [2]);
-////			}
-//			AddEndStop (points[0], startFwd.normalized, false);
-//
-//			Vector3 endFwd = (points [points.Length - 1] - points [points.Length - 2]);
-//			if (endFwd.magnitude < width * 3.0f) {
-//				endFwd = (points [points.Length - 1] - points [points.Length - 3]);
-//			}
-//			AddEndStop (points[points.Length-1], endFwd.normalized, true);
+            Vector3 startFwd = (points[0] - points[1]);
+            //			if (startFwd.magnitude < width * 3.0f) {
+            //				startFwd = (points[0] - points [2]);
+            //			}
+            AddEndStop(points[0], startFwd.normalized, false);
+
+            Vector3 endFwd = (points[points.Length - 1] - points[points.Length - 2]);
+            if (endFwd.magnitude < width * 3.0f)
+            {
+                endFwd = (points[points.Length - 1] - points[points.Length - 3]);
+            }
+            AddEndStop(points[points.Length - 1], endFwd.normalized, true);
 		}
 
 		void AddEndStop(Vector3 point, Vector3 fwd, bool isEnd) {

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,7 +15,7 @@
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
-    <OutputPath>..\bin\</OutputPath>
+    <OutputPath>build\bin\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -36,34 +36,46 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Reference Include="UnityEditor">
-      <HintPath>..\..\..\Applications\Unity\Unity.app\Contents\Frameworks\Managed\UnityEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Applications\Unity\Unity.app\Contents\Frameworks\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Source\Common\Beizer.cs" />
-    <Compile Include="Source\Common\CapsELineRenderer.cs" />
-    <Compile Include="Source\Common\PathMeshBuilder.cs" />
+    <Compile Include="Source\Beizer.cs" />
+    <Compile Include="Source\PathMeshBuilder.cs" />
     <Compile Include="Source\UnityTest.cs" />
     <Compile Include="Source\ResourceLoader.cs" />
     <Compile Include="Source\Log.cs" />
     <Compile Include="Source\QueryToolGUIBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\TransparentVertexLit.shader" />
-    <EmbeddedResource Include="Assets\Materials\NewSkin.png" />
+    <None Include="Assets\Materials\Arrow.mat" />
+    <None Include="Assets\Materials\Line.mat" />
+    <None Include="Assets\Materials\NewSkin.mat" />
+    <EmbeddedResource Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />
+    <None Include="Assets\Materials\Shaders\TransparentVertexLit.shader.meta" />
+    <None Include="Assets\UnityVS\Editor.meta" />
+    <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll.meta" />
+    <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Messaging.dll.meta" />
+    <None Include="Assets\UnityVS\Editor\UnityVS.VersionSpecific.dll.meta" />
+    <None Include="Source\QueryTool.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="UnityEditor">
+      <HintPath>D:\Unity\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>D:\Unity\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Assets\Materials\Button.active.png" />
     <EmbeddedResource Include="Assets\Materials\Button.png" />
     <EmbeddedResource Include="Assets\Materials\Cursor.png" />
     <EmbeddedResource Include="Assets\Materials\Hourglass.png" />
-    <EmbeddedResource Include="Assets\Materials\Line.mat" />
-    <EmbeddedResource Include="Assets\Materials\NewSkin.mat" />
+    <EmbeddedResource Include="Assets\Materials\NewSkin.png" />
+    <Content Include="Assets\path1.txt" />
+    <Content Include="Assets\UnityTest.dll" />
+    <Content Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll" />
+    <Content Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Messaging.dll" />
+    <Content Include="Assets\UnityVS\Editor\UnityVS.VersionSpecific.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\QueryTool.cs" />
-    <None Include="Assets\Materials\Arrow.mat" />
-  </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /y /F "$(TargetPath)" $(ProjectDir)Assets\</PostBuildEvent>
+  </PropertyGroup>
 </Project>

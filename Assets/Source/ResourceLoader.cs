@@ -19,9 +19,9 @@ namespace TrafficReport
             }
         }
 
-
         public static byte[] loadResourceData(string name)
         {
+#if BuildingModDll
             name = "TrafficReport.Assets." + name;
 
             UnmanagedMemoryStream stream  = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
@@ -31,12 +31,17 @@ namespace TrafficReport
                 return null;
             }
 
+            Log.debug("Found resource: " + name);
             BinaryReader read = new BinaryReader(stream);
             return read.ReadBytes((int)stream.Length);
+
+#endif
         }
 
         public static string loadResourceString(string name)
         {
+            
+#if BuildingModDll
             name = "TrafficReport.Assets." + name;
 
             UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
@@ -48,6 +53,7 @@ namespace TrafficReport
 
             StreamReader read = new StreamReader(stream);
             return read.ReadToEnd();
+#endif
         }
 
 
@@ -55,6 +61,8 @@ namespace TrafficReport
 
         public static Texture2D loadTexture(int x, int y, string filename)
         {
+            
+#if BuildingModDll
             try
             {
                 Texture2D texture = new Texture2D(x,y);
@@ -63,10 +71,11 @@ namespace TrafficReport
             }
             catch (Exception e)
             {
-                Log.error("The file could not be read:" + e.Message);                
+                Log.error("LoadTexture() The file could not be read:" + e.Message);                
             }
 
             return null;
+#endif
         }
 
     }

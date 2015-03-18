@@ -19,7 +19,6 @@ namespace TrafficReport
             Assembly ass = Assembly.GetAssembly(typeof(TrafficReportMod));
 			Log.info("Traffic Report Loaded " + DateTime.Now.ToString() + "  " + ass.ToString());
 
-            RegisterTool();
 		}
         
         public string Name
@@ -35,54 +34,53 @@ namespace TrafficReport
         void DeRegister()
         {
             
-            GameObject gameController = GameObject.FindWithTag("GameController");
-            if (gameController)
-            {
-                try
-                {
-                    Component existing = gameController.GetComponent("TrafficReportMod");
-                    if (existing)
-                    {
-                        Log.info("Query tool already registed, removing");
-                        GameObject.Destroy(existing);
-                    }
+            //GameObject gameController = GameObject.FindWithTag("GameController");
+            //if (gameController)
+            //{
+            //    try
+            //    {
+            //        Component existing = gameController.GetComponent("TrafficReportMod");
+            //        if (existing)
+            //        {
+            //            Log.info("Query tool already registed, removing");
+            //            GameObject.Destroy(existing);
+            //        }
                     
-                    GameObject existinggui = GameObject.FindGameObjectWithTag("QueryToolGUI");
-                    if (existinggui)
-                    {
-                        Log.info("Query tool already registed, removing");
-                        GameObject.Destroy(existinggui);
-                    }
-                }
-                catch (UnityException)
-                {
-                    Log.info("No gui exist yet");
-                }
+            //        GameObject existinggui = GameObject.FindGameObjectWithTag("QueryToolGUI");
+            //        if (existinggui)
+            //        {
+            //            Log.info("Query tool already registed, removing");
+            //            GameObject.Destroy(existinggui);
+            //        }
+            //    }
+            //    catch (UnityException)
+            //    {
+            //        Log.info("No gui exist yet");
+            //    }
 
-            }
+            //}
         }
 
 
         void RegisterTool()
         {
 
-            DeRegister(); 
+            //DeRegister(); 
             
-            Log.info("Register badger");
+            //try {
+            //    GameObject gameController = GameObject.FindWithTag("GameController");
+            //    if (gameController)
+            //    {
+            //        Log.debug(gameController.ToString());
+            //        gameController.AddComponent<QueryTool>();
+            //        ToolsModifierControl.SetTool<DefaultTool>();
 
-            try {
-                GameObject gameController = GameObject.FindWithTag("GameController");
-                if (gameController)
-                {
-                    Log.debug(gameController.ToString());
-                    QueryTool q = gameController.AddComponent<QueryTool>();
-
-                }
-            }
-            catch (Exception e)
-            {
-                Log.error(e.ToString());
-            }
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Log.error(e.ToString());
+            //}
         }
 
 

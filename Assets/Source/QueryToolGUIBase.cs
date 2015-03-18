@@ -11,25 +11,28 @@ namespace TrafficReport
 		int lastWidth;
 
 		public QueryToolGUIBase()
-		{
-			icon = ResourceLoader.loadTexture(80,80, "Materials.Button.png");
-			activeIcon = ResourceLoader.loadTexture(80,80, "Materials.Button.active.png");
-
+		{    
 		}
 
-		public bool toolActive {
+		public virtual bool toolActive {
 			get { return false; }
 			set  { 
 
 			}
 		}
 
-		public bool guiVisible {
+        public virtual bool guiVisible
+        {
 			get { return true; }
-			set  { 
-
-			}
 		}
+
+        public void Awake()
+        {
+
+            icon = ResourceLoader.loadTexture(80, 80, "Materials.Button.png");
+            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials.Button.active.png");
+            gameObject.AddComponent<Canvas>();
+        }
 
 		void OnGUI()
 		{
@@ -53,7 +56,7 @@ namespace TrafficReport
 			{
 				Graphics.DrawTexture(buttonPos, activeIcon);
 				if(GUI.Button(buttonPos," ",GUIStyle.none)) {
-					toolActive = true;
+					toolActive = false;
 				}
 			}
 			else
@@ -62,7 +65,7 @@ namespace TrafficReport
 				if (GUI.Button(buttonPos, " " , GUIStyle.none))
 				{
 					Log.info("Selecting query tool");
-					toolActive = false;
+					toolActive = true;
 				}
 			}
 
