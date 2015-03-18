@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using ColossalFramework.Plugins;
-using ColossalFramework;
-using ColossalFramework.UI;
-using ColossalFramework.Threading;
 using System.IO;
 using System.Runtime.CompilerServices;
 

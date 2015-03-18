@@ -11,64 +11,11 @@ using UnityEngine;
 namespace TrafficReport
 {
 
-    public class QueryToolGUI : MonoBehaviour
-    {
-        public QueryTool queryTool;
+	public class QueryToolGUI: QueryToolGUIBase {
 
-        Texture icon;
-        Texture activeIcon;
-        Rect buttonPos;
-        int lastWidth;
-        
-        public QueryToolGUI()
-        {
-            icon = ResourceLoader.loadTexture(80,80, "Button.png");
-            activeIcon = ResourceLoader.loadTexture(80,80, "Button.active.png");
-            
-        }
+		//Implent logic that interfaces with Colossal code
 
-        void OnGUI()
-        {
-            UIView ui = UnityEngine.Object.FindObjectOfType<UIView>();
-                        if (!ui.enabled)
-            {
-                return;
-            }
-
-            
-            //GUI.Label(new Rect(70, 150, 100, 30), "This is a test label");
-
-            if (lastWidth != Screen.width)
-            {
-                //Built for 144p scale up or down as appropriate
-                float scale = Screen.width / 2560.0f;
-                buttonPos = new Rect(80 * scale, 5 * scale, 80 * scale, 80 * scale);
-                lastWidth = Screen.width;
-            }
-
-            if (ToolsModifierControl.toolController.CurrentTool == queryTool)
-            {
-                Graphics.DrawTexture(buttonPos, activeIcon);
-                if(GUI.Button(buttonPos," ",GUIStyle.none)) {
-
-                    ToolsModifierControl.SetTool<DefaultTool>();
-                }
-            }
-            else
-            {
-                Graphics.DrawTexture(buttonPos, icon);
-                if (GUI.Button(buttonPos, " " , GUIStyle.none))
-                {
-
-                    Log.info("Selecting query tool");
-                    ToolsModifierControl.toolController.CurrentTool = queryTool;
-                }
-            }
-            
-
-        }
-
-    }
+	}
 
     public class QueryTool : DefaultTool
     {

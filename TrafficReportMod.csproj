@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +23,15 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+<<<<<<< HEAD
+=======
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="rm -f &quot;/Volumes/MoreSpace/Users/lisa/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrafficReport/TrafficReport.dll&quot;" />
+        <Command type="AfterBuild" command="cp -vf &quot;${TargetFile}&quot; &quot;/Volumes/MoreSpace/Users/lisa/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrafficReport&quot;" />
+      </CustomCommands>
+    </CustomCommands>
+>>>>>>> Stash
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,9 +51,20 @@
     <Compile Include="Source\QueryTool.cs" />
     <Compile Include="Source\ResourceLoader.cs" />
     <Compile Include="Source\TrafficAnalyzer.cs" />
+<<<<<<< HEAD
+=======
+    <Compile Include="Source\Common\Beizer.cs" />
+>>>>>>> Stash
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+=======
+    <None Include="Assets\Materials\NewSkin.mat" />
+    <None Include="Assets\Materials\NewSkin.mat.meta" />
+    <None Include="Assets\Materials\NewSkin.png.meta" />
+>>>>>>> Stash
     <EmbeddedResource Include="Assets\TransparentVertexLit.shader" />
+<<<<<<< HEAD
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -89,6 +111,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityScript.Lang.dll</HintPath>
     </Reference>
+=======
+>>>>>>> Stash
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Arrow.png" />
@@ -108,11 +132,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+<<<<<<< HEAD
     <PostBuildEvent>del  "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report\TrafficReport.dll"
 xcopy /y /F "$(TargetPath)" "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report"
 rem xcopy /y /F "$(TargetPath)" "C:\Steam\steamapps\workshop\content\255710\408092246"</PostBuildEvent>
+=======
+>>>>>>> Stash
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

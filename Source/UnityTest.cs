@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-using TrafficReport;
+
 using System.IO;
 using System.Collections.Generic;
+
+using TrafficReport;
+using System;
 
 public class Test : MonoBehaviour {
 
@@ -28,13 +31,22 @@ public class Test : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		material = Resources.Load ("Materials/Line") as Material;
+		Debug.Log (DateTime.Now);
 
+
+		new GameObject ("GUI").AddComponent<QueryToolGUIBase> ();
+
+		material = new Material(ResourceLoader.loadResourceString("TransparentVertexLit.shader"));
+		material.color = new Color(1.0f, 0.0f, 0.0f, 0.3f);
+		material.SetColor("_Emission", new Color(1, 0, 0));
+		material.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials.NewSkin.png");
+
+		//material = new Material (;
+		//v.mainTexture = Texture.L//Resources.Load ("Assets/Resources/Materials/Line") as Material;
 
 
 		char[] sep = new char[]{' '};
 
-	
 	
 		
 		foreach(string line in File.ReadAllLines ("Assets/path1.txt")) { 
@@ -61,7 +73,7 @@ public class Test : MonoBehaviour {
 		pb = new PathMeshBuilder ();
 		pb.driveLane = -1;
 
-		/*points.Reverse ();
+		points.Reverse ();
 
 		pb.AddPoints (points.ToArray());
 		
@@ -71,7 +83,7 @@ public class Test : MonoBehaviour {
 		go.AddComponent<MeshRenderer> ();
 		go.GetComponent<MeshFilter> ().mesh = m;
 		go.GetComponent<MeshFilter>().sharedMesh = m;
-		go.GetComponent<Renderer> ().material = material;*/
+		go.GetComponent<Renderer> ().material = material;
 	
 	}
 
