@@ -169,10 +169,13 @@ namespace TrafficReport
 
         internal void OnGotReport(Report report)
         {
+#if DEBUG
+			report.Save ("report.xml");
+#endif
 
             base.ToolCursor = m_cursor;
 
-            foreach (Report.EntityInfo info in report.allEntities)
+            foreach (EntityInfo info in report.allEntities)
             {
                 VisualizePath(info.path);
             }
@@ -188,7 +191,7 @@ namespace TrafficReport
         }
 
 
-        private void VisualizePath(Vector3[] positions) {
+        private void VisualizePath(PathPoint[] positions) {
 
             lineMaterial.color = new Color(1, 0, 0, 1);
 
@@ -200,7 +203,14 @@ namespace TrafficReport
                 pb.driveLane = -1;
             }
 
-            pb.AddPoints(positions);
+
+			Vector3[] points = new Vector3[positions.Length];
+			for (int i=0; i < positions.Length; i++) {
+				points[i] = new Vector3(positions[i].x, positions[i].y, positions[i].z);
+			}
+
+
+            pb.AddPoints(points);
 
             Mesh m = pb.GetMesh();
             GameObject go = new GameObject(); ;

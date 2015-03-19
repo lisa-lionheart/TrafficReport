@@ -34,7 +34,8 @@ namespace TrafficReport
             Log.debug("Found resource: " + name);
             BinaryReader read = new BinaryReader(stream);
             return read.ReadBytes((int)stream.Length);
-
+#else
+			return null;
 #endif
         }
 
@@ -53,6 +54,8 @@ namespace TrafficReport
 
             StreamReader read = new StreamReader(stream);
             return read.ReadToEnd();
+#else	
+			return null;
 #endif
         }
 
@@ -75,6 +78,8 @@ namespace TrafficReport
             }
 
             return null;
+#else	
+			return null;
 #endif
         }
 

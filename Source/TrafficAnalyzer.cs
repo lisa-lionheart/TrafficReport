@@ -38,8 +38,8 @@ namespace TrafficReport
                     Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
 
-                    Report.EntityInfo info;
-                    info.type = Report.EntityType.Vehicle;
+                    EntityInfo info;
+                    info.type = EntityType.Vehicle;
                     info.path = this.GatherPathVerticies(vehicles[id].m_path);
 
                     Report report = new Report(info);
@@ -76,8 +76,8 @@ namespace TrafficReport
                     CitizenInstance[] citzens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
 
 
-                    Report.EntityInfo info;
-                    info.type = Report.EntityType.Citzen;
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
                     info.path = this.GatherPathVerticies(citzens[id].m_path);
 
                     Report report = new Report(info);
@@ -149,7 +149,7 @@ namespace TrafficReport
         private Report DoReportOnSegment(ushort segmentID)
         {
 
-            List<Report.EntityInfo> enities = new List<Report.EntityInfo>();
+            List<EntityInfo> enities = new List<EntityInfo>();
 
             Log.debug("Looking at vehicles...");
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
@@ -174,8 +174,8 @@ namespace TrafficReport
                 {
                     Log.info("Found vehicle on segemnt, getting path....");
 
-                    Report.EntityInfo info;
-                    info.type = Report.EntityType.Vehicle;
+                    EntityInfo info;
+                    info.type = EntityType.Vehicle;
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
                     enities.Add(info);
                 }
@@ -198,8 +198,8 @@ namespace TrafficReport
                 {
                     Log.info("Found citizen on segemnt, getting path....");
 
-                    Report.EntityInfo info;
-                    info.type = Report.EntityType.Citzen;
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
                     info.path = this.GatherPathVerticies(citzens[i].m_path);
                     enities.Add(info);
                     Log.info("Got Path");
@@ -215,7 +215,7 @@ namespace TrafficReport
 
         private Report DoReportOnBuilding(ushort buildingID)
         {
-            List<Report.EntityInfo> enities = new List<Report.EntityInfo>();
+            List<EntityInfo> enities = new List<EntityInfo>();
 
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
@@ -238,8 +238,8 @@ namespace TrafficReport
                 if (vehicles[i].m_sourceBuilding == buildingID || vehicles[i].m_targetBuilding == buildingID)
                 {
 
-                    Report.EntityInfo info;
-                    info.type = Report.EntityType.Citzen;
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
                     enities.Add(info);
                 }
@@ -278,9 +278,9 @@ namespace TrafficReport
             return Singleton<PathManager>.instance.m_pathUnits.m_buffer[id];
         }
 
-        Vector3[] GatherPathVerticies(uint pathID)
+		PathPoint[] GatherPathVerticies(uint pathID)
         {
-            List<Vector3> verts = new List<Vector3>();
+			List<PathPoint> path = new List<PathPoint>();
 
 			PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
 			NetSegment[] segments = netMan.m_segments.m_buffer;
@@ -307,7 +307,16 @@ namespace TrafficReport
                         Vector3 startPos = nodes[startNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_startDirection) * 5.0f); 
                         Vector3 endPos = nodes[endNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
 
-                        verts.Add(Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f)); 
+						Vector3 pv = Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f);
+
+						PathPoint newPoint;
+						newPoint.x = pv.x;
+						newPoint.y = pv.y;
+						newPoint.z = pv.z;
+						newPoint.segmentID = segment;
+
+						path.Add(newPoint);
+
                        // verts.Add(endPos);
                         //List<Vector3> segmentVerts = new List<Vector3>();
 
@@ -330,7 +339,7 @@ namespace TrafficReport
 				if (paths[pathID].m_nextPathUnit == 0)
                 {
                     //Log.debug("Done");
-                    return verts.ToArray();
+                    return path.ToArray();
                 }
 
 				pathID = paths[pathID].m_nextPathUnit;

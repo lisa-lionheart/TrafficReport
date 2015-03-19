@@ -14,6 +14,9 @@ namespace TrafficReport
       
     public class TrafficReportMod : LoadingExtensionBase, IUserMod
     {
+
+		QueryTool queryTool;
+
         public TrafficReportMod() {
 
             Assembly ass = Assembly.GetAssembly(typeof(TrafficReportMod));
@@ -34,53 +37,53 @@ namespace TrafficReport
         void DeRegister()
         {
             
-            //GameObject gameController = GameObject.FindWithTag("GameController");
-            //if (gameController)
-            //{
-            //    try
-            //    {
-            //        Component existing = gameController.GetComponent("TrafficReportMod");
-            //        if (existing)
-            //        {
-            //            Log.info("Query tool already registed, removing");
-            //            GameObject.Destroy(existing);
-            //        }
+            GameObject gameController = GameObject.FindWithTag("GameController");
+            if (gameController)
+            {
+                try
+                {
+                    Component existing = gameController.GetComponent("TrafficReportMod");
+                    if (existing)
+                    {
+                        Log.info("Query tool already registed, removing");
+                        GameObject.Destroy(existing);
+                    }
                     
-            //        GameObject existinggui = GameObject.FindGameObjectWithTag("QueryToolGUI");
-            //        if (existinggui)
-            //        {
-            //            Log.info("Query tool already registed, removing");
-            //            GameObject.Destroy(existinggui);
-            //        }
-            //    }
-            //    catch (UnityException)
-            //    {
-            //        Log.info("No gui exist yet");
-            //    }
+                    GameObject existinggui = GameObject.FindGameObjectWithTag("QueryToolGUI");
+                    if (existinggui)
+                    {
+                        Log.info("Query tool already registed, removing");
+                        GameObject.Destroy(existinggui);
+                    }
+                }
+                catch (UnityException)
+                {
+                    Log.info("No gui exist yet");
+                }
 
-            //}
+            }
         }
 
 
         void RegisterTool()
         {
 
-            //DeRegister(); 
+            DeRegister(); 
             
-            //try {
-            //    GameObject gameController = GameObject.FindWithTag("GameController");
-            //    if (gameController)
-            //    {
-            //        Log.debug(gameController.ToString());
-            //        gameController.AddComponent<QueryTool>();
-            //        ToolsModifierControl.SetTool<DefaultTool>();
+            try {
+                GameObject gameController = GameObject.FindWithTag("GameController");
+                if (gameController)
+                {
+                    Log.debug(gameController.ToString());
+                    queryTool = gameController.AddComponent<QueryTool>();
+                    ToolsModifierControl.SetTool<DefaultTool>();
 
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    Log.error(e.ToString());
-            //}
+                }
+            }
+            catch (Exception e)
+            {
+                Log.error(e.ToString());
+            }
         }
 
 
@@ -99,7 +102,7 @@ namespace TrafficReport
         {
             RegisterTool();
 
-            /*
+            
             UIView uiView = UIView.GetAView();
 
           
@@ -127,25 +130,25 @@ namespace TrafficReport
             button.pressedTextColor = new Color32(30, 30, 44, 255);
 
             // Place the button.
-            button.transformPosition = new Vector3(-1.65f, 0.97f);
+            //button.transformPosition = new Vector3(-1.65f, 0.97f);
 
             button.eventClick += toggleQueryTool;
-             * */
+           
         }
 
         void toggleQueryTool(UIComponent component, UIMouseEventParameter eventParam)
         {
-			/*
+
             if(ToolsModifierControl.toolController.CurrentTool == queryTool) {
                 ToolsModifierControl.SetTool<DefaultTool>();
-                button.normalBgSprite = "ButtonMenu";
+                //button.normalBgSprite = "ButtonMenu";
             }
             else
             {
                 Log.info("Selecting query tool");
                 ToolsModifierControl.toolController.CurrentTool = queryTool;
-                button.normalBgSprite = "ButtonMenuPressed";
-            }*/
+               // button.normalBgSprite = "ButtonMenuPressed";
+            }
         }
     }
 

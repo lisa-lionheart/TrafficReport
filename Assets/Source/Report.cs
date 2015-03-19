@@ -1,51 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace TrafficReport
 {
- //   [Serializable]
+	
+	[Serializable]
+	public enum EntityType {
+		Citzen,
+		Vehicle
+	}
+
+	[Serializable]
+	public struct PathPoint {
+		public float x,y,z;
+		public uint segmentID;
+	}
+	
+	[Serializable]
+	public struct EntityInfo
+	{
+		public EntityType type;
+		public PathPoint[] path;
+		//Mesh mesh; 
+		
+	}
+
+    [Serializable]
     class Report
     {
-        public enum EntityType {
-            Citzen,
-            Vehicle
-        }
-
-       // [Serializable]
-        public struct EntityInfo
-        {
-            public EntityType type;
-            public Vector3[] path;
-            //Mesh mesh; 
-
-        }
-
-        //public HashSet<uint> touchedSegments;
-
         public EntityInfo[] allEntities;
 
+		public Report(EntityInfo _info)
+		{
+			allEntities = new EntityInfo[]{_info};
+		}
 
         public Report(EntityInfo[] _info)
         {
             allEntities = _info;
         }
 
+        
 
-        public Report(EntityInfo _info)
+        public void Save(string name)
         {
-            allEntities = new EntityInfo[]{_info};
+			XmlSerializer xml = new XmlSerializer (typeof(Report));
+			xml.Serialize (new FileStream (name, FileMode.OpenOrCreate, FileAccess.Write),this);
         }
 
-        static void save(string name)
+        public static Report Load(string name)
         {
-
-        }
-
-        static Report load(string name)
-        {
-
-            return null;
+			XmlSerializer xml = new XmlSerializer (typeof(Report));
+			return xml.Deserialize(new FileStream(name, FileMode.Open, FileAccess.Read)) as Report;
         }
 
     }
