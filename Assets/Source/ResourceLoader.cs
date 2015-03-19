@@ -22,7 +22,7 @@ namespace TrafficReport
         public static byte[] loadResourceData(string name)
         {
 #if BuildingModDll
-            name = "TrafficReport.Assets." + name;
+            name = "TrafficReport.Assets." + name.Replace("\\",".");
 
             UnmanagedMemoryStream stream  = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
@@ -34,38 +34,20 @@ namespace TrafficReport
             Log.debug("Found resource: " + name);
             BinaryReader read = new BinaryReader(stream);
             return read.ReadBytes((int)stream.Length);
-#else
-			return null;
+#else             
+            string resolvedName = "Assets\\" + name;
+            Log.info("Loading: " + resolvedName);
+            return File.ReadAllBytes(resolvedName);
 #endif
         }
 
         public static string loadResourceString(string name)
         {
-            
-#if BuildingModDll
-            name = "TrafficReport.Assets." + name;
-
-            UnmanagedMemoryStream stream = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
-            if (stream == null)
-            {
-                Log.error("Could not find resource: " + name);
-                return null;
-            }
-
-            StreamReader read = new StreamReader(stream);
-            return read.ReadToEnd();
-#else	
-			return null;
-#endif
+           return System.Text.Encoding.UTF8.GetString(loadResourceData(name));
         }
-
-
-
 
         public static Texture2D loadTexture(int x, int y, string filename)
         {
-            
-#if BuildingModDll
             try
             {
                 Texture2D texture = new Texture2D(x,y);
@@ -78,9 +60,6 @@ namespace TrafficReport
             }
 
             return null;
-#else	
-			return null;
-#endif
         }
 
     }

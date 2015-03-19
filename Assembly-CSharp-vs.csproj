@@ -46,11 +46,16 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Common\Beizer.cs" />
-     <Compile Include="Assets\Common\CapsELineRenderer.cs" />
-     <Compile Include="Assets\Common\PathMeshBuilder.cs" />
+     <Compile Include="Assets\Source\Beizer.cs" />
+     <Compile Include="Assets\Source\Log.cs" />
+     <Compile Include="Assets\Source\PathMeshBuilder.cs" />
+     <Compile Include="Assets\Source\QueryToolGUIBase.cs" />
+     <Compile Include="Assets\Source\Report.cs" />
+     <Compile Include="Assets\Source\ResourceLoader.cs" />
+     <Compile Include="Assets\TestQueryToolGUI.cs" />
      <None Include="Assets\path1.txt" />
-     <None Include="Assets\TransparentVertexLit.shader" />
+     <None Include="Assets\report.xml" />
+     <None Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Data/UnityExtensions/Unity/GUISystem/4.6.3/UnityEngine.UI.dll</HintPath>
  </Reference>

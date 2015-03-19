@@ -46,8 +46,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Editor\Assets.cs" />
+     <Compile Include="Assets\Editor\AssetBundle.cs" />
      <None Include="Assets\path1.txt" />
+     <None Include="Assets\report.xml" />
      <None Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Data/UnityExtensions/Unity/GUISystem/4.6.3/UnityEngine.UI.dll</HintPath>
@@ -58,18 +59,10 @@
  <Reference Include="UnityEditor.Graphs">
  <HintPath>D:/Unity/Data/Managed/UnityEditor.Graphs.dll</HintPath>
  </Reference>
- <Reference Include="UnityTest">
- <HintPath>C:/Users/Lisa/Development/TrafficReport/Assets/UnityTest.dll</HintPath>
- </Reference>
- <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
- <HintPath>C:/Users/Lisa/Development/TrafficReport/Assets/UnityVS/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
- </Reference>
- <Reference Include="SyntaxTree.VisualStudio.Unity.Messaging">
- <HintPath>C:/Users/Lisa/Development/TrafficReport/Assets/UnityVS/Editor/SyntaxTree.VisualStudio.Unity.Messaging.dll</HintPath>
- </Reference>
- <Reference Include="UnityVS.VersionSpecific">
- <HintPath>C:/Users/Lisa/Development/TrafficReport/Assets/UnityVS/Editor/UnityVS.VersionSpecific.dll</HintPath>
- </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-vs.csproj">
+      <Project>{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}</Project>      <Name>Assembly-CSharp-vs</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

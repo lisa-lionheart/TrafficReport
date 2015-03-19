@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityVS.TrafficReport.CSharp", "UnityVS.TrafficReport.CSharp.csproj", "{E1997AEC-412E-C5E7-EF0E-94F85CF99D5A}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityVS.TrafficReport.CSharp.Editor", "UnityVS.TrafficReport.CSharp.Editor.csproj", "{DF480A6B-04DC-611B-D80A-87230B33D76E}"
 EndProject
 Global
@@ -9,6 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1997AEC-412E-C5E7-EF0E-94F85CF99D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1997AEC-412E-C5E7-EF0E-94F85CF99D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1997AEC-412E-C5E7-EF0E-94F85CF99D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1997AEC-412E-C5E7-EF0E-94F85CF99D5A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DF480A6B-04DC-611B-D80A-87230B33D76E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF480A6B-04DC-611B-D80A-87230B33D76E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF480A6B-04DC-611B-D80A-87230B33D76E}.Release|Any CPU.ActiveCfg = Release|Any CPU

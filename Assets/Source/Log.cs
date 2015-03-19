@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace TrafficReport
 {
@@ -19,32 +20,36 @@ namespace TrafficReport
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
+        public static void Write(string level, string message)
+        {
+
+#if BuildingModDll
+            logFile.WriteLine(level + ": " + message);
+            logFile.Flush();
+#else
+            Debug.Log(message);
+#endif
+        }
+
+        
         public static void error(string message)
         {
-            logFile.WriteLine("ERROR: " + message);
-            logFile.Flush();
+            Write("ERROR", message);
         }
-
-
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        
         public static void info(string message)
         {
-            logFile.WriteLine("INFO: " + message);
-            logFile.Flush();
+            Write("INFO", message);
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public static void debug(string message)
         {
-            logFile.WriteLine("DEBUG: " + message);
-            logFile.Flush();
+            Write("DEBUG", message);
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public static void warn(string message)
         {
-            logFile.WriteLine("WARN: " + message);
-            logFile.Flush();
+            Write("WARN", message);
         }
     }
 }

@@ -58,9 +58,6 @@
     <Reference Include="UnityEditor.Graphs">
       <HintPath>Library\UnityAssemblies\UnityEditor.Graphs.dll</HintPath>
     </Reference>
-    <Reference Include="UnityTest">
-      <HintPath>Assets\UnityTest.dll</HintPath>
-    </Reference>
     <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
       <HintPath>Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
@@ -72,7 +69,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Editor\Assets.cs" />
+    <ProjectReference Include="UnityVS.TrafficReport.CSharp.csproj">
+      <Project>{E1997AEC-412E-C5E7-EF0E-94F85CF99D5A}</Project>
+      <Name>UnityVS.TrafficReport.CSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\Editor\AssetBundle.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />

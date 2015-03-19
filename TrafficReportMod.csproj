@@ -1,102 +1,66 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DBC9A6EA-7B09-4DB2-B9E7-82BA18C26A7A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TrafficReport</RootNamespace>
-    <AssemblyName>TrafficReport</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <ProductVersion>8.0.30703</ProductVersion>
+    <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6F075CED-2C41-4008-B04E-7DD5557E5428}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TrafficReport</RootNamespace>
+    <AssemblyName>TrafficReportMod</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>.\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BuildingModDll</DefineConstants>
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report</OutputPath>
+    <DefineConstants>DEBUG;BuildingModDll</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="BeforeBuild" command="rm -f &quot;/Volumes/MoreSpace/Users/lisa/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrafficReport/TrafficReport.dll&quot;" />
-        <Command type="AfterBuild" command="cp -vf &quot;${TargetFile}&quot; &quot;/Volumes/MoreSpace/Users/lisa/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrafficReport&quot;" />
-      </CustomCommands>
-    </CustomCommands>
+    <ConsolePause>False</ConsolePause>
+    <NoStdLib>True</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>..\..\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+    <NoStdLib>True</NoStdLib>
+    <DefineConstants>BuildingModDll</DefineConstants>
   </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="Assets\Source\Report.cs" />
     <Compile Include="Source\AssemblyInfo.cs" />
+    <Compile Include="Source\ModMain.cs" />
+    <Compile Include="Source\NewGUI.cs" />
+    <Compile Include="Source\QueryTool.cs" />
+    <Compile Include="Source\TrafficAnalyzer.cs" />
     <Compile Include="Assets\Source\Beizer.cs" />
     <Compile Include="Assets\Source\Log.cs" />
-    <Compile Include="Source\ModMain.cs" />
     <Compile Include="Assets\Source\PathMeshBuilder.cs" />
-    <Compile Include="Source\QueryTool.cs" />
     <Compile Include="Assets\Source\QueryToolGUIBase.cs" />
+    <Compile Include="Assets\Source\Report.cs" />
     <Compile Include="Assets\Source\ResourceLoader.cs" />
-    <Compile Include="Source\TrafficAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="ColossalManaged, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
-    </Reference>
-    <Reference Include="ICities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Mono.Posix.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityScript.Lang, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityScript.Lang.dll</HintPath>
-    </Reference>
+    <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\Materials\Arrow.mat" />
-    <None Include="Assets\Materials\Line.mat" />
-    <None Include="Assets\Materials\NewSkin.mat" />
-    <EmbeddedResource Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />
-    <None Include="README.md" />
+    <None Include="Assets\path1.txt" />
+    <None Include="Assets\Materials\Shaders.meta" />
+    <None Include="Assets\Materials\Shaders\TransparentVertexLit.shader.meta" />
+    <None Include="Assets\UnityVS\Editor.meta" />
+    <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll" />
+    <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll.meta" />
+    <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Messaging.dll" />
+    <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Messaging.dll.meta" />
+    <None Include="Assets\UnityVS\Editor\UnityVS.VersionSpecific.dll" />
+    <None Include="Assets\UnityVS\Editor\UnityVS.VersionSpecific.dll.meta" />
+    <None Include="Assets\Source\UnityTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Materials\Button.active.png" />
@@ -104,18 +68,56 @@
     <EmbeddedResource Include="Assets\Materials\Cursor.png" />
     <EmbeddedResource Include="Assets\Materials\Hourglass.png" />
     <EmbeddedResource Include="Assets\Materials\NewSkin.png" />
+    <EmbeddedResource Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>del  "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report\TrafficReport.dll"
-xcopy /y /F "$(TargetPath)" "C:\Users\Lisa\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\Traffic Report"
-rem xcopy /y /F "$(TargetPath)" "C:\Steam\steamapps\workshop\content\255710\408092246"</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Configuration">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.Configuration.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\mscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Security">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Mono.Security.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Posix">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Mono.Posix.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ICities">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ColossalManaged">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.Xml.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

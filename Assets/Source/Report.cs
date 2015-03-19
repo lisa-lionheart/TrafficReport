@@ -29,9 +29,12 @@ namespace TrafficReport
 	}
 
     [Serializable]
-    class Report
+    public class Report
     {
         public EntityInfo[] allEntities;
+
+		public Report() {
+		}
 
 		public Report(EntityInfo _info)
 		{
@@ -47,8 +50,14 @@ namespace TrafficReport
 
         public void Save(string name)
         {
-			XmlSerializer xml = new XmlSerializer (typeof(Report));
+			Log.info ("Saving report");
+			try 
+			{
+			XmlSerializer xml = new XmlSerializer (GetType());
 			xml.Serialize (new FileStream (name, FileMode.OpenOrCreate, FileAccess.Write),this);
+			} catch(Exception e) {
+				Log.error("Error saving report" + e.ToString());
+			}
         }
 
         public static Report Load(string name)
