@@ -42,27 +42,35 @@ namespace TrafficReport
         public void Awake()
         {
 
-            icon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.png");
-            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.active.png");
+            icon = ResourceLoader.loadTexture(80, 80, "Materials/Button.png");
+            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials/Button.active.png");
 
 			Log.info("Load Line Material...");
 
 			Color red = new Color (1, 0, 0);
 			Color gold = new Color (1, 0.9f, 0);
 
-			lineMaterial = new Material(ResourceLoader.loadResourceString("Materials\\Shaders\\TransparentVertexLit.shader"));
+			lineMaterial = new Material(ResourceLoader.loadResourceString("Materials/Shaders/TransparentVertexLit.shader"));
 			lineMaterial.color = red;
 			lineMaterial.SetColor("_Emission", red);
-			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials\\NewSkin.png");
-
+			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials/NewSkin.png");
+			lineMaterial.renderQueue = 100;
 			
-			lineMaterialHighlight = new Material(ResourceLoader.loadResourceString("Materials\\Shaders\\TransparentVertexLit.shader"));
+			lineMaterialHighlight = new Material(ResourceLoader.loadResourceString("Materials/Shaders/TransparentVertexLit.shader"));
 			lineMaterialHighlight.color = gold;
 			lineMaterialHighlight.SetColor("_Emission", gold);
-			lineMaterialHighlight.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials\\NewSkin.png");
+			lineMaterialHighlight.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials/NewSkin.png");
+			lineMaterialHighlight.renderQueue = 101;
 
 			Log.debug ("Gui initialized");
         }
+
+		void Update() {
+			
+			//Animate the traffic lines
+			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
+			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
+		}
 
 		void OnGUI()
 		{
@@ -71,8 +79,6 @@ namespace TrafficReport
 				return;
 			}
 
-			//Animate the traffic lines
-			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 
 
 			//GUI.Label(new Rect(70, 150, 100, 30), "This is a test label");
@@ -169,14 +175,14 @@ namespace TrafficReport
 
 			if (segmentMap.ContainsKey(currentSegment)) {
 				foreach (uint index in segmentMap[currentSegment]) {
-					visualizations [index].transform.localPosition = new Vector3 (0, 3, 0);
+					//visualizations [index].transform.localPosition = new Vector3 (0, 3, 0);
 					visualizations [index].GetComponent<Renderer> ().material = lineMaterial;
 				}
 			}
 			
 			if (segmentMap.ContainsKey (segmentID)) {
 				foreach (uint index in segmentMap[segmentID]) {
-					visualizations [index].transform.localPosition = new Vector3 (0, 15, 0);
+					//visualizations [index].transform.localPosition = new Vector3 (0, 15, 0);
 					visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
 				}
 			}

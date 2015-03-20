@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{50E20769-F9A6-AE87-AE43-3FF915EF1012}") = "TrafficReport", "Assembly-CSharp-vs.csproj", "{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}"
 EndProject
-Project("{50E20769-F9A6-AE87-AE43-3FF915EF1012}") = "TrafficReport", "Assembly-CSharp-Editor-vs.csproj", "{5B5AC116-7815-B5C6-CD78-820C85CA21BB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,16 +13,12 @@ Global
 		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D66EBC5-6E87-BCB2-C6F2-5B6D5B12FC79}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B5AC116-7815-B5C6-CD78-820C85CA21BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B5AC116-7815-B5C6-CD78-820C85CA21BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B5AC116-7815-B5C6-CD78-820C85CA21BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B5AC116-7815-B5C6-CD78-820C85CA21BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-					GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Assembly-CSharp.csproj
+				GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TrafficReportMod.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.FileWidth = 120

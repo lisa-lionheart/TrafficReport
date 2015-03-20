@@ -10,7 +10,8 @@ namespace TrafficReport
 		public float width = 4f;
 		public float laneOffset = -2.0f;
 
-		public float curveRetractionFactor = 1.8f;
+		public float curveRetractionFactor = 2.0f;
+		public float lineScale = 0.5f;
 
 		public int driveLane = 1; // 1=rhd, -1 =lhd, 0=down the middle
 
@@ -65,9 +66,11 @@ namespace TrafficReport
 					Vector3 endDir = (nextEnd-nextStart).normalized;
 
 					float step = 0.2f;
-					for(float a = step ; a < 1.0f; a += step) {
+					for(float a = 0 ; a <= 1.0f; a += step) {
 						Vector3 point = Beizer.CalculateBezierPoint(a, p0,p1,p2,p3);
 						Vector3 fwd = Vector3.Lerp(startDir,endDir, a);
+
+						textureOffset = (a * width * curveRetractionFactor * lineScale)/ 2.0f;
 						AddVertexPair(point,fwd);
 					}
 				} 
@@ -113,7 +116,7 @@ namespace TrafficReport
 
 				float angle = (step * anglePerStep);
 
-				Vector3 p = new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
+				Vector3 p = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
 				verts.Add(point + (p*width*2));
 				uvs.Add (new Vector2 (0.5f, v2));
 			}
@@ -157,7 +160,10 @@ namespace TrafficReport
 
 			Vector3 fwd = (end - start).normalized;
 
+			textureOffset = 0;
 			AddVertexPair (start, fwd);
+
+			textureOffset = Mathf.Floor ((end - start).magnitude * lineScale / width);
 			AddVertexPair (end, fwd);
 
 		}
@@ -167,7 +173,7 @@ namespace TrafficReport
 
 			point += offset * ((float)driveLane * laneOffset);
 			
-			textureOffset += (point-lastPoint).magnitude * 2 / width;
+			//textureOffset += (point-lastPoint).magnitude * 2 / width;
 
 			verts.Add (point - offset * (width /2));              
 			verts.Add (point + offset * (width /2));
