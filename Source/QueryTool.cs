@@ -63,11 +63,11 @@ namespace TrafficReport
                 analyzer = new TrafficAnalyzer(this);
 
                 Log.info("Load Cursor...");
-                m_cursor = new CursorInfo();
+				m_cursor = CursorInfo.CreateInstance<CursorInfo>();
                 m_cursor.m_texture = ResourceLoader.loadTexture(128, 128, "Materials\\Cursor.png");
                 m_cursor.m_hotspot = new Vector2(42, 41);
 
-                loadingCursor = new CursorInfo();
+				loadingCursor = CursorInfo.CreateInstance<CursorInfo>();
                 loadingCursor.m_texture = ResourceLoader.loadTexture(64, 64, "Materials\\Hourglass.png");
 
                 Log.info("Create GUI...");

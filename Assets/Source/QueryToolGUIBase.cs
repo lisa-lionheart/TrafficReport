@@ -80,8 +80,8 @@ namespace TrafficReport
 				Log.debug (shader.name);
 			}*/
 
-            icon = ResourceLoader.loadTexture(80, 80, "Materials/Button.png");
-            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials/Button.active.png");
+            icon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.png");
+            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.active.png");
 
 			Log.info("Load Line Material...");
 
@@ -169,19 +169,30 @@ namespace TrafficReport
 			GUI.matrix = Matrix4x4.Scale (new Vector3 (s, s, s));
 
 			GUI.skin = uiSkin;
-			GUI.DrawTexture (buttonPos, toolActive ? activeIcon : icon);//
-			if(GUI.Button(buttonPos, "")) {
-				Log.info ("Toggling tool");
-				toolActive = !toolActive;
-			}
+
+			
+			try 
+			{
 
 
-			if (toolActive && currentReport != null) {
-
-				Rect r = GUILayout.Window (50199, new Rect (20, 100, 200, 100), ReportSummary, "All Selected");
-				if(segmentMap.ContainsKey(currentSegment)) {
-					GUILayout.Window (50198, new Rect (240,100, 200, 100), HighlightSummary, "Highlighted");
+				GUI.DrawTexture (buttonPos, toolActive ? activeIcon : icon);//
+				if(GUI.Button(buttonPos, "")) {
+					Log.info ("Toggling tool");
+					toolActive = !toolActive;
 				}
+
+
+				if (toolActive && currentReport != null) {
+
+					Rect r = GUILayout.Window (50199, new Rect (20, 100, 200, 100), ReportSummary, "All Selected");
+					if(segmentMap.ContainsKey(currentSegment)) {
+						GUILayout.Window (50198, new Rect (240,100, 200, 100), HighlightSummary, "Highlighted");
+					}
+				}
+			
+			}catch(Exception e) {
+				Log.error (e.Message);
+				Log.error(e.StackTrace);
 			}
 			
 			GUI.matrix = Matrix4x4.identity;
@@ -217,7 +228,18 @@ namespace TrafficReport
 
 		void HighlightSummary (int id)
 		{			
+			try 
+			{
 			GUILayout.Space (35);
+
+			if(!segmentMap.ContainsKey(currentSegment)) {
+				GUILayout.Label("No data");
+				GUILayout.Label("No data");
+				GUILayout.Label("No data");
+				GUILayout.Label("No data");
+				return;
+			}
+
 						
 			int remaining = segmentMap [currentSegment].Count;
 			foreach (VehicleDisplay t in vechicleTypes) {
@@ -240,7 +262,11 @@ namespace TrafficReport
 			}
 
 			GUILayout.Label ("Total: " + segmentMap[currentSegment].Count,totalStyle);
-			
+		
+			}catch(Exception e) {
+				Log.error (e.Message);
+				Log.error (e.StackTrace);
+			}
 		}
 
 		public void SetReport(Report report) {
