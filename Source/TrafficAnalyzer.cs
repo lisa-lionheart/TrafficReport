@@ -9,12 +9,6 @@ namespace TrafficReport
 {
     class TrafficAnalyzer 
     {
-        public struct Report
-        {
-            public List<Vector3[]> paths;
-        }
-
-
         VehicleManager vehicleManager = Singleton<VehicleManager>.instance;
         NetManager netMan = Singleton<NetManager>.instance;
         QueryTool tool;
@@ -42,12 +36,17 @@ namespace TrafficReport
                 try
                 {
                     Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
-					Vector3[] path = this.GatherPathVerticies(vehicles[id].m_path);
 
-                    this.DumpPath(path);
+
+                    EntityInfo info;
+                    info.type = EntityType.Vehicle;
+                    info.path = this.GatherPathVerticies(vehicles[id].m_path);
+					info.serviceType = vehicles[id].Info.GetService().ToString() + "/" +  vehicles[id].Info.GetSubService().ToString();
+
+                    Report report = new Report(info);
 
                     working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotSinglePathReport(path));
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
 
                 }
                 catch (Exception e)
@@ -77,12 +76,16 @@ namespace TrafficReport
                 {
                     CitizenInstance[] citzens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
 
-                    Vector3[] path = this.GatherPathVerticies(citzens[id].m_path);
 
-                    this.DumpPath(path);
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
+                    info.path = this.GatherPathVerticies(citzens[id].m_path);
+					info.serviceType = "citzen";
+
+                    Report report = new Report(info);
 
                     working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotSinglePathReport(path));
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
 
                 }
                 catch (Exception e)
@@ -109,7 +112,7 @@ namespace TrafficReport
                 {
                     Report report = this.DoReportOnSegment(segmentID);
                     working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotSegmentReport(report));
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
                 }
                 catch (Exception e)
                 {
@@ -135,7 +138,7 @@ namespace TrafficReport
                 {
                     Report report = this.DoReportOnBuilding(buildingID);
                     working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotBuildingReport(report));
+                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
                 }
                 catch (Exception e)
                 {
@@ -147,8 +150,8 @@ namespace TrafficReport
 
         private Report DoReportOnSegment(ushort segmentID)
         {
-            Report report;
-            report.paths = new List<Vector3[]>();
+
+            List<EntityInfo> enities = new List<EntityInfo>();
 
             Log.debug("Looking at vehicles...");
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
@@ -172,9 +175,13 @@ namespace TrafficReport
                 if (this.PathContainsSegment(vehicles[i].m_path, segmentID))
                 {
                     Log.info("Found vehicle on segemnt, getting path....");
-                    Vector3[] path = this.GatherPathVerticies(vehicles[i].m_path);
-                    report.paths.Add(path);
-                    Log.info("Got Path");
+
+                    EntityInfo info;
+                    info.type = EntityType.Vehicle;
+                    info.path = this.GatherPathVerticies(vehicles[i].m_path);
+					
+					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
+                    enities.Add(info);
                 }
             }
 
@@ -194,8 +201,12 @@ namespace TrafficReport
                 if (this.PathContainsSegment(citzens[i].m_path, segmentID))
                 {
                     Log.info("Found citizen on segemnt, getting path....");
-                    Vector3[] path = this.GatherPathVerticies(citzens[i].m_path);
-                    report.paths.Add(path);
+
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
+                    info.path = this.GatherPathVerticies(citzens[i].m_path);
+					info.serviceType = "citizen";
+                    enities.Add(info);
                     Log.info("Got Path");
                 }
 
@@ -203,13 +214,13 @@ namespace TrafficReport
 
             Log.debug("End DoReportOnSegment");
 
-            return report;
+            return new Report(enities.ToArray());
+            
         }
 
         private Report DoReportOnBuilding(ushort buildingID)
         {
-            Report report;
-            report.paths = new List<Vector3[]>();
+            List<EntityInfo> enities = new List<EntityInfo>();
 
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
@@ -232,16 +243,18 @@ namespace TrafficReport
                 if (vehicles[i].m_sourceBuilding == buildingID || vehicles[i].m_targetBuilding == buildingID)
                 {
 
-                    //Log.info("Found vehicle associated with building, getting path....");
-                    Vector3[] path = this.GatherPathVerticies(vehicles[i].m_path);
-                    report.paths.Add(path);
-                    //Log.info("Got Path");
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
+                    info.path = this.GatherPathVerticies(vehicles[i].m_path);
+					
+					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
+                    enities.Add(info);
                 }
             }
 
            // Log.debug("End DoReportOnSegment");
 
-            return report;
+            return new Report(enities.ToArray());
         }
 
         private bool PathContainsSegment(uint pathID, ushort segmentID)
@@ -272,9 +285,9 @@ namespace TrafficReport
             return Singleton<PathManager>.instance.m_pathUnits.m_buffer[id];
         }
 
-        Vector3[] GatherPathVerticies(uint pathID)
+		PathPoint[] GatherPathVerticies(uint pathID)
         {
-            List<Vector3> verts = new List<Vector3>();
+			List<PathPoint> path = new List<PathPoint>();
 
 			PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
 			NetSegment[] segments = netMan.m_segments.m_buffer;
@@ -301,7 +314,16 @@ namespace TrafficReport
                         Vector3 startPos = nodes[startNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_startDirection) * 5.0f); 
                         Vector3 endPos = nodes[endNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
 
-                        verts.Add(Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f)); 
+						Vector3 pv = Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f);
+
+						PathPoint newPoint;
+						newPoint.x = pv.x;
+						newPoint.y = pv.y;
+						newPoint.z = pv.z;
+						newPoint.segmentID = segment;
+
+						path.Add(newPoint);
+
                        // verts.Add(endPos);
                         //List<Vector3> segmentVerts = new List<Vector3>();
 
@@ -324,7 +346,7 @@ namespace TrafficReport
 				if (paths[pathID].m_nextPathUnit == 0)
                 {
                     //Log.debug("Done");
-                    return verts.ToArray();
+                    return path.ToArray();
                 }
 
 				pathID = paths[pathID].m_nextPathUnit;
