@@ -80,8 +80,8 @@ namespace TrafficReport
 				Log.debug (shader.name);
 			}*/
 
-            icon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.png");
-            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.active.png");
+            icon = ResourceLoader.loadTexture(80, 80, "Materials/Button.png");
+            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials/Button.active.png");
 
 			Log.info("Load Line Material...");
 
@@ -315,6 +315,7 @@ namespace TrafficReport
 
 			if (segmentMap.ContainsKey(currentSegment)) {
 				foreach (uint index in segmentMap[currentSegment]) {
+
 					visualizations [index].GetComponent<Renderer> ().material = lineMaterial;
 				}
 			}

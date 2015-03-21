@@ -17,8 +17,15 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-			GlobalSection(MonoDevelopProperties) = preSolution
+					GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
+=======
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+			GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TrafficReportMod.csproj
+>>>>>>> b338e0e988c839164553b6e9adedc91dccb79b69
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.FileWidth = 120

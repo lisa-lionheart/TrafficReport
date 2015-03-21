@@ -22,7 +22,7 @@ namespace TrafficReport
         public static byte[] loadResourceData(string name)
         {
 #if BuildingModDll
-            name = "TrafficReport.Assets." + name.Replace("\\",".");
+            name = "TrafficReport.Assets." + name.Replace("/",".");
 
             UnmanagedMemoryStream stream  = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)
@@ -35,7 +35,7 @@ namespace TrafficReport
             BinaryReader read = new BinaryReader(stream);
             return read.ReadBytes((int)stream.Length);
 #else             
-            string resolvedName = "Assets\\" + name;
+            string resolvedName = "Assets/" + name;
             Log.info("Loading: " + resolvedName);
             return File.ReadAllBytes(resolvedName);
 #endif

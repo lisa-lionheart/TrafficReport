@@ -1,4 +1,0 @@
-4.6.3f1:1.9.8.0
-D:/Unity/Data/UnityExtensions/Unity/GUISystem/4.6.3/UnityEngine.UI.dll
-D:/Unity/Data/UnityExtensions/Unity/GUISystem/4.6.3/Editor/UnityEditor.UI.dll
-D:/Unity/Data/Managed/UnityEditor.Graphs.dll

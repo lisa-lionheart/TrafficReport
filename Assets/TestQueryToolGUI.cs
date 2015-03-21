@@ -11,7 +11,7 @@ public class TestQueryToolGUI : QueryToolGUIBase {
 	// Use this for initialization
 	void Start () {
 
-		Report r = Report.Load ("Assets//report.xml");
+		Report r = Report.Load ("Assets/report.xml");
 	
 		SetReport (r);
 		SetSegmentHighlight (23080);
