@@ -99,6 +99,8 @@ namespace TrafficReport
         public override void OnLevelLoaded(LoadMode mode)
         {
             RegisterTool();
+
+
            
         }
 

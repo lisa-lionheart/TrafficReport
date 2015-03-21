@@ -31,3 +31,7 @@ Known Issues:
 
 - The chirpy exterminator mod puts a button at the same location, please disable it see the button 
 - Cargo trucks leaving depots are not included, cargo trucks from factories are. 
+
+Please consider sending a couple of bucks our way if you have found this mod useful: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=W7655H36D5MN6 
+
+Source code: https://github.com/lisa-lionheart/TrafficReport

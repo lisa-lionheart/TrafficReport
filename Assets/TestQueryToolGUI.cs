@@ -5,6 +5,9 @@ using TrafficReport;
 
 public class TestQueryToolGUI : QueryToolGUIBase {
 
+
+
+
 	// Use this for initialization
 	void Start () {
 
@@ -12,6 +15,9 @@ public class TestQueryToolGUI : QueryToolGUIBase {
 	
 		SetReport (r);
 		SetSegmentHighlight (23080);
+
 	}
+
+
 
 }

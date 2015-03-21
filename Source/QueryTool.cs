@@ -34,7 +34,7 @@ namespace TrafficReport
                 {
                     ToolsModifierControl.toolController.CurrentTool = queryTool;
                 } else {
-                    ToolsModifierControl.SetTool<DefaultTool>();
+					ToolsModifierControl.SetTool<DefaultTool>();
                 }
             }
         }
@@ -86,10 +86,7 @@ namespace TrafficReport
 
         protected override void OnToolGUI()
         {
-
-            
-
-            if (this.m_toolController.IsInsideUI)
+			if (this.m_toolController.IsInsideUI)
             {
                 return;
             }
@@ -141,6 +138,8 @@ namespace TrafficReport
 				
 				if (hoverInstance.Type == InstanceType.NetSegment) {
 					gui.SetSegmentHighlight ((uint)hoverInstance.NetSegment);
+				} else {
+					gui.SetSegmentHighlight(0);
 				}
 			}
             base.OnToolGUI();

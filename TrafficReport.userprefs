@@ -1,32 +1,22 @@
 ﻿<Properties GitUserInfo="UsingGIT">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="c:\Users\Lisa\Development\TrafficReport\Source\ModMain.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Source\QueryToolGUIBase.cs">
     <Files>
-      <File FileName="c:\Users\Lisa\Development\TrafficReport\Source\ModMain.cs" Line="91" Column="28" />
-      <File FileName="c:\Users\Lisa\Development\TrafficReport\Assets\Editor\AssetBundle.cs" Line="7" Column="7" />
-      <File FileName="c:\Users\Lisa\Development\TrafficReport\Assets\Source\Report.cs" Line="34" Column="9" />
-      <File FileName="Assets\Source\ResourceLoader.cs" Line="35" Column="58" />
-      <File FileName="Source\QueryTool.cs" Line="75" Column="38" />
-      <File FileName="Assets\Source\Log.cs" Line="27" Column="39" />
-      <File FileName="Assets\Source\QueryToolGUIBase.cs" Line="36" Column="3" />
-      <File FileName="Assets\TestQueryToolGUI.cs" Line="14" Column="31" />
-      <File FileName="Assets\report.xml" Line="107" Column="27" />
-      <File FileName="Source\TrafficAnalyzer.cs" Line="30" Column="32" />
+      <File FileName="Assets\Reference.cs" Line="24" Column="1" />
+      <File FileName="Source\QueryTool.cs" Line="163" Column="10" />
+      <File FileName="Assets\Source\Log.cs" Line="1" Column="1" />
+      <File FileName="Assets\Source\QueryToolGUIBase.cs" Line="109" Column="44" />
+      <File FileName="Assets\TestQueryToolGUI.cs" Line="24" Column="1" />
+      <File FileName="Assets\report.xml" Line="1" Column="1" />
+      <File FileName="Source\TrafficAnalyzer.cs" Line="262" Column="41" />
+      <File FileName="Source\AssemblyInfo.cs" Line="1" Column="1" />
+      <File FileName="Assets\Source\PathMeshBuilder.cs" Line="173" Column="36" />
+      <File FileName="Assets\Materials\Shaders\TransparentVertexLit.shader" Line="46" Column="8" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Source" expanded="True" />
-          </Node>
-          <Node name="Assembly-CSharp-Editor" expanded="True">
-            <Node name="Editor" expanded="True" />
-          </Node>
-          <Node name="TrafficReportMod" expanded="True">
-            <Node name="Source" expanded="True">
-              <Node name="ModMain.cs" selected="True" />
-            </Node>
-          </Node>
+          <Node name="TrafficReport" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>

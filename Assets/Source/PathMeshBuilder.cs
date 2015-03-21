@@ -65,9 +65,12 @@ namespace TrafficReport
 					Vector3 endDir = (nextEnd-nextStart).normalized;
 
 					float step = 0.2f;
-					for(float a = step ; a < 1.0f; a += step) {
+					textureOffset = 0;
+					for(float a = 0 ; a <= 1.0f; a += step) {
 						Vector3 point = Beizer.CalculateBezierPoint(a, p0,p1,p2,p3);
 						Vector3 fwd = Vector3.Lerp(startDir,endDir, a);
+
+						textureOffset += step;
 						AddVertexPair(point,fwd);
 					}
 				} 
@@ -157,7 +160,9 @@ namespace TrafficReport
 
 			Vector3 fwd = (end - start).normalized;
 
+			textureOffset = 0;
 			AddVertexPair (start, fwd);
+			textureOffset = Mathf.Floor((end - start).magnitude / (width * 2));
 			AddVertexPair (end, fwd);
 
 		}
@@ -167,7 +172,7 @@ namespace TrafficReport
 
 			point += offset * ((float)driveLane * laneOffset);
 			
-			textureOffset += (point-lastPoint).magnitude * 2 / width;
+			//textureOffset += (point-lastPoint).magnitude * 2 / width;
 
 			verts.Add (point - offset * (width /2));              
 			verts.Add (point + offset * (width /2));

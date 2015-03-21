@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Reference.cs" />
     <Compile Include="Assets\Source\Beizer.cs" />
     <Compile Include="Assets\Source\Log.cs" />
     <Compile Include="Assets\Source\PathMeshBuilder.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="Assets\Source\Report.cs" />
     <Compile Include="Assets\Source\ResourceLoader.cs" />
     <Compile Include="Assets\TestQueryToolGUI.cs" />
+    <None Include="Assets\Materials\Shaders\Normal-VertexLit.shader" />
     <None Include="Assets\path1.txt" />
     <None Include="Assets\report.xml" />
     <None Include="Assets\Materials\Shaders\TransparentVertexLit.shader" />

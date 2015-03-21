@@ -41,6 +41,7 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Vehicle;
                     info.path = this.GatherPathVerticies(vehicles[id].m_path);
+					info.serviceType = vehicles[id].Info.GetService().ToString() + "/" +  vehicles[id].Info.GetSubService().ToString();
 
                     Report report = new Report(info);
 
@@ -79,6 +80,7 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Citzen;
                     info.path = this.GatherPathVerticies(citzens[id].m_path);
+					info.serviceType = "citzen";
 
                     Report report = new Report(info);
 
@@ -177,6 +179,8 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Vehicle;
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
+					
+					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
                     enities.Add(info);
                 }
             }
@@ -201,6 +205,7 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Citzen;
                     info.path = this.GatherPathVerticies(citzens[i].m_path);
+					info.serviceType = "citizen";
                     enities.Add(info);
                     Log.info("Got Path");
                 }
@@ -241,6 +246,8 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Citzen;
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
+					
+					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
                     enities.Add(info);
                 }
             }

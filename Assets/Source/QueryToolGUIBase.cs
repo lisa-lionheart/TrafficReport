@@ -5,6 +5,11 @@ using System.Collections.Generic;
 
 namespace TrafficReport
 {
+	struct VehicleDisplay {
+		public string id;
+		public string display;
+	}
+
 	public class QueryToolGUIBase : MonoBehaviour
 	{
 		Texture icon;
@@ -17,18 +22,45 @@ namespace TrafficReport
 		Material lineMaterialHighlight;
 
 		Dictionary<uint,HashSet<uint>> segmentMap; //Map segment to paths
+		Dictionary<string, HashSet<uint>> typeMap;
 
 		Report currentReport;
 		uint currentSegment;
 
+		public GUISkin uiSkin;
+		public GUIStyle totalStyle;
+		public GUIStyle buttonStyle;
+
 		public bool leftHandDrive;
 
+		static VehicleDisplay[] vechicleTypes = {
+			new VehicleDisplay { id =  "citizen", display = "Pedestrian" },
+
+			new VehicleDisplay { id =  "Residential/ResidentialLow", display = "Car" },
+
+			new VehicleDisplay { id =  "Industrial/IndustrialGeneric", display = "Cargo truck" },
+			new VehicleDisplay { id =  "Industrial/IndustrialOil", display = "Oil Tanker" },
+			new VehicleDisplay { id =  "Industrial/IndustrialOre", display = "Ore Truck" },
+			new VehicleDisplay { id =  "Industrial/IndustrialForestry", display = "Log Truck" },
+			new VehicleDisplay { id =  "Industrial/IndustrialFarming", display = "Tractor" },
+
+			new VehicleDisplay { id =  "HealthCare/None", display = "Ambulance" },
+			new VehicleDisplay { id =  "Garbage/None", display = "Garbage Truck" },
+			new VehicleDisplay { id =  "PoliceDepartment/None", display = "Police Car" },
+			new VehicleDisplay { id =  "FireDepartment/None", display = "Fire truck" },
+
+			
+			new VehicleDisplay { id =  "PublicTransport/PublicTransportBus", display = "Bus" },
+
+		};
+
+
 		public QueryToolGUIBase()
-		{    
+		{   
 		}
 
 		public virtual bool toolActive {
-			get { return false; }
+			get { return true; }
 			set  { 
 				Log.error("Function not overidden");
 			}
@@ -41,6 +73,12 @@ namespace TrafficReport
 
         public void Awake()
         {
+			/*
+			Log.debug ("Listing shaders");
+			Shader[] shaders = (Shader[])Resources.FindObjectsOfTypeAll (typeof(Shader));
+			foreach(Shader shader in shaders) {
+				Log.debug (shader.name);
+			}*/
 
             icon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.png");
             activeIcon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.active.png");
@@ -50,71 +88,168 @@ namespace TrafficReport
 			Color red = new Color (1, 0, 0);
 			Color gold = new Color (1, 0.9f, 0);
 
-			lineMaterial = new Material(ResourceLoader.loadResourceString("Materials\\Shaders\\TransparentVertexLit.shader"));
+			//string shader = ResourceLoader.loadResourceString ("Materials\\Shaders\\Normal-VertexLit.shader");
+			string lineShader = ResourceLoader.loadResourceString ("Materials\\Shaders\\TransparentVertexLit.shader");
+			/*Shader lineShader = null;
+
+			try {
+				lineShader = Shader.Find("Legacy Shaders/VertexLit");
+			}catch(Exception e) {
+				Log.error(e.Message);
+			}
+
+			try {
+				if(lineShader == null) lineShader =  Shader.Find("Transparent/VertexLit");
+			}catch(Exception e) {
+				Log.error(e.Message);
+			}*/
+
+			lineMaterial = new Material (lineShader);
 			lineMaterial.color = red;
 			lineMaterial.SetColor("_Emission", red);
 			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials\\NewSkin.png");
-
+			lineMaterial.renderQueue = 100;
 			
-			lineMaterialHighlight = new Material(ResourceLoader.loadResourceString("Materials\\Shaders\\TransparentVertexLit.shader"));
+			lineMaterialHighlight = new Material (lineMaterial);
 			lineMaterialHighlight.color = gold;
 			lineMaterialHighlight.SetColor("_Emission", gold);
-			lineMaterialHighlight.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials\\NewSkin.png");
+			lineMaterial.renderQueue = 101;
+
+
+			MakeSkin ();
 
 			Log.debug ("Gui initialized");
         }
 
-		void OnGUI()
-		{
-			if (!guiVisible)
-			{
-				return;
-			}
+		void MakeSkin() {
 
-			//Animate the traffic lines
-			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
+			Color highlight = new Color (20.0f / 255, 207.0f / 255, 248.0f / 255);
 
+			uiSkin = GUISkin.CreateInstance<GUISkin>();
+			uiSkin.window.normal.background = ResourceLoader.loadTexture(32, 32, "Materials\\UIbg.png");
+			uiSkin.window.border = new RectOffset (16, 16, 16, 16);
+			uiSkin.window.padding = new RectOffset (12, 8, 8, 12);
 
-			//GUI.Label(new Rect(70, 150, 100, 30), "This is a test label");
-			/*
-			if (lastWidth != Screen.width)
-			{
-				//Built for 144p scale up or down as appropriate
-				float scale = Screen.width / 2560.0f;
-				buttonPos = new Rect(80 * scale, 5 * scale, 80 * scale, 80 * scale);
-				lastWidth = Screen.width;
-			}*/
+			uiSkin.window.normal.textColor = highlight;
+			uiSkin.window.alignment = TextAnchor.UpperCenter;
+			uiSkin.window.fontSize = 30;
+			uiSkin.window.fontStyle = FontStyle.Bold;
 
-			GUI.matrix = Matrix4x4.Scale (Vector3.one * Screen.width / 2560.0f);
+			uiSkin.window.onNormal = uiSkin.window.normal;
+			uiSkin.window.onFocused = uiSkin.window.onNormal;
+			uiSkin.window.onHover = uiSkin.window.onNormal;
+			uiSkin.window.onActive = uiSkin.window.onNormal;
 
-			if (toolActive)
-			{
-				GUI.DrawTexture(buttonPos, activeIcon);
-                if(GUI.Button(buttonPos," ",GUIStyle.none)) {
-					Log.info ("Selecting default tool");
-					toolActive = false;
-				}
-			}
-			else
-			{
-				GUI.DrawTexture(buttonPos, icon);
-				if (GUI.Button(buttonPos, " " , GUIStyle.none))
-				{
-					Log.info("Selecting query tool");
-					toolActive = true;
-				}
-			}
+			uiSkin.label.normal.textColor = Color.white;
+			uiSkin.label.fontSize = 18;
+			uiSkin.label.fontStyle = FontStyle.Bold;
+			uiSkin.label.padding = new RectOffset (0, 0, 5, 5);
 
+			totalStyle = new GUIStyle (uiSkin.label);
+			totalStyle.normal.textColor = highlight;
+			totalStyle.fontSize = 20;
+			totalStyle.fontStyle = FontStyle.Bold;
 
-			GUI.matrix = Matrix4x4.identity;
 
 		}
 
+		void Update() {
+			//Animate the traffic lines
+			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
+			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
+
+		}
+
+		public void OnGUI()
+		{
+			if (!guiVisible)
+				return;
+
+			float s = Screen.height / 1440.0f;
+			GUI.matrix = Matrix4x4.Scale (new Vector3 (s, s, s));
+
+			GUI.skin = uiSkin;
+			GUI.DrawTexture (buttonPos, toolActive ? activeIcon : icon);//
+			if(GUI.Button(buttonPos, "")) {
+				Log.info ("Toggling tool");
+				toolActive = !toolActive;
+			}
+
+
+			if (toolActive && currentReport != null) {
+
+				Rect r = GUILayout.Window (50199, new Rect (20, 100, 200, 100), ReportSummary, "All Selected");
+				if(segmentMap.ContainsKey(currentSegment)) {
+					GUILayout.Window (50198, new Rect (240,100, 200, 100), HighlightSummary, "Highlighted");
+				}
+			}
+			
+			GUI.matrix = Matrix4x4.identity;
+			GUI.skin = null;
+
+		}
+
+		void ReportSummary (int id)
+		{			
+
+			GUILayout.Space (35);
+			
+			int remaining = currentReport.allEntities.Length;
+			foreach (VehicleDisplay t in vechicleTypes) {
+
+				int count = 0;
+				if(typeMap.ContainsKey(t.id))
+					count = typeMap[t.id].Count;
+
+				remaining -= count;
+				if(count > 0) {
+					GUILayout.Label (t.display + ": " + count);
+				}
+			}
+			
+			if(remaining > 0) {
+				GUILayout.Label ("Other: " + remaining);
+			}
+
+			GUILayout.Label ("Total: " + currentReport.allEntities.Length,totalStyle);
+
+		}
+
+		void HighlightSummary (int id)
+		{			
+			GUILayout.Space (35);
+						
+			int remaining = segmentMap [currentSegment].Count;
+			foreach (VehicleDisplay t in vechicleTypes) {
+				
+				int count = 0;
+				foreach(uint e in  segmentMap[currentSegment]){
+					if(currentReport.allEntities[e].serviceType == t.id) {
+						count++;
+						remaining--;
+					}
+				}
+			
+				if(count > 0) {
+					GUILayout.Label (t.display + ": " + count);
+				}
+			}
+
+			if(remaining > 0) {
+				GUILayout.Label ("Other: " + remaining);
+			}
+
+			GUILayout.Label ("Total: " + segmentMap[currentSegment].Count,totalStyle);
+			
+		}
 
 		public void SetReport(Report report) {
 
 			if (visualizations != null) {
 				RemoveAllPaths();
+				currentReport = null;
+				segmentMap = null;
+				typeMap = null;
 			}
 
 			if (report == null || report.allEntities == null) {
@@ -135,15 +270,16 @@ namespace TrafficReport
 				alpha = 1;
 			}
 			
-			//lineMaterial.color = new Color(1, 0, 0, alpha);
+			lineMaterial.color = new Color(1, 0, 0, alpha);
 
-			GenerateSegmentMap (report);
+			GenerateMaps (report);
 
 			currentReport = report;
 		}
 
-		private void GenerateSegmentMap(Report report) {
+		private void GenerateMaps(Report report) {
 			segmentMap = new Dictionary<uint,HashSet<uint>> ();
+			typeMap = new Dictionary<string, HashSet<uint>> ();
 
 			for (uint i =0; i < report.allEntities.Length; i++) {
 				foreach(PathPoint p in report.allEntities[i].path) {
@@ -154,7 +290,17 @@ namespace TrafficReport
 
 					segmentMap[p.segmentID].Add(i);
 				}
+
+				string t = report.allEntities[i].serviceType;
+				if(t == null){
+					continue;
+				}
+				if(!typeMap.ContainsKey(t)){
+					typeMap[t] = new HashSet<uint>();
+				}
+				typeMap[t].Add(i);
 			}
+
 		}
 
 		public void SetSegmentHighlight(uint segmentID){
@@ -169,14 +315,12 @@ namespace TrafficReport
 
 			if (segmentMap.ContainsKey(currentSegment)) {
 				foreach (uint index in segmentMap[currentSegment]) {
-					visualizations [index].transform.localPosition = new Vector3 (0, 3, 0);
 					visualizations [index].GetComponent<Renderer> ().material = lineMaterial;
 				}
 			}
 			
 			if (segmentMap.ContainsKey (segmentID)) {
 				foreach (uint index in segmentMap[segmentID]) {
-					visualizations [index].transform.localPosition = new Vector3 (0, 15, 0);
 					visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
 				}
 			}

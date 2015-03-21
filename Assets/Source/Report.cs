@@ -24,6 +24,8 @@ namespace TrafficReport
 	{
 		public EntityType type;
 		public PathPoint[] path;
+
+		public string serviceType;
 		//Mesh mesh; 
 		
 	}
@@ -45,8 +47,7 @@ namespace TrafficReport
         {
             allEntities = _info;
         }
-
-        
+		       
 
         public void Save(string name)
         {
