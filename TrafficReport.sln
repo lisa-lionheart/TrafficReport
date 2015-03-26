@@ -17,8 +17,13 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+<<<<<<< Updated upstream
 			GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = TrafficReport.csproj
+=======
+							GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+>>>>>>> Stashed changes
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.FileWidth = 120
