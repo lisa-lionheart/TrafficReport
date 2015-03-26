@@ -12,30 +12,6 @@ namespace TrafficReport
 		public string display;
 	}
 
-	[Serializable]
-	public class Config {
-		public Rect buttonPos  = new Rect(80, 5, 80, 80);
-
-
-		public static Config Load() {
-			try {
-				XmlSerializer xml = new XmlSerializer (typeof(Config));
-				return xml.Deserialize(new FileStream("TrafficReport.xml", FileMode.Open, FileAccess.Read)) as Config;
-			}catch(Exception e) {
-				return new Config();
-			}
-		}
-
-		public void Save() {
-			try 
-			{
-				XmlSerializer xml = new XmlSerializer (GetType());
-				xml.Serialize (new FileStream ("TrafficReport.xml", FileMode.OpenOrCreate, FileAccess.Write),this);
-			} catch(Exception e) {
-				Log.error("Error saving config" + e.ToString());
-			}
-		}
-	}
 
 	public class QueryToolGUIBase : MonoBehaviour
 	{
@@ -315,7 +291,8 @@ namespace TrafficReport
 				GUILayout.Label ("Other: " + remaining);
 			}
 
-			GUILayout.Label ("Total: " + segmentMap[currentSegment].Count,totalStyle);
+			int percent = segmentMap[currentSegment].Count * 100 / currentReport.allEntities.Length;
+			GUILayout.Label ("Total: " + segmentMap[currentSegment].Count+ "     " + percent + "%",totalStyle );
 		
 			}catch(Exception e) {
 				Log.error (e.Message);
