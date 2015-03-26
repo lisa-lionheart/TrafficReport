@@ -18,9 +18,12 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = TrafficReport.csproj
 =======
+=======
+>>>>>>> Stashed changes
 							GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 >>>>>>> Stashed changes
