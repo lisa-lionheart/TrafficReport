@@ -2,6 +2,8 @@
 using UnityEngine;
 using TrafficReport;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace TrafficReport
 {
@@ -10,11 +12,37 @@ namespace TrafficReport
 		public string display;
 	}
 
+	[Serializable]
+	public class Config {
+		public Rect buttonPos  = new Rect(80, 5, 80, 80);
+
+
+		public static Config Load() {
+			try {
+				XmlSerializer xml = new XmlSerializer (typeof(Config));
+				return xml.Deserialize(new FileStream("TrafficReport.xml", FileMode.Open, FileAccess.Read)) as Config;
+			}catch(Exception e) {
+				return new Config();
+			}
+		}
+
+		public void Save() {
+			try 
+			{
+				XmlSerializer xml = new XmlSerializer (GetType());
+				xml.Serialize (new FileStream ("TrafficReport.xml", FileMode.OpenOrCreate, FileAccess.Write),this);
+			} catch(Exception e) {
+				Log.error("Error saving config" + e.ToString());
+			}
+		}
+	}
+
 	public class QueryToolGUIBase : MonoBehaviour
 	{
 		Texture icon;
 		Texture activeIcon;
-		Rect buttonPos  = new Rect(80, 5, 80, 80);
+
+		Config config;
 		//int lastWidth;
 
 		GameObject[] visualizations;
@@ -32,6 +60,12 @@ namespace TrafficReport
 		public GUIStyle buttonStyle;
 
 		public bool leftHandDrive;
+
+		Matrix4x4 guiScale;
+
+		bool inDrag;
+		Vector2 dragOffset;
+		int lastScreenHeight;
 
 		static VehicleDisplay[] vechicleTypes = {
 			new VehicleDisplay { id =  "citizen", display = "Pedestrian" },
@@ -57,6 +91,7 @@ namespace TrafficReport
 
 		public QueryToolGUIBase()
 		{   
+			config = Config.Load ();
 		}
 
 		public virtual bool toolActive {
@@ -80,8 +115,8 @@ namespace TrafficReport
 				Log.debug (shader.name);
 			}*/
 
-            icon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.png");
-            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials\\Button.active.png");
+            icon = ResourceLoader.loadTexture(80, 80, "Materials/Button.png");
+            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials/Button.active.png");
 
 			Log.info("Load Line Material...");
 
@@ -89,7 +124,7 @@ namespace TrafficReport
 			Color gold = new Color (1, 0.9f, 0);
 
 			//string shader = ResourceLoader.loadResourceString ("Materials\\Shaders\\Normal-VertexLit.shader");
-			string lineShader = ResourceLoader.loadResourceString ("Materials\\Shaders\\TransparentVertexLit.shader");
+			string lineShader = ResourceLoader.loadResourceString ("Materials/Shaders/TransparentVertexLit.shader");
 			/*Shader lineShader = null;
 
 			try {
@@ -107,7 +142,7 @@ namespace TrafficReport
 			lineMaterial = new Material (lineShader);
 			lineMaterial.color = red;
 			lineMaterial.SetColor("_Emission", red);
-			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials\\NewSkin.png");
+			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials/NewSkin.png");
 			lineMaterial.renderQueue = 100;
 			
 			lineMaterialHighlight = new Material (lineMaterial);
@@ -126,7 +161,7 @@ namespace TrafficReport
 			Color highlight = new Color (20.0f / 255, 207.0f / 255, 248.0f / 255);
 
 			uiSkin = GUISkin.CreateInstance<GUISkin>();
-			uiSkin.window.normal.background = ResourceLoader.loadTexture(32, 32, "Materials\\UIbg.png");
+			uiSkin.window.normal.background = ResourceLoader.loadTexture(32, 32, "Materials/UIbg.png");
 			uiSkin.window.border = new RectOffset (16, 16, 16, 16);
 			uiSkin.window.padding = new RectOffset (12, 8, 8, 12);
 
@@ -158,6 +193,27 @@ namespace TrafficReport
 			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 
+			if (lastScreenHeight != Screen.height) {
+				float s = Screen.height / 1440.0f;
+				guiScale = Matrix4x4.Scale (new Vector3 (s, s, s));
+				lastScreenHeight = Screen.height;
+			}
+
+
+			Vector2 pos = Input.mousePosition;
+			pos.x = pos.x * 1440.0f / Screen.height;
+			pos.y = (Screen.height - pos.y) * 1440.0f / Screen.height;
+
+			if (!inDrag && Input.GetMouseButtonDown (1)) {
+				inDrag = true;
+				dragOffset = pos-config.buttonPos.position;
+			} else if (inDrag) {
+				config.buttonPos.position = pos-dragOffset;
+				if(Input.GetMouseButtonUp(1)){
+					inDrag=false;
+					config.Save();
+				}
+			}
 		}
 
 		public void OnGUI()
@@ -165,9 +221,7 @@ namespace TrafficReport
 			if (!guiVisible)
 				return;
 
-			float s = Screen.height / 1440.0f;
-			GUI.matrix = Matrix4x4.Scale (new Vector3 (s, s, s));
-
+			GUI.matrix = guiScale;
 			GUI.skin = uiSkin;
 
 			
@@ -175,8 +229,8 @@ namespace TrafficReport
 			{
 
 
-				GUI.DrawTexture (buttonPos, toolActive ? activeIcon : icon);//
-				if(GUI.Button(buttonPos, "")) {
+				GUI.DrawTexture (config.buttonPos, toolActive ? activeIcon : icon);//
+				if(GUI.Button(config.buttonPos, "")) {
 					Log.info ("Toggling tool");
 					toolActive = !toolActive;
 				}
