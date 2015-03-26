@@ -15,11 +15,21 @@ namespace TrafficReport
 
 		//Implent logic that interfaces with Colossal code
         public QueryTool queryTool;
+
+		private Camera uiCamera;
         UIView ui;
         public QueryToolGUI()
         {
             ui = UnityEngine.Object.FindObjectOfType<UIView>();
 			leftHandDrive = (Singleton<SimulationManager>.instance.m_metaData.m_invertTraffic == SimulationMetaData.MetaBool.True);
+
+			//Ripped fro mthe bowls of HideUI
+			foreach (Camera c in UnityEngine.Object.FindObjectsOfType<Camera>()) {
+				if (c.name == "UIView"){
+					uiCamera = c;
+					break;
+				}
+			}
         }
 
         public override bool toolActive
@@ -34,6 +44,7 @@ namespace TrafficReport
                 {
                     ToolsModifierControl.toolController.CurrentTool = queryTool;
                 } else {
+					SetReport(null);
 					ToolsModifierControl.SetTool<DefaultTool>();
                 }
             }
@@ -41,7 +52,7 @@ namespace TrafficReport
 
         public override bool guiVisible
         {
-            get { return ui.enabled; }
+            get { return ui.enabled && uiCamera.enabled; }
         }
 
 	}
@@ -57,6 +68,8 @@ namespace TrafficReport
         protected override void Awake()
         {
 
+
+
             try
             {
 
@@ -64,8 +77,8 @@ namespace TrafficReport
 
                 Log.info("Load Cursor...");
 				m_cursor = CursorInfo.CreateInstance<CursorInfo>();
-                m_cursor.m_texture = ResourceLoader.loadTexture(128, 128, "Materials\\Cursor.png");
-                m_cursor.m_hotspot = new Vector2(42, 41);
+                m_cursor.m_texture = ResourceLoader.loadTexture(64, 64, "Materials\\Cursor.png");
+                m_cursor.m_hotspot = new Vector2(20, 20);
 
 				loadingCursor = CursorInfo.CreateInstance<CursorInfo>();
                 loadingCursor.m_texture = ResourceLoader.loadTexture(64, 64, "Materials\\Hourglass.png");
