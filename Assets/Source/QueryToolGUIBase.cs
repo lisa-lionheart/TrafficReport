@@ -12,7 +12,6 @@ namespace TrafficReport
 		public string display;
 	}
 
-
 	public class QueryToolGUIBase : MonoBehaviour
 	{
 		Texture icon;
@@ -99,21 +98,7 @@ namespace TrafficReport
 			Color red = new Color (1, 0, 0);
 			Color gold = new Color (1, 0.9f, 0);
 
-			//string shader = ResourceLoader.loadResourceString ("Materials\\Shaders\\Normal-VertexLit.shader");
 			string lineShader = ResourceLoader.loadResourceString ("Materials/Shaders/TransparentVertexLit.shader");
-			/*Shader lineShader = null;
-
-			try {
-				lineShader = Shader.Find("Legacy Shaders/VertexLit");
-			}catch(Exception e) {
-				Log.error(e.Message);
-			}
-
-			try {
-				if(lineShader == null) lineShader =  Shader.Find("Transparent/VertexLit");
-			}catch(Exception e) {
-				Log.error(e.Message);
-			}*/
 
 			lineMaterial = new Material (lineShader);
 			lineMaterial.color = red;
@@ -165,6 +150,12 @@ namespace TrafficReport
 		}
 
 		void Update() {
+
+			if (!guiVisible) {
+				toolActive = false;
+				return;
+			}
+
 			//Animate the traffic lines
 			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
@@ -190,27 +181,35 @@ namespace TrafficReport
 					config.Save();
 				}
 			}
+			
+			if (Input.GetKeyUp(KeyCode.Slash) || Input.GetKeyUp(KeyCode.Question)){
+				Log.info ("Toggling tool");
+				toolActive = !toolActive;
+			}
+
+			if (toolActive && Input.GetKeyUp(KeyCode.Escape)) {
+				toolActive = false;
+			}
 		}
 
 		public void OnGUI()
 		{
-			if (!guiVisible)
+			if (!guiVisible) {
+				toolActive = false;
 				return;
+			}
 
 			GUI.matrix = guiScale;
 			GUI.skin = uiSkin;
 
-			
+			Debug.Log (Event.current.keyCode);
+
 			try 
 			{
-
-
-				GUI.DrawTexture (config.buttonPos, toolActive ? activeIcon : icon);//
-				if(GUI.Button(config.buttonPos, "")) {
+				if(GUI.Button(config.buttonPos, toolActive ? activeIcon : icon) && !inDrag) {
 					Log.info ("Toggling tool");
 					toolActive = !toolActive;
 				}
-
 
 				if (toolActive && currentReport != null) {
 
@@ -220,7 +219,7 @@ namespace TrafficReport
 					}
 				}
 			
-			}catch(Exception e) {
+			} catch(Exception e) {
 				Log.error (e.Message);
 				Log.error(e.StackTrace);
 			}
@@ -229,6 +228,11 @@ namespace TrafficReport
 			GUI.skin = null;
 
 		}
+		
+		void OnRenderObject() {
+
+		}
+
 
 		void ReportSummary (int id)
 		{			
@@ -260,40 +264,40 @@ namespace TrafficReport
 		{			
 			try 
 			{
-			GUILayout.Space (35);
+				GUILayout.Space (35);
 
-			if(!segmentMap.ContainsKey(currentSegment)) {
-				GUILayout.Label("No data");
-				GUILayout.Label("No data");
-				GUILayout.Label("No data");
-				GUILayout.Label("No data");
-				return;
-			}
+				if(!segmentMap.ContainsKey(currentSegment)) {
+					GUILayout.Label("No data");
+					GUILayout.Label("No data");
+					GUILayout.Label("No data");
+					GUILayout.Label("No data");
+					return;
+				}
 
-						
-			int remaining = segmentMap [currentSegment].Count;
-			foreach (VehicleDisplay t in vechicleTypes) {
+							
+				int remaining = segmentMap [currentSegment].Count;
+				foreach (VehicleDisplay t in vechicleTypes) {
+					
+					int count = 0;
+					foreach(uint e in  segmentMap[currentSegment]){
+						if(currentReport.allEntities[e].serviceType == t.id) {
+							count++;
+							remaining--;
+						}
+					}
 				
-				int count = 0;
-				foreach(uint e in  segmentMap[currentSegment]){
-					if(currentReport.allEntities[e].serviceType == t.id) {
-						count++;
-						remaining--;
+					if(count > 0) {
+						GUILayout.Label (t.display + ": " + count);
 					}
 				}
-			
-				if(count > 0) {
-					GUILayout.Label (t.display + ": " + count);
+
+				if(remaining > 0) {
+					GUILayout.Label ("Other: " + remaining);
 				}
-			}
 
-			if(remaining > 0) {
-				GUILayout.Label ("Other: " + remaining);
-			}
+				int percent = segmentMap[currentSegment].Count * 100 / currentReport.allEntities.Length;
+				GUILayout.Label ("Total: " + segmentMap[currentSegment].Count+ "     (" + percent + "%)",totalStyle );
 
-			int percent = segmentMap[currentSegment].Count * 100 / currentReport.allEntities.Length;
-			GUILayout.Label ("Total: " + segmentMap[currentSegment].Count+ "     " + percent + "%",totalStyle );
-		
 			}catch(Exception e) {
 				Log.error (e.Message);
 				Log.error (e.StackTrace);

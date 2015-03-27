@@ -38,7 +38,7 @@ namespace TrafficReport
                     Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
 
-                    EntityInfo info;
+					EntityInfo info;
                     info.type = EntityType.Vehicle;
                     info.path = this.GatherPathVerticies(vehicles[id].m_path);
 					info.serviceType = vehicles[id].Info.GetService().ToString() + "/" +  vehicles[id].Info.GetSubService().ToString();

@@ -22,6 +22,8 @@ namespace TrafficReport
             Assembly ass = Assembly.GetAssembly(typeof(TrafficReportMod));
 			Log.info("Traffic Report Loaded " + DateTime.Now.ToString() + "  " + ass.ToString());
 
+
+
 		}
         
         public string Name

@@ -1,16 +1,15 @@
 ﻿<Properties GitUserInfo="UsingGIT">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Source/Config.cs">
     <Files>
-      <File FileName="Config.cs" Line="1" Column="1" />
-      <File FileName="Assets/Source/Config.cs" Line="27" Column="25" />
+      <File FileName="Assets/Source/Config.cs" Line="27" Column="23" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Source" expanded="True">
-              <Node name="QueryToolGUIBase.cs" selected="True" />
+              <Node name="Config.cs" selected="True" />
             </Node>
           </Node>
         </State>

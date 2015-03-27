@@ -9,8 +9,10 @@ namespace TrafficReport
 {	
 	[Serializable]
 	public class Config {
+
 		public Rect buttonPos  = new Rect(80, 5, 80, 80);
-		
+		public KeyCode keyCode1 = KeyCode.Question;
+		public KeyCode keyCode2 = KeyCode.Slash;
 		
 		public static Config Load() {
 			try {

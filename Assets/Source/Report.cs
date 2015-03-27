@@ -26,8 +26,7 @@ namespace TrafficReport
 		public PathPoint[] path;
 
 		public string serviceType;
-		//Mesh mesh; 
-		
+
 	}
 
     [Serializable]
