@@ -305,9 +305,11 @@ namespace TrafficReport
                 {
 					PathUnit.Position p = paths[pathID].GetPosition(i);
 
+
+
                     if (p.m_segment != 0)
                     {
-                        segment = p.m_segment;
+                    /*    segment = p.m_segment;
 						startNode = segments[segment].m_startNode;
                         endNode = segments[segment].m_endNode;
 
@@ -315,6 +317,9 @@ namespace TrafficReport
                         Vector3 endPos = nodes[endNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
 
 						Vector3 pv = Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f);
+						*/
+
+						Vector3 pv = PathManager.CalculatePosition(p);
 
 						PathPoint newPoint;
 						newPoint.x = pv.x;

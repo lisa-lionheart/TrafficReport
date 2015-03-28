@@ -1,16 +1,19 @@
 ﻿<Properties GitUserInfo="UsingGIT">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Source/Config.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Source\ModMain.cs">
     <Files>
-      <File FileName="Assets/Source/Config.cs" Line="27" Column="23" />
+      <File FileName="Source\ModMain.cs" Line="36" Column="10" />
+      <File FileName="Source\AssemblyInfo.cs" Line="37" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Source" expanded="True">
-              <Node name="Config.cs" selected="True" />
+          <Node name="TrafficReport" expanded="True" selected="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Materials" expanded="True" />
+              <Node name="Source" expanded="True" />
             </Node>
+            <Node name="Source" expanded="True" />
           </Node>
         </State>
       </Pad>

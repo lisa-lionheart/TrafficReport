@@ -10,9 +10,16 @@ namespace TrafficReport
 	[Serializable]
 	public class Config {
 
-		public Rect buttonPos  = new Rect(80, 5, 80, 80);
+		public Vector2 buttonPosition  = new Vector2(80, 5);
 		public KeyCode keyCode1 = KeyCode.Question;
 		public KeyCode keyCode2 = KeyCode.Slash;
+
+		[XmlIgnore]
+		public Rect buttonRect {
+			get {
+				return new Rect(buttonPosition.x,buttonPosition.y,80,80);
+			}
+		}
 		
 		public static Config Load() {
 			try {
@@ -30,7 +37,7 @@ namespace TrafficReport
 			try 
 			{
 				XmlSerializer xml = new XmlSerializer (GetType());
-				FileStream fs = new FileStream ("TrafficReport.xml", FileMode.Truncate, FileAccess.Write);
+				FileStream fs = new FileStream ("TrafficReport.xml", FileMode.Create, FileAccess.Write);
 				xml.Serialize (fs,this);
 				fs.Close();
 			} catch(Exception e) {

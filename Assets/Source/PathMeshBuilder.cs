@@ -13,8 +13,6 @@ namespace TrafficReport
 		public float curveRetractionFactor = 2.0f;
 		public float lineScale = 0.5f;
 
-		public int driveLane = 1; // 1=rhd, -1 =lhd, 0=down the middle
-
 
 		List<Vector3> verts = new List<Vector3> ();
 		List<int> triangles = new List<int> ();
@@ -103,7 +101,6 @@ namespace TrafficReport
 			}
 
 			Vector3 offset = Vector3.Cross(fwd, Vector3.up);
-			point += offset * ((float)driveLane * laneOffset);
 
 			int baseVert = verts.Count;
 
@@ -169,10 +166,6 @@ namespace TrafficReport
 
 		void AddVertexPair(Vector3 point, Vector3 fwd) {
 			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized ;
-
-			point += offset * ((float)driveLane * laneOffset);
-			
-			//textureOffset += (point-lastPoint).magnitude * 2 / width;
 
 			verts.Add (point - offset * (width /2));              
 			verts.Add (point + offset * (width /2));

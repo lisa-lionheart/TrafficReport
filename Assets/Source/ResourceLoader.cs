@@ -22,7 +22,7 @@ namespace TrafficReport
         public static byte[] loadResourceData(string name)
         {
 #if BuildingModDll
-            name = "TrafficReport.Assets." + name.Replace("\\",".");
+            name = "TrafficReport.Assets." + name.Replace("/",".");
 
             UnmanagedMemoryStream stream  = (UnmanagedMemoryStream)ResourceAssembly.GetManifestResourceStream(name);
             if (stream == null)

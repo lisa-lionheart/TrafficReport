@@ -171,11 +171,11 @@ namespace TrafficReport
 			pos.x = pos.x * 1440.0f / Screen.height;
 			pos.y = (Screen.height - pos.y) * 1440.0f / Screen.height;
 
-			if (!inDrag && Input.GetMouseButtonDown (1)) {
+			if (!inDrag && Input.GetMouseButtonDown (1) && config.buttonRect.Contains(pos) ) {
 				inDrag = true;
-				dragOffset = pos-config.buttonPos.position;
+				dragOffset = pos-config.buttonPosition;
 			} else if (inDrag) {
-				config.buttonPos.position = pos-dragOffset;
+				config.buttonPosition = pos-dragOffset;
 				if(Input.GetMouseButtonUp(1)){
 					inDrag=false;
 					config.Save();
@@ -206,7 +206,7 @@ namespace TrafficReport
 
 			try 
 			{
-				if(GUI.Button(config.buttonPos, toolActive ? activeIcon : icon) && !inDrag) {
+				if(GUI.Button(config.buttonRect, toolActive ? activeIcon : icon) && !inDrag) {
 					Log.info ("Toggling tool");
 					toolActive = !toolActive;
 				}
@@ -395,11 +395,7 @@ namespace TrafficReport
 			lineMaterial.color = new Color(1, 0, 0, 1);
 			
 			PathMeshBuilder pb = new PathMeshBuilder();
-			if (leftHandDrive)
-			{
-				pb.driveLane = -1;
-			}
-			
+
 			
 			Vector3[] points = new Vector3[positions.Length];
 			for (int i=0; i < positions.Length; i++) {
