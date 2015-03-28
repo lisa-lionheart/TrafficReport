@@ -52,7 +52,17 @@ namespace TrafficReport
 
         public override bool guiVisible
         {
-            get { return ui.enabled && uiCamera.enabled; }
+            get { 
+				if(!ui.enabled){
+					return false;
+				}
+
+				if(!uiCamera.enabled){
+					return false;
+				}
+
+				return true;
+			}
         }
 
 	}
@@ -150,9 +160,15 @@ namespace TrafficReport
 			} else {
 				
 				if (hoverInstance.Type == InstanceType.NetSegment) {
-					gui.SetSegmentHighlight ((uint)hoverInstance.NetSegment);
+					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Segment,(uint)hoverInstance.NetSegment);
+				} else if (hoverInstance.Type == InstanceType.Building) {
+					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Building,(uint)hoverInstance.Building);
+				} else if (hoverInstance.Type == InstanceType.Vehicle) {
+					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Vehicle,(uint)hoverInstance.Vehicle);
+				} else if (hoverInstance.Type == InstanceType.Citizen) {
+					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Citizen,(uint)hoverInstance.Vehicle);
 				} else {
-					gui.SetSegmentHighlight(0);
+					gui.SetSegmentHighlight(QueryToolGUIBase.HighlightType.None, 0);
 				}
 			}
             base.OnToolGUI();

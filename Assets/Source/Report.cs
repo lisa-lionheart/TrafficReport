@@ -24,6 +24,10 @@ namespace TrafficReport
 	{
 		public EntityType type;
 		public PathPoint[] path;
+		public uint id;
+
+		public uint sourceBuilding;
+		public uint targetBuilding;
 
 		public string serviceType;
 

@@ -40,8 +40,12 @@ namespace TrafficReport
 
 					EntityInfo info;
                     info.type = EntityType.Vehicle;
+					info.id = id;
                     info.path = this.GatherPathVerticies(vehicles[id].m_path);
 					info.serviceType = vehicles[id].Info.GetService().ToString() + "/" +  vehicles[id].Info.GetSubService().ToString();
+					
+					info.sourceBuilding = vehicles[id].m_sourceBuilding;
+					info.targetBuilding = vehicles[id].m_targetBuilding;
 
                     Report report = new Report(info);
 
@@ -79,8 +83,12 @@ namespace TrafficReport
 
                     EntityInfo info;
                     info.type = EntityType.Citzen;
+					info.id = id;
                     info.path = this.GatherPathVerticies(citzens[id].m_path);
 					info.serviceType = "citzen";
+					
+					info.sourceBuilding = citzens[id].m_sourceBuilding;
+					info.targetBuilding = citzens[id].m_targetBuilding;
 
                     Report report = new Report(info);
 
@@ -155,7 +163,7 @@ namespace TrafficReport
 
             Log.debug("Looking at vehicles...");
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
-            for (int i = 0; i < vehicles.Length; i++)
+            for (uint i = 0; i < vehicles.Length; i++)
             {
 
                 if ((vehicles[i].m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
@@ -178,8 +186,12 @@ namespace TrafficReport
 
                     EntityInfo info;
                     info.type = EntityType.Vehicle;
+					info.id = i;
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
 					
+					info.sourceBuilding = vehicles[i].m_sourceBuilding;
+					info.targetBuilding = vehicles[i].m_targetBuilding;
+
 					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
                     enities.Add(info);
                 }
@@ -187,7 +199,7 @@ namespace TrafficReport
 
             Log.debug("Looking at citzens...");
             CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
-            for (int i = 0; i < citzens.Length; i++)
+            for (uint i = 0; i < citzens.Length; i++)
             {
                 if((citzens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None) {
                     continue;
@@ -204,8 +216,12 @@ namespace TrafficReport
 
                     EntityInfo info;
                     info.type = EntityType.Citzen;
+					info.id = i;
                     info.path = this.GatherPathVerticies(citzens[i].m_path);
 					info.serviceType = "citizen";
+					info.sourceBuilding = citzens[i].m_sourceBuilding;
+					info.targetBuilding = citzens[i].m_targetBuilding;
+
                     enities.Add(info);
                     Log.info("Got Path");
                 }
@@ -224,7 +240,7 @@ namespace TrafficReport
 
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
 
-            for (int i = 0; i < vehicles.Length; i++)
+            for (uint i = 0; i < vehicles.Length; i++)
             {
 
                 if ((vehicles[i].m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
@@ -244,8 +260,11 @@ namespace TrafficReport
                 {
 
                     EntityInfo info;
-                    info.type = EntityType.Citzen;
+                    info.type = EntityType.Vehicle;
+					info.id = i;
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
+					info.sourceBuilding = vehicles[i].m_sourceBuilding;
+					info.targetBuilding = vehicles[i].m_targetBuilding;
 					
 					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
                     enities.Add(info);
@@ -325,7 +344,7 @@ namespace TrafficReport
 						newPoint.x = pv.x;
 						newPoint.y = pv.y;
 						newPoint.z = pv.z;
-						newPoint.segmentID = segment;
+						newPoint.segmentID = p.m_segment;
 
 						path.Add(newPoint);
 
