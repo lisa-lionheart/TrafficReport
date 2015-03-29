@@ -7,10 +7,7 @@ using System.IO;
 
 namespace TrafficReport
 {
-	struct VehicleDisplay {
-		public string id;
-		public string display;
-	}
+
 
 	public class QueryToolGUIBase : MonoBehaviour
 	{
@@ -34,11 +31,11 @@ namespace TrafficReport
 
 		Dictionary<string,int> highlightBreakdown;
 
-		Dictionary<uint,HashSet<uint>> segmentMap; //Map segment to paths
 		Dictionary<string, HashSet<uint>> typeMap;
 
 		Report currentReport;
 		uint currentHighlight;
+		HighlightType currentHighlightType;
 
 		public GUISkin uiSkin;
 		public GUIStyle totalStyle;
@@ -52,31 +49,12 @@ namespace TrafficReport
 		Vector2 dragOffset;
 		int lastScreenHeight;
 
-		static VehicleDisplay[] vechicleTypes = {
-			new VehicleDisplay { id =  "citizen", display = "Pedestrian" },
-
-			new VehicleDisplay { id =  "Residential/ResidentialLow", display = "Car" },
-
-			new VehicleDisplay { id =  "Industrial/IndustrialGeneric", display = "Cargo truck" },
-			new VehicleDisplay { id =  "Industrial/IndustrialOil", display = "Oil Tanker" },
-			new VehicleDisplay { id =  "Industrial/IndustrialOre", display = "Ore Truck" },
-			new VehicleDisplay { id =  "Industrial/IndustrialForestry", display = "Log Truck" },
-			new VehicleDisplay { id =  "Industrial/IndustrialFarming", display = "Tractor" },
-
-			new VehicleDisplay { id =  "HealthCare/None", display = "Ambulance" },
-			new VehicleDisplay { id =  "Garbage/None", display = "Garbage Truck" },
-			new VehicleDisplay { id =  "PoliceDepartment/None", display = "Police Car" },
-			new VehicleDisplay { id =  "FireDepartment/None", display = "Fire truck" },
-
-			
-			new VehicleDisplay { id =  "PublicTransport/PublicTransportBus", display = "Bus" },
-
-		};
 
 
 		public QueryToolGUIBase()
 		{   
 			config = Config.Load ();
+			currentHighlightType = HighlightType.None;
 		}
 
 		public virtual bool toolActive {
@@ -93,12 +71,6 @@ namespace TrafficReport
 
         public void Awake()
         {
-			/*
-			Log.debug ("Listing shaders");
-			Shader[] shaders = (Shader[])Resources.FindObjectsOfTypeAll (typeof(Shader));
-			foreach(Shader shader in shaders) {
-				Log.debug (shader.name);
-			}*/
 
             icon = ResourceLoader.loadTexture(80, 80, "Materials/Button.png");
             activeIcon = ResourceLoader.loadTexture(80, 80, "Materials/Button.active.png");
@@ -123,7 +95,6 @@ namespace TrafficReport
 
 			highlightBreakdown = new Dictionary<string,int>();
 
-			MakeSkin ();
 
 			Log.debug ("Gui initialized");
         }
@@ -132,10 +103,10 @@ namespace TrafficReport
 
 			Color highlight = new Color (20.0f / 255, 207.0f / 255, 248.0f / 255);
 
-			uiSkin = GUISkin.CreateInstance<GUISkin>();
+			uiSkin = (GUISkin)GUISkin.Instantiate (GUI.skin);
 			uiSkin.window.normal.background = ResourceLoader.loadTexture(32, 32, "Materials/UIbg.png");
 			uiSkin.window.border = new RectOffset (16, 16, 16, 16);
-			uiSkin.window.padding = new RectOffset (12, 8, 8, 12);
+			uiSkin.window.padding = new RectOffset (12, 8, 26, 12);
 
 			uiSkin.window.normal.textColor = highlight;
 			uiSkin.window.alignment = TextAnchor.UpperCenter;
@@ -147,10 +118,18 @@ namespace TrafficReport
 			uiSkin.window.onHover = uiSkin.window.onNormal;
 			uiSkin.window.onActive = uiSkin.window.onNormal;
 
+			uiSkin.button = new GUIStyle ();
+
+
 			uiSkin.label.normal.textColor = Color.white;
 			uiSkin.label.fontSize = 18;
 			uiSkin.label.fontStyle = FontStyle.Bold;
 			uiSkin.label.padding = new RectOffset (0, 0, 5, 5);
+
+			uiSkin.toggle.normal.textColor = Color.white;
+			uiSkin.toggle.fontSize = 18;
+			uiSkin.toggle.fontStyle = FontStyle.Bold;
+			uiSkin.toggle.padding = new RectOffset (20, 0, 0, 10);
 
 			totalStyle = new GUIStyle (uiSkin.label);
 			totalStyle.normal.textColor = highlight;
@@ -206,7 +185,16 @@ namespace TrafficReport
 				return;
 			}
 
+			GUI.backgroundColor = Color.white;
+			GUI.color = Color.white;
+			GUI.contentColor = Color.white;
+
 			GUI.matrix = guiScale;
+
+			if (uiSkin == null) {
+				MakeSkin();
+			}
+
 			GUI.skin = uiSkin;
 
 
@@ -220,7 +208,7 @@ namespace TrafficReport
 				if (toolActive && currentReport != null) {
 
 					Rect r = GUILayout.Window (50199, new Rect (20, 100, 200, 100), ReportSummary, "All Selected");
-					if(segmentMap.ContainsKey(currentHighlight)) {
+					if(currentHighlightType != HighlightType.None) {
 						GUILayout.Window (50198, new Rect (240,100, 200, 100), HighlightSummary, "Highlighted");
 					}
 				}
@@ -246,7 +234,7 @@ namespace TrafficReport
 			GUILayout.Space (35);
 			
 			int remaining = currentReport.allEntities.Length;
-			foreach (VehicleDisplay t in vechicleTypes) {
+			foreach (VehicleDisplay t in config.vehicleTypes) {
 
 				int count = 0;
 				if(typeMap.ContainsKey(t.id))
@@ -254,7 +242,10 @@ namespace TrafficReport
 
 				remaining -= count;
 				if(count > 0) {
-					GUILayout.Label (t.display + ": " + count);
+
+					if(t.onOff != GUILayout.Toggle(t.onOff, t.display + ": " + count)) {
+						SetTypeVisible(t.id, !t.onOff);
+					}
 				}
 			}
 			
@@ -266,31 +257,46 @@ namespace TrafficReport
 
 		}
 
+		void SetTypeVisible(string type, bool visible) {
+
+			for(int i=0; i < config.vehicleTypes.Length; i++) {
+				if(config.vehicleTypes[i].id == type) {
+					config.vehicleTypes[i].onOff = visible;
+				}
+			}
+
+			for (int i=0; i < currentReport.allEntities.Length; i++) {
+				if(currentReport.allEntities[i].serviceType == type) {
+					visualizations[i].GetComponent<MeshRenderer>().enabled = visible;
+				}
+			}
+
+			config.Save ();
+		}
+
 		void HighlightSummary (int id)
 		{			
 			try 
 			{
 				GUILayout.Space (35);
 
-				if(!segmentMap.ContainsKey(currentHighlight)) {
-					GUILayout.Label("No data");
-					GUILayout.Label("No data");
-					GUILayout.Label("No data");
-					GUILayout.Label("No data");
+				if(currentHighlightType == HighlightType.None) {
+					GUILayout.Label("Nothing");
 					return;
 				}
 
 							
-				int remaining = segmentMap [currentHighlight].Count;
-				int total = 0;
-				foreach (VehicleDisplay t in vechicleTypes) {
+				int remaining = highlightBreakdown ["total"];
+				int total = remaining;
+
+				foreach (VehicleDisplay t in config.vehicleTypes) {
 					
 					int count = 0;
 					highlightBreakdown.TryGetValue(t.id, out count);
 					if(count > 0) {
+						remaining -= count;
 						GUILayout.Label (t.display + ": " + count);
-					}
-					total += count;
+					}				
 				}
 
 				if(remaining > 0) {
@@ -298,7 +304,7 @@ namespace TrafficReport
 				}
 
 				int percent = total * 100 / currentReport.allEntities.Length;
-				GUILayout.Label ("Total: " + segmentMap[currentHighlight].Count+ "     (" + percent + "%)",totalStyle );
+				GUILayout.Label ("Total: " + total + "     (" + percent + "%)",totalStyle );
 
 			}catch(Exception e) {
 				Log.error (e.Message);
@@ -311,7 +317,6 @@ namespace TrafficReport
 			if (visualizations != null) {
 				RemoveAllPaths();
 				currentReport = null;
-				segmentMap = null;
 				typeMap = null;
 			}
 
@@ -323,7 +328,7 @@ namespace TrafficReport
 			visualizations = new GameObject[report.allEntities.Length];
 			for(int i=0; i < report.allEntities.Length; i++)
 			{
-				visualizations[i] =  CreatePathGameobject(report.allEntities[i].path);
+				visualizations[i] =  CreatePathGameobject(report.allEntities[i].serviceType, report.allEntities[i].path);
 			}
 			
 			float alpha = 30.0f / report.allEntities.Length;
@@ -341,18 +346,9 @@ namespace TrafficReport
 		}
 
 		private void GenerateMaps(Report report) {
-			segmentMap = new Dictionary<uint,HashSet<uint>> ();
 			typeMap = new Dictionary<string, HashSet<uint>> ();
 
 			for (uint i =0; i < report.allEntities.Length; i++) {
-				foreach(PathPoint p in report.allEntities[i].path) {
-
-					if(!segmentMap.ContainsKey(p.segmentID)){
-						segmentMap[p.segmentID] = new HashSet<uint>();
-					}
-
-					segmentMap[p.segmentID].Add(i);
-				}
 
 				string t = report.allEntities[i].serviceType;
 				if(t == null){
@@ -372,7 +368,7 @@ namespace TrafficReport
 				return;
 			}
 
-			if (currentHighlight == id) {
+			if (currentHighlight == id && currentHighlightType == type) {
 				return;
 			}
 
@@ -380,77 +376,60 @@ namespace TrafficReport
 				go.GetComponent<Renderer> ().material = lineMaterial;
 			}
 
+			int total = 0;
 			highlightBreakdown = new Dictionary<string,int>();
 
-			switch(type){
-			case HighlightType.Segment:
-				if (segmentMap.ContainsKey (id)) {
-					foreach (uint index in segmentMap[id]) {
+			
+			for(int index=0; index < currentReport.allEntities.Length; index++) {
 
-						visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
-
-						string t = currentReport.allEntities[index].serviceType;
-						int count = 0;
-						highlightBreakdown.TryGetValue(t, out count);
-						count++;
-						highlightBreakdown[t]=count;
+				bool highlighted = false;
+				switch(type){
+				case HighlightType.Segment:
+				
+					foreach(PathPoint p in currentReport.allEntities[index].path) {
+						if(p.segmentID == id) {
+							highlighted = true;
+							break;
+						}
 					}
-				}
-				break;
-			case HighlightType.Building:
-				for(int index=0; index < currentReport.allEntities.Length; index++) {
 
+					break;
+				case HighlightType.Building:
 					if(currentReport.allEntities[index].sourceBuilding == id || currentReport.allEntities[index].targetBuilding == id) {
 
-						visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
-						string t = currentReport.allEntities[index].serviceType;
-						int count = 0;
-						highlightBreakdown.TryGetValue(t, out count);
-						count++;
-						highlightBreakdown[t]=count;
-
+						highlighted = true;
 					}
-
-				}
-				break;
-			case HighlightType.Vehicle:
-				for(int index=0; index < currentReport.allEntities.Length; index++) {
-					
+					break;
+				case HighlightType.Vehicle:
 					if(currentReport.allEntities[index].id == id && currentReport.allEntities[index].type == EntityType.Vehicle) {
-						
-						visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
-						string t = currentReport.allEntities[index].serviceType;
-						int count = 0;
-						highlightBreakdown.TryGetValue(t, out count);
-						count++;
-						highlightBreakdown[t]=count;
-						
+						highlighted = true;
 					}
-					
-				}
-				break;
-			case HighlightType.Citizen:
-				for(int index=0; index < currentReport.allEntities.Length; index++) {
+					break;
+				case HighlightType.Citizen:
 					
 					if(currentReport.allEntities[index].id == id && currentReport.allEntities[index].type == EntityType.Citzen) {
-						
-						visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
-						string t = currentReport.allEntities[index].serviceType;
-						int count = 0;
-						highlightBreakdown.TryGetValue(t, out count);
-						count++;
-						highlightBreakdown[t]=count;	
+						highlighted = true;
 					}
-					
+					break;
 				}
-				break;
-			
+
+				if(highlighted){
+					visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
+					string t = currentReport.allEntities[index].serviceType;
+					int count = 0;
+					highlightBreakdown.TryGetValue(t, out count);
+					count++;
+					highlightBreakdown[t]=count;	
+					total++;
+				}
 			}
 
+			highlightBreakdown ["total"] = total;
 			currentHighlight = id;
+			currentHighlightType = type;
 		}
 		
-		private GameObject CreatePathGameobject(PathPoint[] positions) {
+		private GameObject CreatePathGameobject(string type, PathPoint[] positions) {
 			
 			lineMaterial.color = new Color(1, 0, 0, 1);
 			
@@ -471,9 +450,15 @@ namespace TrafficReport
 			go.AddComponent<MeshRenderer>();
 			go.GetComponent<MeshFilter>().mesh = m;
 			go.GetComponent<MeshFilter>().sharedMesh = m;
-			go.GetComponent<Renderer>().material = lineMaterial;
+			go.GetComponent<MeshRenderer>().material = lineMaterial;
 			go.transform.localPosition = new Vector3(0, 3, 0);
-			
+
+			foreach(VehicleDisplay t in config.vehicleTypes) {
+
+				if(t.id == type) {
+					go.GetComponent<MeshRenderer>().enabled = t.onOff;
+				}
+			}
 			return go;
 		}
 		
