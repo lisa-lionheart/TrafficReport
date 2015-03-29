@@ -19,8 +19,7 @@ namespace TrafficReport
 	public class Config {
 
 		public Vector2 buttonPosition  = new Vector2(80, 5);
-		public KeyCode keyCode1 = KeyCode.Question;
-		public KeyCode keyCode2 = KeyCode.Slash;
+		public KeyCode keyCode = KeyCode.Slash;
 
 		public VehicleDisplay[] vehicleTypes = {
 			new VehicleDisplay { id =  "citizen", display = "Pedestrian", onOff=true },

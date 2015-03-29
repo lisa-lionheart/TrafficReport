@@ -169,7 +169,7 @@ namespace TrafficReport
 				}
 			}
 			
-			if (Input.GetKeyUp(KeyCode.Slash) || Input.GetKeyUp(KeyCode.Question)){
+			if (Input.GetKeyUp(config.keyCode)){
 				Log.info ("Toggling tool");
 				toolActive = !toolActive;
 			}
