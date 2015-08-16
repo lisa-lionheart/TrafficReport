@@ -7,6 +7,7 @@ namespace TrafficReport
 {
     public class Log
     {
+    /*
         private static StreamWriter _logFile;
         public static StreamWriter logFile {
             get {
@@ -18,19 +19,22 @@ namespace TrafficReport
                 return _logFile;
             }
         }
-
+*/
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void Write(string level, string message)
         {
 
+          Debug.Log(message);
+
+        /*
 #if BuildingModDll
             logFile.WriteLine(level + ": " + message);
             logFile.Flush();
 #else
             Debug.Log(message);
-#endif
-        }
-
+#endif  
+*/
+      }
         
         public static void error(string message)
         {

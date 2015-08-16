@@ -123,38 +123,66 @@ namespace TrafficReport
 					//Log.info(m_mousePosition.ToString());
 
 					try {
-						Log.debug ("You clicked on " + hoverInstance.ToString ());
-						Log.debug (hoverInstance.Type.ToString ());
+						Log.debug("You clicked on " + hoverInstance.ToString());
+						Log.debug(hoverInstance.Type.ToString());
 
                         
 						if (hoverInstance.Type == InstanceType.Vehicle) {
-							gui.SetReport (null);
+							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnVehicle (hoverInstance.Vehicle);
+							analyzer.ReportOnVehicle(hoverInstance.Vehicle);
 						}
 
 						if (hoverInstance.Type == InstanceType.NetSegment) {
-							gui.SetReport (null);
+							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnSegment (hoverInstance.NetSegment);
+							analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Forward);
 						}
 
 						if (hoverInstance.Type == InstanceType.Building) {
-							gui.SetReport (null);
+							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnBuilding (hoverInstance.Building);
+							analyzer.ReportOnBuilding(hoverInstance.Building);
 						}
 
 
 						if (hoverInstance.Type == InstanceType.CitizenInstance) {
-							gui.SetReport (null);
+							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnCitizen (hoverInstance.CitizenInstance);
+							analyzer.ReportOnCitizen(hoverInstance.CitizenInstance);
 						}
 
 					} catch (Exception e) {
-						Log.error (e.ToString ());
-						Log.error (e.StackTrace);
+						Log.error(e.ToString());
+						Log.error(e.StackTrace);
+					}						
+				} else if (current.button == 1) {
+					try {
+						Log.debug("You clicked on " + hoverInstance.ToString());
+						Log.debug(hoverInstance.Type.ToString());
+
+						if (hoverInstance.Type == InstanceType.NetSegment) {
+							gui.SetReport(null);
+							base.ToolCursor = loadingCursor;
+							analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Backward);
+						}
+					} catch (Exception e) {
+						Log.error(e.ToString());
+						Log.error(e.StackTrace);
+					}
+				} else if (current.button == 2) {
+					try {
+						Log.debug("You clicked on " + hoverInstance.ToString());
+						Log.debug(hoverInstance.Type.ToString());
+
+						if (hoverInstance.Type == InstanceType.NetSegment) {
+							gui.SetReport(null);
+							base.ToolCursor = loadingCursor;
+							analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Both);
+						}
+					} catch (Exception e) {
+						Log.error(e.ToString());
+						Log.error(e.StackTrace);
 					}
 				}
 			} else {
@@ -188,7 +216,7 @@ namespace TrafficReport
 
 			
 			#if DEBUG
-			report.Save ("report.xml");
+			//report.Save ("report.xml");
 			#endif
         }
 

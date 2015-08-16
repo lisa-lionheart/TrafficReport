@@ -104,7 +104,7 @@ namespace TrafficReport
             });
         }
 
-        public void ReportOnSegment(ushort segmentID)
+		public void ReportOnSegment(ushort segmentID, NetInfo.Direction dir)
         {
             if (working)
             {
@@ -118,7 +118,7 @@ namespace TrafficReport
             {
                 try //
                 {
-                    Report report = this.DoReportOnSegment(segmentID);
+                    Report report = this.DoReportOnSegment(segmentID, dir);
                     working = false;
                     ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
                 }
@@ -156,7 +156,7 @@ namespace TrafficReport
             });
         }
 
-        private Report DoReportOnSegment(ushort segmentID)
+		private Report DoReportOnSegment(ushort segmentID, NetInfo.Direction dir)
         {
 
             List<EntityInfo> enities = new List<EntityInfo>();
@@ -180,7 +180,7 @@ namespace TrafficReport
 
                 //Log.info("Vehcile valid, checking if path intersects segment...");
 
-                if (this.PathContainsSegment(vehicles[i].m_path, segmentID))
+				if (this.PathContainsSegment(vehicles[i].m_path, segmentID, dir))
                 {
                     Log.info("Found vehicle on segemnt, getting path....");
 
@@ -197,6 +197,8 @@ namespace TrafficReport
                 }
             }
 
+            Log.debug("found " + enities.Count + " entities");
+
             Log.debug("Looking at citzens...");
             CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
             for (uint i = 0; i < citzens.Length; i++)
@@ -210,7 +212,7 @@ namespace TrafficReport
                     continue;
                 }
 
-                if (this.PathContainsSegment(citzens[i].m_path, segmentID))
+				if (this.PathContainsSegment(citzens[i].m_path, segmentID, dir))					
                 {
                     Log.info("Found citizen on segemnt, getting path....");
 
@@ -227,6 +229,8 @@ namespace TrafficReport
                 }
 
             }
+
+            Log.debug("found " + enities.Count + " entities");
 
             Log.debug("End DoReportOnSegment");
 
@@ -275,31 +279,125 @@ namespace TrafficReport
 
             return new Report(enities.ToArray());
         }
+		/*
+		private bool PathContainsSegment(uint pathID, ushort segmentID, Vector3 dir)
+		{
+			PathUnit path = this.getPath(pathID);
+			int positiveCount = 0;
+			int zeroCount = 0;
+			int negativeCount = 0;
+			int lessThan60 = 0;
+			int lessThan45 = 0;
 
-        private bool PathContainsSegment(uint pathID, ushort segmentID)
-        {
-            PathUnit path = this.getPath(pathID);
-           
-            while (true)
-            {
-                for (int i = 0; i < path.m_positionCount; i++)
-                {
-                    PathUnit.Position p = path.GetPosition(i);
-                    if (p.m_segment == segmentID)
-                    {
-                        return true;
-                    }
-                }
+			while (true) {
 
-                if (path.m_nextPathUnit == 0)
-                {
-                    return false;
-                }
-                path = this.getPath(path.m_nextPathUnit);
-            }
-        }
+				for (int i = 0; i < path.m_positionCount; i++) {
+					PathUnit.Position p = path.GetPosition(i);
 
-        PathUnit getPath(uint id)
+					if (p.m_segment == segmentID) {
+
+						if (dir == Vector3.zero) {
+							return true;
+						}
+
+						Vector3 pathDirection = Singleton<NetManager>.instance.m_lanes.m_buffer[PathManager.GetLaneID(p)].CalculateDirection(p.m_offset);
+						float dotProduct = Vector3.Dot(dir, pathDirection);
+
+						if (dotProduct > 0) {
+							positiveCount++;
+							if (Math.Abs(Vector3.Angle(dir, pathDirection)) <= 60) {
+								lessThan60++;
+							}
+							if (Math.Abs(Vector3.Angle(dir, pathDirection)) <= 45) {
+								lessThan45++;
+							}
+						} else if (dotProduct == 0) {
+							zeroCount++;
+						} else {
+							negativeCount++;
+						}
+					}
+				}
+					
+				if (path.m_nextPathUnit == 0) {
+					if (positiveCount > 0 || zeroCount > 0) {
+						if (zeroCount > 0 || negativeCount > 0) {
+							Debug.Log("positive = " + positiveCount + " zero = " + zeroCount + " negative = " + negativeCount);
+						}
+						if (lessThan60 > 0) {
+							if (lessThan45 < lessThan60) {
+								Debug.Log("lessThan60 = " + lessThan60 + " lessThan45 = " + lessThan45);
+							}
+							return (positiveCount > negativeCount);
+						} else {
+							Debug.Log("lessThan60 = " + lessThan60);
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+
+				path = this.getPath(path.m_nextPathUnit);
+			}
+		}
+*/
+
+		/*
+				if (p.m_segment == segmentID) {
+					pathDirection += Singleton<NetManager>.instance.m_lanes.m_buffer[PathManager.GetLaneID(p)].CalculateDirection(p.m_offset);
+				}
+
+				if (path.m_nextPathUnit == 0) {
+					return (pathDirection.magnitude > 0 && Vector3.Dot(dir, pathDirection) >= 0);
+				}
+
+				*/
+
+		private bool PathContainsSegment(uint pathID, ushort segmentID, NetInfo.Direction dir)
+		{
+			NetManager instance = Singleton<NetManager>.instance;
+			PathUnit path = this.getPath(pathID);
+
+			while (true) {
+				for (int i = 0; i < path.m_positionCount; i++) {
+					PathUnit.Position p = path.GetPosition(i);
+					if (p.m_segment == segmentID) {
+
+						if (dir == NetInfo.Direction.Both) {
+							return true;
+						}
+
+						NetInfo info = instance.m_segments.m_buffer[(int)p.m_segment].Info;
+						NetInfo.Direction laneDir = NetInfo.Direction.None;
+
+						if (info.m_lanes.Length > (int)p.m_lane) {
+							laneDir = info.m_lanes[(int)p.m_lane].m_finalDirection;
+							if ((instance.m_segments.m_buffer[(int)p.m_segment].m_flags & NetSegment.Flags.Invert) != NetSegment.Flags.None) {
+								laneDir = NetInfo.InvertDirection(laneDir);
+							}
+						} else {
+                                                        Log.debug("bad lane count");
+						}
+
+						if (laneDir == dir) {
+							return true;
+						}
+//						} else if ((laneDir != NetInfo.Direction.Forward) && (laneDir != NetInfo.Direction.Backward)) {
+		//					Debug.Log("laneDir = " + laneDir);
+		//				}
+					}
+				}
+
+				if (path.m_nextPathUnit == 0) {
+					return false;
+				}
+
+				path = this.getPath(path.m_nextPathUnit);
+			}
+		}
+
+		PathUnit getPath(uint id)
         {
             return Singleton<PathManager>.instance.m_pathUnits.m_buffer[id];
         }

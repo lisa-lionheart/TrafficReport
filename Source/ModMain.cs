@@ -5,7 +5,7 @@ using UnityEngine;
 using ColossalFramework.Plugins;
 using ColossalFramework;
 using ColossalFramework.UI;
-
+    /*
 using System.Reflection;
 using System;
 
@@ -25,7 +25,7 @@ namespace TrafficReport
 
 
 		}
-        
+        */
         public string Name
         {
             get { return "Traffic Report Tool"; }
