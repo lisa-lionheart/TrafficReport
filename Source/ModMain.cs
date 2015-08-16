@@ -5,7 +5,7 @@ using UnityEngine;
 using ColossalFramework.Plugins;
 using ColossalFramework;
 using ColossalFramework.UI;
-    /*
+
 using System.Reflection;
 using System;
 
@@ -16,7 +16,7 @@ namespace TrafficReport
     {
 
 		QueryTool queryTool;
-
+    /*
         public TrafficReportMod() {
 
             Assembly ass = Assembly.GetAssembly(typeof(TrafficReportMod));
