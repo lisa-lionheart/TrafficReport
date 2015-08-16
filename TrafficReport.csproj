@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{6F075CED-2C41-4008-B04E-7DD5557E5428}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -71,51 +71,30 @@
   <ItemGroup>
     <Reference Include="System">
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System.Core">
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.Core.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System.Configuration">
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.Configuration.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\mscorlib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Mono.Security.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Mono.Posix">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Mono.Posix.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="ICities">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
     </Reference>
     <Reference Include="ColossalManaged">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml">
       <HintPath>..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\System.Xml.dll</HintPath>
-      <Private>False</Private>
     </Reference>
   </ItemGroup>
 </Project>

@@ -3,3 +3,6 @@ bin
 build
 *.meta
 *.dll
+obj/Release/TrafficReport.csproj.FileListAbsolute.txt
+*.csproj
+TrafficReport.csproj
