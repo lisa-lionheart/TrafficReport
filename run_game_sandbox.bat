@@ -17,13 +17,10 @@ if exist "%LOCALAPPDATA%\Colossal Order\" (
 echo Relinking %LOCALAPPDATA%\Colossal Order\...
 
 echo Linking "%LOCALAPPDATA%\Colossal Order\" => "%CD%\AppData"
-rmdir  "%LOCALAPPDATA%\Colossal Order\"
 mklink /D "%LOCALAPPDATA%\Colossal Order\" "%CD%\AppData"
 
 "C:\Program Files (x86)\Steam\steam.exe" -applaunch 255710 -noWorkshop
 pause
 
 echo Restoring old %LOCALAPPDATA%\Colossal Order\...
-
-rmdir  "%LOCALAPPDATA%\Colossal Order\"
 mklink /D "%LOCALAPPDATA%\Colossal Order" "%LOCALAPPDATA%\Colossal Order.real"
