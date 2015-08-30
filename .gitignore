@@ -1,5 +1,12 @@
-Library
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+
+AppData
 bin
 build
+
 *.meta
 *.dll
+*.userprefs
