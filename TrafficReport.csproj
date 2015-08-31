@@ -34,6 +34,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="Assets\TestQueryToolGUI.cs" />
     <Compile Include="Source\AssemblyInfo.cs" />
     <Compile Include="Source\ModMain.cs" />
     <Compile Include="Source\QueryTool.cs" />
@@ -46,7 +47,9 @@
     <Compile Include="Assets\Source\ResourceLoader.cs" />
     <Compile Include="Assets\Source\Config.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Assets\report.xml" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Assets\path1.txt" />
     <None Include="Assets\UnityVS\Editor.meta" />

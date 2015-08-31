@@ -278,9 +278,13 @@ namespace TrafficReport
 		{			
 			try 
 			{
+				if (currentReport == null || currentReport.allEntities == null) {
+					return;
+				}
+
 				GUILayout.Space (35);
 
-				if(currentHighlightType == HighlightType.None) {
+				if(currentHighlightType == HighlightType.None || currentReport.allEntities.Length == 0) {
 					GUILayout.Label("Nothing");
 					return;
 				}
@@ -343,6 +347,9 @@ namespace TrafficReport
 			GenerateMaps (report);
 
 			currentReport = report;
+
+			SetSegmentHighlight(HighlightType.None, 0);
+
 		}
 
 		private void GenerateMaps(Report report) {

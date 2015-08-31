@@ -10,7 +10,7 @@ namespace TrafficReport
 		public float width = 4f;
 		public float laneOffset = -2.0f;
 
-		public float curveRetractionFactor = 2.0f;
+		public float curveRetractionFactor = 1.5f;
 		public float lineScale = 0.5f;
 
 
@@ -23,56 +23,98 @@ namespace TrafficReport
 
 		public void AddPoints(Vector3[] points){
 
-			lastPoint = points[0];
+            lastPoint = points[0];
 
-			for (int i = 0; i < points.Length - 1; i++) {
+            for (int i = 0; i < points.Length - 1; i++)
+            {
+                
+              
 
-				Vector3 start = points [i];
-				Vector3 end = points [i+1];
+                Vector3 start = points[i];
+                Vector3 end = points[i + 1];
 
-				if((end-start).magnitude < width * 3) {
-					continue;
-				}
+                if ((end - start).magnitude < width * 3)
+                {
+                    //continue;
+                }
 
-				if(i != 0) {
-					start += (end-start).normalized * (width*curveRetractionFactor);
-				}
-				
-				if(i != points.Length - 2) {
-					end += (start-end).normalized * (width*curveRetractionFactor);
-				}
+                if (i != 0)
+                {
+                    start += (end - start).normalized * (width * curveRetractionFactor);
+                }
 
-
-				AddSegment(start, end);
-
-
-				if(i < points.Length - 2) {
-
-					Vector3 cornerPoint = points[i+1];
-
-					Vector3 nextStart = cornerPoint;
-					Vector3 nextEnd = points[i+2];
-					nextStart -= (nextStart-nextEnd).normalized * (width*curveRetractionFactor);
+                if (i != points.Length - 2)
+                {
+                    end += (start - end).normalized * (width * curveRetractionFactor);
+                }
 
 
-					Vector3 p0 = end;
-					Vector3 p1 = Vector3.Lerp (end,cornerPoint, 0.5f);
-					Vector3 p2 = Vector3.Lerp (nextStart,cornerPoint, 0.5f);
-					Vector3 p3 = nextStart;
+                AddSegment(start, end);
 
-					Vector3 startDir = (end-start).normalized;
-					Vector3 endDir = (nextEnd-nextStart).normalized;
 
-					float step = 0.2f;
-					for(float a = 0 ; a <= 1.0f; a += step) {
-						Vector3 point = Beizer.CalculateBezierPoint(a, p0,p1,p2,p3);
-						Vector3 fwd = Vector3.Lerp(startDir,endDir, a);
+                if (i < points.Length - 2)
+                {
+                  
 
-						textureOffset = (a * width * curveRetractionFactor * lineScale)/ 2.0f;
-						AddVertexPair(point,fwd);
-					}
-				} 
-			}
+
+                    Vector3 cornerPoint = points[i + 1];
+
+                    Vector3 nextStart = cornerPoint;
+                    Vector3 nextEnd = points[i + 2];
+                    nextStart -= (nextStart - nextEnd).normalized * (width * curveRetractionFactor);
+                    
+                    Debug.DrawLine(end, end + Vector3.up, Color.blue, 20000);
+                    Debug.DrawLine(nextStart, nextStart + Vector3.up, Color.blue, 20000);
+
+
+                    Vector3 p0 = end;
+                    Vector3 p1 = Vector3.Lerp(end, cornerPoint, 0.5f);
+                    Vector3 p2 = Vector3.Lerp(nextStart, cornerPoint, 0.5f);
+                    Vector3 p3 = nextStart;
+
+                    Debug.DrawLine(p0,p1, Color.yellow,2000);
+                    Debug.DrawLine(p1, p2, Color.blue, 2000);
+                    Debug.DrawLine(p2, p3, Color.yellow, 2000);
+
+                    Vector3 startDir = (end - start).normalized;
+                    Vector3 endDir = (nextEnd - nextStart).normalized;
+
+                    float step = 0.2f;
+                    for (float a = 0; a <= 1.0f; a += step)
+                    {
+                        Vector3 point = Beizer.CalculateBezierPoint(a, p0, p1, p2, p3);
+                        Vector3 fwd = Vector3.Lerp(startDir, endDir, a).normalized;
+
+                        textureOffset = (a * width * curveRetractionFactor * lineScale) / 2.0f;
+                        AddVertexPair(point, fwd);
+                    }
+                }
+            }
+
+
+            //Vector3 direction = points[1] - points[0];
+
+            //for (int i = 0; i < points.Length - 1; i++)
+            //{
+            //    //Vector3 p0 = points[i];
+            //    //Vector3 p1 = Vector3.Lerp (points[i],cornerPoint, 0.5f);
+            //    //Vector3 p2 = Vector3.Lerp (nextStart,cornerPoint, 0.5f);
+            //    //Vector3 p3 = nextStart;
+
+            //    //float step = 0.2f;
+            //    //for(float a = 0 ; a <= 1.0f; a += step) {
+            //    //    Vector3 point = Beizer.CalculateBezierPoint(a, p0,p1,p2,p3);
+            //    //    Vector3 fwd = Vector3.Lerp(startDir,endDir, a);
+
+            //    //    textureOffset = (a * width * curveRetractionFactor * lineScale)/ 2.0f;
+            //    //    AddVertexPair(point,fwd);
+            //    //}
+
+            //    //direction = points[i]-points
+
+            //    AddSegment(points[i], points[i + 1]);
+            //}
+
 
 			GenerateIndiciesAsLineStrip ();
 
@@ -174,6 +216,8 @@ namespace TrafficReport
 			uvs.Add (new Vector2 (textureOffset, 0.9f));
 
 			lastPoint = point;
+
+            //Debug.DrawLine(point, point + fwd,Color.green,20000);
 		}
 
 		public Mesh GetMesh() {

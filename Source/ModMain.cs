@@ -16,7 +16,7 @@ namespace TrafficReport
     {
 
 		QueryTool queryTool;
-
+    /*
         public TrafficReportMod() {
 
             Assembly ass = Assembly.GetAssembly(typeof(TrafficReportMod));
@@ -25,7 +25,7 @@ namespace TrafficReport
 
 
 		}
-        
+        */
         public string Name
         {
             get { return "Traffic Report Tool"; }

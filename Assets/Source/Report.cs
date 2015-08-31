@@ -58,7 +58,7 @@ namespace TrafficReport
 			try 
 			{
 			XmlSerializer xml = new XmlSerializer (GetType());
-			xml.Serialize (new FileStream (name, FileMode.OpenOrCreate, FileAccess.Write),this);
+			xml.Serialize (new FileStream (name, FileMode.Create, FileAccess.Write),this);
 			} catch(Exception e) {
 				Log.error("Error saving report" + e.ToString());
 			}

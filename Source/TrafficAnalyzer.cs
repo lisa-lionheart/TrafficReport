@@ -104,7 +104,7 @@ namespace TrafficReport
             });
         }
 
-        public void ReportOnSegment(ushort segmentID)
+		public void ReportOnSegment(ushort segmentID, NetInfo.Direction dir)
         {
             if (working)
             {
@@ -118,7 +118,7 @@ namespace TrafficReport
             {
                 try //
                 {
-                    Report report = this.DoReportOnSegment(segmentID);
+                    Report report = this.DoReportOnSegment(segmentID, dir);
                     working = false;
                     ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
                 }
@@ -156,7 +156,7 @@ namespace TrafficReport
             });
         }
 
-        private Report DoReportOnSegment(ushort segmentID)
+		private Report DoReportOnSegment(ushort segmentID, NetInfo.Direction dir)
         {
 
             List<EntityInfo> enities = new List<EntityInfo>();
@@ -180,7 +180,7 @@ namespace TrafficReport
 
                 //Log.info("Vehcile valid, checking if path intersects segment...");
 
-                if (this.PathContainsSegment(vehicles[i].m_path, segmentID))
+				if (this.PathContainsSegment(vehicles[i].m_path, segmentID, dir))
                 {
                     Log.info("Found vehicle on segemnt, getting path....");
 
@@ -197,6 +197,8 @@ namespace TrafficReport
                 }
             }
 
+            Log.debug("found " + enities.Count + " entities");
+
             Log.debug("Looking at citzens...");
             CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
             for (uint i = 0; i < citzens.Length; i++)
@@ -210,7 +212,7 @@ namespace TrafficReport
                     continue;
                 }
 
-                if (this.PathContainsSegment(citzens[i].m_path, segmentID))
+				if (this.PathContainsSegment(citzens[i].m_path, segmentID, dir))					
                 {
                     Log.info("Found citizen on segemnt, getting path....");
 
@@ -227,6 +229,8 @@ namespace TrafficReport
                 }
 
             }
+
+            Log.debug("found " + enities.Count + " entities");
 
             Log.debug("End DoReportOnSegment");
 
@@ -271,110 +275,237 @@ namespace TrafficReport
                 }
             }
 
+            CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
+            for (uint i = 0; i < citzens.Length; i++)
+            {
+                if ((citzens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None)
+                {
+                    continue;
+                }
+
+                if (citzens[i].m_path == 0)
+                {
+                    continue;
+                }
+
+                if(citzens[i].m_sourceBuilding == buildingID || citzens[i].m_targetBuilding == buildingID) {
+                    EntityInfo info;
+                    info.type = EntityType.Citzen;
+                    info.id = i;
+                    info.path = this.GatherPathVerticies(citzens[i].m_path);
+                    info.serviceType = "citzen";
+
+                    info.sourceBuilding = citzens[i].m_sourceBuilding;
+                    info.targetBuilding = citzens[i].m_targetBuilding;
+
+                    enities.Add(info);
+                }
+
+            }
+
            // Log.debug("End DoReportOnSegment");
 
             return new Report(enities.ToArray());
         }
+		
+		
 
-        private bool PathContainsSegment(uint pathID, ushort segmentID)
-        {
-            PathUnit path = this.getPath(pathID);
-           
-            while (true)
-            {
-                for (int i = 0; i < path.m_positionCount; i++)
-                {
-                    PathUnit.Position p = path.GetPosition(i);
-                    if (p.m_segment == segmentID)
-                    {
-                        return true;
-                    }
-                }
+		private bool PathContainsSegment(uint pathID, ushort segmentID, NetInfo.Direction dir)
+		{
+			NetManager instance = Singleton<NetManager>.instance;
+			PathUnit path = this.getPath(pathID);
 
-                if (path.m_nextPathUnit == 0)
-                {
-                    return false;
-                }
-                path = this.getPath(path.m_nextPathUnit);
-            }
-        }
+			while (true) {
+				for (int i = 0; i < path.m_positionCount; i++) {
+					PathUnit.Position p = path.GetPosition(i);
+					if (p.m_segment == segmentID) {
 
-        PathUnit getPath(uint id)
+						if (dir == NetInfo.Direction.Both) {
+							return true;
+						}
+
+						NetInfo info = instance.m_segments.m_buffer[(int)p.m_segment].Info;
+						NetInfo.Direction laneDir = NetInfo.Direction.None;
+
+						if (info.m_lanes.Length > (int)p.m_lane) {
+							laneDir = info.m_lanes[(int)p.m_lane].m_finalDirection;
+							if ((instance.m_segments.m_buffer[(int)p.m_segment].m_flags & NetSegment.Flags.Invert) != NetSegment.Flags.None) {
+								laneDir = NetInfo.InvertDirection(laneDir);
+							}
+						} else {
+                                                        Log.debug("bad lane count");
+						}
+
+						if (laneDir == dir) {
+							return true;
+						}
+//						} else if ((laneDir != NetInfo.Direction.Forward) && (laneDir != NetInfo.Direction.Backward)) {
+		//					Debug.Log("laneDir = " + laneDir);
+		//				}
+					}
+				}
+
+				if (path.m_nextPathUnit == 0) {
+					return false;
+				}
+
+				path = this.getPath(path.m_nextPathUnit);
+			}
+		}
+
+		PathUnit getPath(uint id)
         {
             return Singleton<PathManager>.instance.m_pathUnits.m_buffer[id];
         }
 
-		PathPoint[] GatherPathVerticies(uint pathID)
+        PathUnit.Position[] GatherPathPositions(uint pathID)
         {
-			List<PathPoint> path = new List<PathPoint>();
+            Log.debug("Gathering path positions ...");
 
-			PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
-			NetSegment[] segments = netMan.m_segments.m_buffer;
-			NetNode[] nodes = netMan.m_nodes.m_buffer;
-
-            //Log.debug("Gathering path...");
-
-			uint segment = paths[pathID].GetPosition(0).m_segment;
-			uint startNode, endNode;
-			startNode = segments[segment].m_startNode;
-            //verts.Add(lastPoint);
+            PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
+			List<PathUnit.Position> positions = new List<PathUnit.Position>();
             while (true)
             {
 				for (int i = 0; i < paths[pathID].m_positionCount; i++)
                 {
 					PathUnit.Position p = paths[pathID].GetPosition(i);
+                    positions.Add(p);
+                }
+
+                if (paths[pathID].m_nextPathUnit == 0)
+                {
+                    Log.debug("Done");
+                    return positions.ToArray();
+                }
+
+                pathID = paths[pathID].m_nextPathUnit;
+            }
+        }
+
+        //PathPoint[] GatherPathVerticies(uint pathID)
+        //{
+        //    List<PathPoint> path = new List<PathPoint>();
+
+        //    NetSegment[] segments = netMan.m_segments.m_buffer;
+        //    NetNode[] nodes = netMan.m_nodes.m_buffer;
+        //    PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
+        //    NetLane[] lanes = Singleton<NetManager>.instance.m_lanes.m_buffer;
 
 
+        //    PathUnit.Position[] positions = GatherPathPositions(pathID);
 
-                    if (p.m_segment != 0)
-                    {
-                    /*    segment = p.m_segment;
-						startNode = segments[segment].m_startNode;
-                        endNode = segments[segment].m_endNode;
+            
+        //    Vector3 pos, direction;
+        //    PathPoint newPoint;
 
-                        Vector3 startPos = nodes[startNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_startDirection) * 5.0f); 
-                        Vector3 endPos = nodes[endNode].m_position;// +(Vector3.Cross(Vector3.up, segment.m_endDirection) * -5.0f);
+        //    pos = PathManager.CalculatePosition(positions[0]);
 
-						Vector3 pv = Vector3.Lerp(startPos,endPos,(float)p.m_offset / 255.0f);
-						*/
+        //    for (int i = 0; i < positions.Length; i++)
+        //    {
 
-						Vector3 pv = PathManager.CalculatePosition(p);
+        //        uint laneID = PathManager.GetLaneID(positions[i]);
+        //        Vector3 laneStart, laneEnd;
 
-						PathPoint newPoint;
-						newPoint.x = pv.x;
-						newPoint.y = pv.y;
-						newPoint.z = pv.z;
-						newPoint.segmentID = p.m_segment;
+        //        lanes[laneID].CalculatePositionAndDirection(0, out laneStart, out direction);
+        //        lanes[laneID].CalculatePositionAndDirection(0, out laneEnd, out direction);
 
-						path.Add(newPoint);
+        //        float startOfset = positions[i].m_offset / 255.0f;
+                
+        //        float step = 0.2f;
+        //        if((laneStart-pos).magnitude < (laneEnd-pos).magnitude) {
+        //            step = - 0.2f;
 
-                       // verts.Add(endPos);
-                        //List<Vector3> segmentVerts = new List<Vector3>();
+        //            if (i != 0) {
+        //                startOfset = 1;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (i != 0)
+        //            {
+        //                startOfset = 0;
+        //            }
+        //        }
 
-                        //verts.Add(startNode.m_position);
-                        /*
-                        if (!NetSegment.IsStraight(startNode.m_position, segment.m_startDirection, endNode.m_position, segment.m_endDirection))
-                        {
-                            Vector3 mp1, mp2;
-                            NetSegment.CalculateMiddlePoints(
-                                    startNode.m_position, segment.m_startDirection, 
-                                    endNode.m_position, segment.m_endDirection, 
-                                    true, true, out mp1, out mp2);
-                            verts.Add(mp1);
-                            verts.Add(mp2);
-                        }*/
-                        //verts.Add(endNode.m_position);
+                
+        //        for(float j=startOfset; j <= 1 && j >= 0; j += step) {
+
+        //            lanes[laneID].CalculatePositionAndDirection(j, out pos, out direction);
+                                   
+        //            newPoint.x = pos.x;
+        //            newPoint.y = pos.y;
+        //            newPoint.z = pos.z;
+        //            newPoint.segmentID = positions[i].m_segment;
+
+        //            path.Add(newPoint);
+        //        }
+
+        //    }
+
+        //    return path.ToArray();
+        //}
+
+		PathPoint[] GatherPathVerticies(uint pathID)
+        {
+			List<PathPoint> path = new List<PathPoint>();
+
+			NetSegment[] segments = netMan.m_segments.m_buffer;
+			NetNode[] nodes = netMan.m_nodes.m_buffer;
+
+            
+            PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
+			uint segment = paths[pathID].GetPosition(0).m_segment;
+			uint startNode, endNode;
+			startNode = segments[segment].m_startNode;
+
+
+            PathUnit.Position[] positions = GatherPathPositions(pathID);
+
+            Log.debug("Generating verticies...");
+            
+            for (int i = 0; i < positions.Length; i++) {
+
+                Vector3 pv;
+                PathPoint newPoint;
+                   
+                    
+                pv = PathManager.CalculatePosition(positions[i]);
+                newPoint.x = pv.x;
+				newPoint.y = pv.y;
+				newPoint.z = pv.z;
+                newPoint.segmentID = positions[i].m_segment;
+
+				path.Add(newPoint);
+
+                if (i < positions.Length - 2) {
+                    if (positions[i].m_segment != positions[i + 1].m_segment) {
+
+                        PathUnit.Position nextPos = positions[i + 1];
+
+                        nextPos.m_offset = 0;
+                        Vector3 pvA = PathManager.CalculatePosition(nextPos);
+                        nextPos.m_offset = 255;
+                        Vector3 pvB = PathManager.CalculatePosition(nextPos);
+
+                        //Find the closest lane end of the next segment
+                        Vector3 nextpv = (pvA - pv).magnitude < (pvB - pv).magnitude ? pvA : pvB;
+
+                        if (nextpv == pv)
+                            continue;
+
+                        newPoint.x = nextpv.x;
+                        newPoint.y = nextpv.y;
+                        newPoint.z = nextpv.z;
+                        newPoint.segmentID = positions[i + 1].m_segment;
+
+                        path.Add(newPoint);
+                        
                     }
                 }
 
-				if (paths[pathID].m_nextPathUnit == 0)
-                {
-                    //Log.debug("Done");
-                    return path.ToArray();
-                }
-
-				pathID = paths[pathID].m_nextPathUnit;
             }
+
+            return path.ToArray();
         }
 
         void DumpPath(Vector3[] path)
