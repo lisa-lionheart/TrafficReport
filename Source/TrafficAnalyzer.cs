@@ -451,7 +451,7 @@ namespace TrafficReport
 
 			NetSegment[] segments = netMan.m_segments.m_buffer;
 			NetNode[] nodes = netMan.m_nodes.m_buffer;
-
+            NetLane[] lanes = Singleton<NetManager>.instance.m_lanes.m_buffer;
             
             PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
 			uint segment = paths[pathID].GetPosition(0).m_segment;
@@ -465,14 +465,15 @@ namespace TrafficReport
             
             for (int i = 0; i < positions.Length; i++) {
 
-                Vector3 pv;
-                PathPoint newPoint;
-                   
+                Vector3 pv, dir;
+                PathPoint newPoint = new PathPoint();
+                
+                uint laneID = PathManager.GetLaneID(positions[i]);
                     
-                pv = PathManager.CalculatePosition(positions[i]);
-                newPoint.x = pv.x;
-				newPoint.y = pv.y;
-				newPoint.z = pv.z;
+                lanes[laneID].CalculatePositionAndDirection(positions[i].m_offset / 255.0f,out pv, out dir);
+
+                newPoint.pos = pv;
+                newPoint.normal = (positions[i].m_offset < 128) ? -dir : dir;
                 newPoint.segmentID = positions[i].m_segment;
 
 				path.Add(newPoint);
@@ -480,22 +481,34 @@ namespace TrafficReport
                 if (i < positions.Length - 2) {
                     if (positions[i].m_segment != positions[i + 1].m_segment) {
 
+                        newPoint = new PathPoint();
+
                         PathUnit.Position nextPos = positions[i + 1];
+                        laneID = PathManager.GetLaneID(nextPos);
 
-                        nextPos.m_offset = 0;
-                        Vector3 pvA = PathManager.CalculatePosition(nextPos);
-                        nextPos.m_offset = 255;
-                        Vector3 pvB = PathManager.CalculatePosition(nextPos);
+                        
+                        Vector3 pvA, dirA, pvB,dirB;
+                        lanes[laneID].CalculatePositionAndDirection(0, out pvA, out dirA);
+                        lanes[laneID].CalculatePositionAndDirection(1, out pvB, out dirB);
 
-                        //Find the closest lane end of the next segment
-                        Vector3 nextpv = (pvA - pv).magnitude < (pvB - pv).magnitude ? pvA : pvB;
-
-                        if (nextpv == pv)
+                        if (pvA == pv || pvB == pv)
                             continue;
 
-                        newPoint.x = nextpv.x;
-                        newPoint.y = nextpv.y;
-                        newPoint.z = nextpv.z;
+                        newPoint.normal = Vector3.down;
+
+                        //Find the closest lane end of the next segment
+                        if ((pvA - pv).magnitude < (pvB - pv).magnitude)
+                        {
+                            newPoint.pos = pvA;
+                            newPoint.normal = dirA;
+                            
+                        }
+                        else
+                        {
+                            newPoint.pos = pvB;
+                            newPoint.normal = -dirB;
+                        }                      
+                        
                         newPoint.segmentID = positions[i + 1].m_segment;
 
                         path.Add(newPoint);

@@ -21,115 +21,82 @@ namespace TrafficReport
 		float textureOffset = 0.0f;
 
 
-		public void AddPoints(Vector3[] points){
+		public void AddPoints(PathPoint[] points){
 
-            lastPoint = points[0];
+            lastPoint = points[0].pos;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                
+                Debug.DrawLine(points[i].pos, points[i].pos + Vector3.up, Color.blue, 20000);
+                Debug.DrawLine(points[i].pos, points[i].pos + points[i].normal, Color.green, 20000);
+
+            }
 
             for (int i = 0; i < points.Length - 1; i++)
             {
-                
-              
-
-                Vector3 start = points[i];
-                Vector3 end = points[i + 1];
-
-                if ((end - start).magnitude < width * 3)
+                PathPoint thisPoint = points[i];
+                PathPoint nextPoint = points[i + 1];
+                             
+                if ((thisPoint.pos-nextPoint.pos).magnitude < 10.0f)
                 {
-                    //continue;
-                }
-
-                if (i != 0)
-                {
-                    start += (end - start).normalized * (width * curveRetractionFactor);
-                }
-
-                if (i != points.Length - 2)
-                {
-                    end += (start - end).normalized * (width * curveRetractionFactor);
+                    i++;
+                    nextPoint = points[i + 1];
                 }
 
 
-                AddSegment(start, end);
+                Vector3 thisPointPos = thisPoint.pos;// +thisPoint.normal.normalized * 2.0f;
+                Vector3 nextPointPos = nextPoint.pos;// -nextPoint.normal.normalized * 2.0f;
 
+                //AddVertexPair(thisPoint.pos, thisPoint.normal.normalized);
 
-                if (i < points.Length - 2)
+                float segementLength =(thisPointPos-nextPointPos).magnitude;
+
+                Vector3 p0 = thisPointPos;
+                Vector3 p1 = thisPointPos + thisPoint.normal.normalized * segementLength/2.0f;
+                Vector3 p2 = nextPointPos - nextPoint.normal.normalized * segementLength/2.0f;
+                Vector3 p3 = nextPointPos;
+
+                float step = 0.1f;
+                int textureRepeats = (int)Math.Floor(segementLength / (width*2));
+
+                //Todo change step based on curve factor
+
+                for (float a = 0; a < 1.0f; a += step)
                 {
-                  
+                    Vector3 point = Beizer.CalculateBezierPoint(a, p0, p1, p2, p3);
+                    Vector3 pointB = Beizer.CalculateBezierPoint(a+step, p0, p1, p2, p3);
+                    Vector3 fwd = (pointB - point).normalized;
 
+                    Debug.DrawLine(point, point + fwd, Color.green, 2000);
 
-                    Vector3 cornerPoint = points[i + 1];
+                    AddVertexPair(point, fwd);
 
-                    Vector3 nextStart = cornerPoint;
-                    Vector3 nextEnd = points[i + 2];
-                    nextStart -= (nextStart - nextEnd).normalized * (width * curveRetractionFactor);
-                    
-                    Debug.DrawLine(end, end + Vector3.up, Color.blue, 20000);
-                    Debug.DrawLine(nextStart, nextStart + Vector3.up, Color.blue, 20000);
+                    textureOffset += step * textureRepeats; //(a * width * curveRetractionFactor * lineScale) / 2.0f;
 
-
-                    Vector3 p0 = end;
-                    Vector3 p1 = Vector3.Lerp(end, cornerPoint, 0.5f);
-                    Vector3 p2 = Vector3.Lerp(nextStart, cornerPoint, 0.5f);
-                    Vector3 p3 = nextStart;
-
-                    Debug.DrawLine(p0,p1, Color.yellow,2000);
-                    Debug.DrawLine(p1, p2, Color.blue, 2000);
-                    Debug.DrawLine(p2, p3, Color.yellow, 2000);
-
-                    Vector3 startDir = (end - start).normalized;
-                    Vector3 endDir = (nextEnd - nextStart).normalized;
-
-                    float step = 0.2f;
-                    for (float a = 0; a <= 1.0f; a += step)
-                    {
-                        Vector3 point = Beizer.CalculateBezierPoint(a, p0, p1, p2, p3);
-                        Vector3 fwd = Vector3.Lerp(startDir, endDir, a).normalized;
-
-                        textureOffset = (a * width * curveRetractionFactor * lineScale) / 2.0f;
-                        AddVertexPair(point, fwd);
-                    }
                 }
+
             }
 
 
-            //Vector3 direction = points[1] - points[0];
-
-            //for (int i = 0; i < points.Length - 1; i++)
-            //{
-            //    //Vector3 p0 = points[i];
-            //    //Vector3 p1 = Vector3.Lerp (points[i],cornerPoint, 0.5f);
-            //    //Vector3 p2 = Vector3.Lerp (nextStart,cornerPoint, 0.5f);
-            //    //Vector3 p3 = nextStart;
-
-            //    //float step = 0.2f;
-            //    //for(float a = 0 ; a <= 1.0f; a += step) {
-            //    //    Vector3 point = Beizer.CalculateBezierPoint(a, p0,p1,p2,p3);
-            //    //    Vector3 fwd = Vector3.Lerp(startDir,endDir, a);
-
-            //    //    textureOffset = (a * width * curveRetractionFactor * lineScale)/ 2.0f;
-            //    //    AddVertexPair(point,fwd);
-            //    //}
-
-            //    //direction = points[i]-points
-
-            //    AddSegment(points[i], points[i + 1]);
-            //}
+            //End the last segement
+            AddVertexPair(points[points.Length - 1].pos, points[points.Length - 1].normal.normalized);
 
 
 			GenerateIndiciesAsLineStrip ();
 
-            Vector3 startFwd = (points[0] - points[1]);
+            Vector3 startFwd = (points[0].pos - points[1].pos);
             //			if (startFwd.magnitude < width * 3.0f) {
             //				startFwd = (points[0] - points [2]);
             //			}
-            AddEndStop(points[0], startFwd.normalized, false);
+            AddEndStop(points[0].pos, startFwd.normalized, false);
 
-            Vector3 endFwd = (points[points.Length - 1] - points[points.Length - 2]);
+            Vector3 endFwd = (points[points.Length - 1].pos - points[points.Length - 2].pos);
             if (endFwd.magnitude < width * 3.0f)
             {
-                endFwd = (points[points.Length - 1] - points[points.Length - 3]);
+                endFwd = (points[points.Length - 1].pos - points[points.Length - 3].pos);
             }
-            AddEndStop(points[points.Length - 1], endFwd.normalized, true);
+            AddEndStop(points[points.Length - 1].pos, endFwd.normalized, true);
 		}
 
 		void AddEndStop(Vector3 point, Vector3 fwd, bool isEnd) {

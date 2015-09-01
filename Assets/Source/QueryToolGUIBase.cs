@@ -442,14 +442,7 @@ namespace TrafficReport
 			
 			PathMeshBuilder pb = new PathMeshBuilder();
 
-			
-			Vector3[] points = new Vector3[positions.Length];
-			for (int i=0; i < positions.Length; i++) {
-				points[i] = new Vector3(positions[i].x, positions[i].y, positions[i].z);
-			}
-			
-			
-			pb.AddPoints(points);
+			pb.AddPoints(positions);
 			
 			Mesh m = pb.GetMesh();
 			GameObject go = new GameObject(); ;
