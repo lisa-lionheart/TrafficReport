@@ -28,7 +28,7 @@ namespace TrafficReport
         */
         public string Name
         {
-            get { return "Traffic Report Tool"; }
+            get { return "Traffic Report Tool 1.5"; }
         }
         public string Description
         {

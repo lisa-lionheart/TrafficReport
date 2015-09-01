@@ -12,7 +12,7 @@ namespace TrafficReport
             get {
 
                 if(_logFile == null) {
-                    _logFile = new StreamWriter(new FileStream("TrafficReport.log", FileMode.Append, FileAccess.Write, FileShare.Read));
+                    _logFile = new StreamWriter(new FileStream("TrafficReport.log", FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
                     _logFile.WriteLine("Loggin started at" + DateTime.Now.ToString());
                 }
                 return _logFile;
