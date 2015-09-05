@@ -85,6 +85,7 @@ namespace TrafficReport
 			lineMaterial = new Material (lineShader);
 			lineMaterial.color = red;
 			lineMaterial.SetColor("_Emission", red);
+            lineMaterial.SetColor("_SpecColor", Color.black); //Disable shine effect
 			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials/NewSkin.png");
 			lineMaterial.renderQueue = 100;
 			

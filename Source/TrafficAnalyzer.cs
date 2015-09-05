@@ -182,7 +182,7 @@ namespace TrafficReport
 
 				if (this.PathContainsSegment(vehicles[i].m_path, segmentID, dir))
                 {
-                    Log.info("Found vehicle on segemnt, getting path....");
+                    //Log.info("Found vehicle on segemnt, getting path....");
 
                     EntityInfo info;
                     info.type = EntityType.Vehicle;
@@ -214,7 +214,7 @@ namespace TrafficReport
 
 				if (this.PathContainsSegment(citzens[i].m_path, segmentID, dir))					
                 {
-                    Log.info("Found citizen on segemnt, getting path....");
+                    //Log.info("Found citizen on segemnt, getting path....");
 
                     EntityInfo info;
                     info.type = EntityType.Citzen;
@@ -225,7 +225,6 @@ namespace TrafficReport
 					info.targetBuilding = citzens[i].m_targetBuilding;
 
                     enities.Add(info);
-                    Log.info("Got Path");
                 }
 
             }
@@ -303,8 +302,6 @@ namespace TrafficReport
 
             }
 
-           // Log.debug("End DoReportOnSegment");
-
             return new Report(enities.ToArray());
         }
 		
@@ -316,7 +313,8 @@ namespace TrafficReport
 			PathUnit path = this.getPath(pathID);
 
 			while (true) {
-				for (int i = 0; i < path.m_positionCount; i++) {
+                // HACK: Dont inlude last segment as it will show vechicles arriving for both directions
+				for (int i = 0; i < path.m_positionCount-1; i++) {
 					PathUnit.Position p = path.GetPosition(i);
 					if (p.m_segment == segmentID) {
 
@@ -333,7 +331,7 @@ namespace TrafficReport
 								laneDir = NetInfo.InvertDirection(laneDir);
 							}
 						} else {
-                                                        Log.debug("bad lane count");
+                            Log.error("bad lane count");
 						}
 
 						if (laneDir == dir) {
@@ -360,7 +358,7 @@ namespace TrafficReport
 
         PathUnit.Position[] GatherPathPositions(uint pathID)
         {
-            Log.debug("Gathering path positions ...");
+            //Log.debug("Gathering path positions ...");
 
             PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
 			List<PathUnit.Position> positions = new List<PathUnit.Position>();
@@ -374,76 +372,13 @@ namespace TrafficReport
 
                 if (paths[pathID].m_nextPathUnit == 0)
                 {
-                    Log.debug("Done");
+                    //Log.debug("Done");
                     return positions.ToArray();
                 }
 
                 pathID = paths[pathID].m_nextPathUnit;
             }
         }
-
-        //PathPoint[] GatherPathVerticies(uint pathID)
-        //{
-        //    List<PathPoint> path = new List<PathPoint>();
-
-        //    NetSegment[] segments = netMan.m_segments.m_buffer;
-        //    NetNode[] nodes = netMan.m_nodes.m_buffer;
-        //    PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
-        //    NetLane[] lanes = Singleton<NetManager>.instance.m_lanes.m_buffer;
-
-
-        //    PathUnit.Position[] positions = GatherPathPositions(pathID);
-
-            
-        //    Vector3 pos, direction;
-        //    PathPoint newPoint;
-
-        //    pos = PathManager.CalculatePosition(positions[0]);
-
-        //    for (int i = 0; i < positions.Length; i++)
-        //    {
-
-        //        uint laneID = PathManager.GetLaneID(positions[i]);
-        //        Vector3 laneStart, laneEnd;
-
-        //        lanes[laneID].CalculatePositionAndDirection(0, out laneStart, out direction);
-        //        lanes[laneID].CalculatePositionAndDirection(0, out laneEnd, out direction);
-
-        //        float startOfset = positions[i].m_offset / 255.0f;
-                
-        //        float step = 0.2f;
-        //        if((laneStart-pos).magnitude < (laneEnd-pos).magnitude) {
-        //            step = - 0.2f;
-
-        //            if (i != 0) {
-        //                startOfset = 1;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (i != 0)
-        //            {
-        //                startOfset = 0;
-        //            }
-        //        }
-
-                
-        //        for(float j=startOfset; j <= 1 && j >= 0; j += step) {
-
-        //            lanes[laneID].CalculatePositionAndDirection(j, out pos, out direction);
-                                   
-        //            newPoint.x = pos.x;
-        //            newPoint.y = pos.y;
-        //            newPoint.z = pos.z;
-        //            newPoint.segmentID = positions[i].m_segment;
-
-        //            path.Add(newPoint);
-        //        }
-
-        //    }
-
-        //    return path.ToArray();
-        //}
 
 		PathPoint[] GatherPathVerticies(uint pathID)
         {
@@ -461,7 +396,7 @@ namespace TrafficReport
 
             PathUnit.Position[] positions = GatherPathPositions(pathID);
 
-            Log.debug("Generating verticies...");
+            //Log.debug("Generating verticies...");
 
             PathPoint lastPoint = new PathPoint();
             
