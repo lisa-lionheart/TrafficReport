@@ -22,6 +22,8 @@ public class TestQueryToolGUI : QueryToolGUIBase {
 	void Start () {
 
 		Report r = Report.Load ("Assets/report.xml");
+
+        r.Save("Report2.xml");
 	
 		SetReport (r);
 		SetSegmentHighlight (QueryToolGUIBase.HighlightType.Segment, 23080);

@@ -15,35 +15,13 @@ namespace TrafficReport
 
 	[Serializable]
 	public struct PathPoint {
-		public float x,y,z, nx, ny, nz;
-		public uint segmentID;
 
-        public Vector3 pos
-        {
-            get
-            {
-                return new Vector3(x, y, z);
-            }
-            set {
-                x = value.x;
-                y = value.y;
-                z = value.z;
-            }
-        }
 
-        public Vector3 normal
-        {
-            get
-            {
-                return new Vector3(nx, ny, nz);
-            }
-            set
-            {
-                nx = value.x;
-                ny = value.y;
-                nz = value.z;
-            }
-        }
+        public Vector3 pos, forwards, backwards;
+           
+		
+        public uint segmentID;
+        public bool guessed;
 	}
 	
 	[Serializable]
@@ -84,7 +62,7 @@ namespace TrafficReport
 			Log.info ("Saving report");
 			try 
 			{
-			XmlSerializer xml = new XmlSerializer (GetType());
+			XmlSerializer xml = new XmlSerializer (typeof(Report));
 			xml.Serialize (new FileStream (name, FileMode.Create, FileAccess.Write),this);
 			} catch(Exception e) {
 				Log.error("Error saving report" + e.ToString());

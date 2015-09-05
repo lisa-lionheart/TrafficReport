@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\path1.txt" />
+    <None Include="Assets\TestScene.unity" />
     <None Include="Assets\UnityVS\Editor.meta" />
     <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll" />
     <None Include="Assets\UnityVS\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll.meta" />
@@ -61,7 +62,6 @@
     <None Include="Assets\UnityVS\Editor\UnityVS.VersionSpecific.dll.meta" />
     <Content Include="mklink.psm1" />
     <None Include="run_game.ps1" />
-    <None Include="run_game_sandbox.bat" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Materials\Button.active.png" />

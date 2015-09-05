@@ -455,13 +455,15 @@ namespace TrafficReport
             
             PathUnit[] paths = Singleton<PathManager>.instance.m_pathUnits.m_buffer;
 			uint segment = paths[pathID].GetPosition(0).m_segment;
-			uint startNode, endNode;
+			uint startNode;
 			startNode = segments[segment].m_startNode;
 
 
             PathUnit.Position[] positions = GatherPathPositions(pathID);
 
             Log.debug("Generating verticies...");
+
+            PathPoint lastPoint = new PathPoint();
             
             for (int i = 0; i < positions.Length; i++) {
 
@@ -472,11 +474,21 @@ namespace TrafficReport
                     
                 lanes[laneID].CalculatePositionAndDirection(positions[i].m_offset / 255.0f,out pv, out dir);
 
+                newPoint.guessed = false;
                 newPoint.pos = pv;
-                newPoint.normal = (positions[i].m_offset < 128) ? -dir : dir;
+                newPoint.forwards = (positions[i].m_offset < 128) ? -dir : dir;
+                newPoint.backwards = -newPoint.forwards;
+
+                //Point is contining a curve
+                if ((lastPoint.pos - newPoint.pos).magnitude < 5.0f)
+                {
+                    newPoint.backwards = -lastPoint.forwards;
+                }
+
                 newPoint.segmentID = positions[i].m_segment;
 
 				path.Add(newPoint);
+                lastPoint = newPoint;
 
                 if (i < positions.Length - 2) {
                     if (positions[i].m_segment != positions[i + 1].m_segment) {
@@ -485,33 +497,35 @@ namespace TrafficReport
 
                         PathUnit.Position nextPos = positions[i + 1];
                         laneID = PathManager.GetLaneID(nextPos);
-
-                        
+                                                
                         Vector3 pvA, dirA, pvB,dirB;
                         lanes[laneID].CalculatePositionAndDirection(0, out pvA, out dirA);
                         lanes[laneID].CalculatePositionAndDirection(1, out pvB, out dirB);
 
+                        //Skip when not a junction;
                         if (pvA == pv || pvB == pv)
                             continue;
 
-                        newPoint.normal = Vector3.down;
-
+                        newPoint.guessed = true;
+                      
                         //Find the closest lane end of the next segment
                         if ((pvA - pv).magnitude < (pvB - pv).magnitude)
                         {
                             newPoint.pos = pvA;
-                            newPoint.normal = dirA;
-                            
+                            newPoint.forwards = dirA;
+                            newPoint.backwards = -dirA;
                         }
                         else
                         {
                             newPoint.pos = pvB;
-                            newPoint.normal = -dirB;
+                            newPoint.forwards = -dirB;
+                            newPoint.backwards = dirB;
                         }                      
                         
                         newPoint.segmentID = positions[i + 1].m_segment;
 
                         path.Add(newPoint);
+                        lastPoint = newPoint;
                         
                     }
                 }

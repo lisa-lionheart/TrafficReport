@@ -57,7 +57,7 @@ namespace TrafficReport
 				Config config =  xml.Deserialize(fs) as Config;
 				fs.Close();
 				return config;
-			} catch(Exception e) {
+			} catch {
 				return new Config();
 			} 
 		}

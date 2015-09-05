@@ -332,7 +332,10 @@ namespace TrafficReport
 			visualizations = new GameObject[report.allEntities.Length];
 			for(int i=0; i < report.allEntities.Length; i++)
 			{
+                //if (i != 34)  continue;
+
 				visualizations[i] =  CreatePathGameobject(report.allEntities[i].serviceType, report.allEntities[i].path);
+                visualizations[i].name = "Path " + i;
 			}
 			
 			float alpha = 30.0f / report.allEntities.Length;
@@ -446,7 +449,7 @@ namespace TrafficReport
 			
 			Mesh m = pb.GetMesh();
 			GameObject go = new GameObject(); ;
-			go.AddComponent<MeshFilter>();
+            go.AddComponent<MeshFilter>();
 			go.AddComponent<MeshRenderer>();
 			go.GetComponent<MeshFilter>().mesh = m;
 			go.GetComponent<MeshFilter>().sharedMesh = m;
