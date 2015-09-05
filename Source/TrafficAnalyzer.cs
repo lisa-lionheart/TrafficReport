@@ -78,17 +78,17 @@ namespace TrafficReport
             {
                 try
                 {
-                    CitizenInstance[] citzens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
+                    CitizenInstance[] citizens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
 
 
                     EntityInfo info;
-                    info.type = EntityType.Citzen;
+                    info.type = EntityType.Citizen;
 					info.id = id;
-                    info.path = this.GatherPathVerticies(citzens[id].m_path);
-					info.serviceType = "citzen";
+                    info.path = this.GatherPathVerticies(citizens[id].m_path);
+					info.serviceType = "citizen";
 					
-					info.sourceBuilding = citzens[id].m_sourceBuilding;
-					info.targetBuilding = citzens[id].m_targetBuilding;
+					info.sourceBuilding = citizens[id].m_sourceBuilding;
+					info.targetBuilding = citizens[id].m_targetBuilding;
 
                     Report report = new Report(info);
 
@@ -199,30 +199,30 @@ namespace TrafficReport
 
             Log.debug("found " + enities.Count + " entities");
 
-            Log.debug("Looking at citzens...");
-            CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
-            for (uint i = 0; i < citzens.Length; i++)
+            Log.debug("Looking at citizens...");
+            CitizenInstance[] citizens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
+            for (uint i = 0; i < citizens.Length; i++)
             {
-                if((citzens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None) {
+                if((citizens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None) {
                     continue;
                 }
 
-                if (citzens[i].m_path == 0)
+                if (citizens[i].m_path == 0)
                 {
                     continue;
                 }
 
-				if (this.PathContainsSegment(citzens[i].m_path, segmentID, dir))					
+				if (this.PathContainsSegment(citizens[i].m_path, segmentID, dir))					
                 {
                     //Log.info("Found citizen on segemnt, getting path....");
 
                     EntityInfo info;
-                    info.type = EntityType.Citzen;
+                    info.type = EntityType.Citizen;
 					info.id = i;
-                    info.path = this.GatherPathVerticies(citzens[i].m_path);
+                    info.path = this.GatherPathVerticies(citizens[i].m_path);
 					info.serviceType = "citizen";
-					info.sourceBuilding = citzens[i].m_sourceBuilding;
-					info.targetBuilding = citzens[i].m_targetBuilding;
+					info.sourceBuilding = citizens[i].m_sourceBuilding;
+					info.targetBuilding = citizens[i].m_targetBuilding;
 
                     enities.Add(info);
                 }
@@ -274,28 +274,30 @@ namespace TrafficReport
                 }
             }
 
-            CitizenInstance[] citzens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
-            for (uint i = 0; i < citzens.Length; i++)
+            CitizenInstance[] citizens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
+            for (uint i = 0; i < citizens.Length; i++)
             {
-                if ((citzens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None)
+                if ((citizens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None)
                 {
                     continue;
                 }
 
-                if (citzens[i].m_path == 0)
+                if (citizens[i].m_path == 0)
                 {
                     continue;
                 }
 
-                if(citzens[i].m_sourceBuilding == buildingID || citzens[i].m_targetBuilding == buildingID) {
+
+
+                if(citizens[i].m_sourceBuilding == buildingID || citizens[i].m_targetBuilding == buildingID) {
                     EntityInfo info;
-                    info.type = EntityType.Citzen;
+                    info.type = EntityType.Citizen;
                     info.id = i;
-                    info.path = this.GatherPathVerticies(citzens[i].m_path);
-                    info.serviceType = "citzen";
+                    info.path = this.GatherPathVerticies(citizens[i].m_path);
+                    info.serviceType = "citizen";
 
-                    info.sourceBuilding = citzens[i].m_sourceBuilding;
-                    info.targetBuilding = citzens[i].m_targetBuilding;
+                    info.sourceBuilding = citizens[i].m_sourceBuilding;
+                    info.targetBuilding = citizens[i].m_targetBuilding;
 
                     enities.Add(info);
                 }
@@ -309,14 +311,28 @@ namespace TrafficReport
 
 		private bool PathContainsSegment(uint pathID, ushort segmentID, NetInfo.Direction dir)
 		{
+            
+
 			NetManager instance = Singleton<NetManager>.instance;
 			PathUnit path = this.getPath(pathID);
+
+            
 
 			while (true) {
                 // HACK: Dont inlude last segment as it will show vechicles arriving for both directions
 				for (int i = 0; i < path.m_positionCount-1; i++) {
-					PathUnit.Position p = path.GetPosition(i);
+
+                    PathUnit.Position p = path.GetPosition(i);
+                    NetSegment segment = instance.m_segments.m_buffer[(int)p.m_segment];
+
+                    // Exclude paths with deleted segments
+                    if (PathManager.GetLaneID(p) == 0 || (segment.m_flags & NetSegment.Flags.Deleted) != 0)
+                    {
+                        return false;
+                    }
+
 					if (p.m_segment == segmentID) {
+
 
 						if (dir == NetInfo.Direction.Both) {
 							return true;
@@ -327,7 +343,7 @@ namespace TrafficReport
 
 						if (info.m_lanes.Length > (int)p.m_lane) {
 							laneDir = info.m_lanes[(int)p.m_lane].m_finalDirection;
-							if ((instance.m_segments.m_buffer[(int)p.m_segment].m_flags & NetSegment.Flags.Invert) != NetSegment.Flags.None) {
+							if ((segment.m_flags & NetSegment.Flags.Invert) != NetSegment.Flags.None) {
 								laneDir = NetInfo.InvertDirection(laneDir);
 							}
 						} else {
@@ -367,7 +383,12 @@ namespace TrafficReport
 				for (int i = 0; i < paths[pathID].m_positionCount; i++)
                 {
 					PathUnit.Position p = paths[pathID].GetPosition(i);
-                    positions.Add(p);
+
+                    //Exclude invalid lanes
+                    if (PathManager.GetLaneID(p) != 0) {
+                        positions.Add(p);
+                    }
+                    
                 }
 
                 if (paths[pathID].m_nextPathUnit == 0)
@@ -405,10 +426,16 @@ namespace TrafficReport
                 Vector3 pv, dir;
                 PathPoint newPoint = new PathPoint();
                 
-                uint laneID = PathManager.GetLaneID(positions[i]);
-                    
-                lanes[laneID].CalculatePositionAndDirection(positions[i].m_offset / 255.0f,out pv, out dir);
+                uint laneId = PathManager.GetLaneID(positions[i]);
 
+                //Put the destination market on the road not the sidewalk
+                if (i == positions.Length - 1) {
+                    laneId = lastPoint.laneId;
+                }
+                    
+                lanes[laneId].CalculatePositionAndDirection(positions[i].m_offset / 255.0f,out pv, out dir);
+
+                newPoint.laneId = laneId;
                 newPoint.guessed = false;
                 newPoint.pos = pv;
                 newPoint.forwards = (positions[i].m_offset < 128) ? -dir : dir;
@@ -420,7 +447,7 @@ namespace TrafficReport
                     newPoint.backwards = -lastPoint.forwards;
                 }
 
-                newPoint.segmentID = positions[i].m_segment;
+                newPoint.segmentId = positions[i].m_segment;
 
 				path.Add(newPoint);
                 lastPoint = newPoint;
@@ -431,21 +458,22 @@ namespace TrafficReport
                         newPoint = new PathPoint();
 
                         PathUnit.Position nextPos = positions[i + 1];
-                        laneID = PathManager.GetLaneID(nextPos);
+                        laneId = PathManager.GetLaneID(nextPos);
                                                 
                         Vector3 pvA, dirA, pvB,dirB;
-                        lanes[laneID].CalculatePositionAndDirection(0, out pvA, out dirA);
-                        lanes[laneID].CalculatePositionAndDirection(1, out pvB, out dirB);
+                        lanes[laneId].CalculatePositionAndDirection(0, out pvA, out dirA);
+                        lanes[laneId].CalculatePositionAndDirection(1, out pvB, out dirB);
 
                         //Skip when not a junction;
                         if (pvA == pv || pvB == pv)
                             continue;
 
                         newPoint.guessed = true;
+                        newPoint.laneId = laneId;
                       
                         //Find the closest lane end of the next segment
                         if ((pvA - pv).magnitude < (pvB - pv).magnitude)
-                        {
+                        {   
                             newPoint.pos = pvA;
                             newPoint.forwards = dirA;
                             newPoint.backwards = -dirA;
@@ -457,7 +485,7 @@ namespace TrafficReport
                             newPoint.backwards = dirB;
                         }                      
                         
-                        newPoint.segmentID = positions[i + 1].m_segment;
+                        newPoint.segmentId = positions[i + 1].m_segment;
 
                         path.Add(newPoint);
                         lastPoint = newPoint;
@@ -484,6 +512,21 @@ namespace TrafficReport
         }
 
 
-       
+
+
+        internal Vector3 GetSegmentMidPoint(ushort segmentId)
+        {
+
+
+            NetSegment segment = netMan.m_segments.m_buffer[segmentId];
+            NetLane[] lanes = netMan.m_lanes.m_buffer;
+            NetNode[] nodes = netMan.m_nodes.m_buffer;
+
+
+            NetNode start = nodes[segment.m_startNode];
+            NetNode end = nodes[segment.m_startNode];
+
+            return Beizer.CalculateBezierPoint(0.5f, start.m_position, start.m_position + segment.m_startDirection, end.m_position + segment.m_endDirection, end.m_position);       
+        }
     }
 }

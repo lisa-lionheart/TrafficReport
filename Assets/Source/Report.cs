@@ -9,18 +9,14 @@ namespace TrafficReport
 	
 	[Serializable]
 	public enum EntityType {
-		Citzen,
+		Citizen,
 		Vehicle
 	}
 
 	[Serializable]
 	public struct PathPoint {
-
-
         public Vector3 pos, forwards, backwards;
-           
-		
-        public uint segmentID;
+        public uint segmentId, laneId;
         public bool guessed;
 	}
 	
@@ -61,12 +57,17 @@ namespace TrafficReport
         {
 			Log.info ("Saving report");
 			try 
-			{
-			XmlSerializer xml = new XmlSerializer (typeof(Report));
-			xml.Serialize (new FileStream (name, FileMode.Create, FileAccess.Write),this);
+			    {
+			    XmlSerializer xml = new XmlSerializer (typeof(Report));
+                FileStream fs = new FileStream(name, FileMode.Create, FileAccess.Write);
+			    xml.Serialize (fs,this);
+                fs.Close();
 			} catch(Exception e) {
 				Log.error("Error saving report" + e.ToString());
-			}
+            }
+            finally {
+            }
+            
         }
 
         public static Report Load(string name)

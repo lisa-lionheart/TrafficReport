@@ -48,6 +48,7 @@
     <Compile Include="Assets\Source\Config.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\Materials\Pin.png" />
     <Content Include="Assets\report.xml" />
   </ItemGroup>
   <ItemGroup>

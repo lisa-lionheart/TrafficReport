@@ -8,10 +8,13 @@ namespace TrafficReport
 
 
 		public float width = 4f;
+        public float endStopSize = 3.0f;
 		public float laneOffset = -2.0f;
 
 		public float curveRetractionFactor = 1.5f;
 		public float lineScale = 0.5f;
+
+        public float duplicatePointThreshold = 5.0f;
 
 
 		List<Vector3> verts = new List<Vector3> ();
@@ -27,14 +30,14 @@ namespace TrafficReport
             int j = 0;
             for (int i = 0; i < points.Length -1; i++)
             {
-                if ((points[j].pos - points[i].pos).magnitude < 5.0f)
+                if ((points[j].pos - points[i].pos).magnitude < duplicatePointThreshold)
                     continue;
                 
                 // KLUDGE: Filter out tight U-Turns
                 if (
                     i > points.Length - 4 
                     && (Vector3.Angle(points[j].forwards, points[i].forwards) > 170.0f)
-                    && (points[j].pos - points[i].pos).magnitude < 10.0f
+                    && (points[j].pos - points[i].pos).magnitude < duplicatePointThreshold
                 )
                     continue;
                 
@@ -43,7 +46,11 @@ namespace TrafficReport
             }
 
 
-            points[points.Length - 1].forwards = points[points.Length - 1].pos - points[j].pos;
+            
+            points[points.Length - 1].forwards = Vector3.zero;// points[points.Length - 1].pos - points[j].pos;
+
+
+
             o.Add(points[points.Length - 1]);
             return o;
         }
@@ -98,10 +105,17 @@ namespace TrafficReport
                 
                 //First calculate the real length of the spline with a rough calulation
                 float realLength = 0;
+                float maxAngle = 0;
                 for (float a = 0; a < 1.0f; a += 0.1f)
                 {
                     Vector3 pointA = Beizer.CalculateBezierPoint(a, p0, p1, p2, p3);
                     Vector3 pointB = Beizer.CalculateBezierPoint(a + 0.2f, p0, p1, p2, p3);
+
+                    float ang = Vector3.Angle(pointB-p0, p1-p0);
+                    if (ang > maxAngle) {
+                        maxAngle = ang;
+                    }
+
                     realLength += (pointA - pointB).magnitude;
                 }
 
@@ -112,7 +126,7 @@ namespace TrafficReport
                 textureOffset = (float)Math.Round(textureOffset);
 
                 //Aim to keep a fixed size for each quad, increaing the number the more it curves
-                int steps = (int)((realLength / 10.0f) * (1.0f + angle/45.0));
+                int steps = (int)Math.Floor(realLength / 20.0f + maxAngle / 3.0f) + 1;
                 float step = 1.0f / steps;
                 for (float a = 0; a < 1.0f; a += step)
                 {
@@ -164,7 +178,7 @@ namespace TrafficReport
 				float angle = (step * anglePerStep);
 
 				Vector3 p = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
-				verts.Add(point + (p*width*2));
+				verts.Add(point + (p*endStopSize));
 				uvs.Add (new Vector2 (0.5f, v2));
 			}
 
@@ -234,6 +248,7 @@ namespace TrafficReport
 			m.triangles = triangles.ToArray();
 			m.uv = uvs.ToArray();
 			m.RecalculateNormals();
+            m.Optimize();
 			return m;
 		}
 	}

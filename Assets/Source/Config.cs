@@ -74,6 +74,16 @@ namespace TrafficReport
 
 			}
 		}
-	}
+
+        internal bool IsTypeVisible(string p)
+        {
+            foreach(VehicleDisplay v in vehicleTypes) {
+                if(v.id == p) {
+                    return v.onOff;
+                }
+            }
+            return true;
+        }
+    }
 }
 

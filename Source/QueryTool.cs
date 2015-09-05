@@ -65,6 +65,27 @@ namespace TrafficReport
 			}
         }
 
+
+        public override Vector3 GetPositionForReportEntity(int i)
+        {
+
+            if (this.currentReport.allEntities[i].type == EntityType.Vehicle)
+            {
+                //return Singleton<VehicleManager>.instance.GetS
+                uint id = currentReport.allEntities[i].id;
+                //return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id].GetLastFramePosition();                
+                return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id].GetSmoothPosition((ushort)id);  
+            }
+
+
+            if (this.currentReport.allEntities[i].type == EntityType.Citizen)
+            {
+                uint id = currentReport.allEntities[i].id;
+                return Singleton<CitizenManager>.instance.m_instances.m_buffer[id].GetSmoothPosition((ushort)id);
+            }
+            return new Vector3();
+        }
+
 	}
 
     public class QueryTool : DefaultTool
@@ -88,7 +109,7 @@ namespace TrafficReport
                 Log.info("Load Cursor...");
 				m_cursor = CursorInfo.CreateInstance<CursorInfo>();
                 m_cursor.m_texture = ResourceLoader.loadTexture(32, 32, "Materials/Cursor.png");
-                m_cursor.m_hotspot = new Vector2(20, 20);
+                m_cursor.m_hotspot = new Vector2(0, 0);
 
 				loadingCursor = CursorInfo.CreateInstance<CursorInfo>();
                 loadingCursor.m_texture = ResourceLoader.loadTexture(32, 32, "Materials/Hourglass.png");
@@ -126,7 +147,10 @@ namespace TrafficReport
 						Log.debug("You clicked on " + hoverInstance.ToString());
 						Log.debug(hoverInstance.Type.ToString());
 
-                        
+
+
+                        gui.activeSegmentIndicator.SetActive(false);
+
 						if (hoverInstance.Type == InstanceType.Vehicle) {
 							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
@@ -136,6 +160,12 @@ namespace TrafficReport
 						if (hoverInstance.Type == InstanceType.NetSegment) {
 							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
+
+                            gui.activeSegmentIndicator.SetActive(true);
+
+                            Vector3 pos = analyzer.GetSegmentMidPoint(hoverInstance.NetSegment) + Vector3.up * 20;
+                            Log.debug("Segment pos: " + pos.ToString());
+                            gui.activeSegmentIndicator.transform.localPosition = pos;
 							analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Both);
 						}
 
@@ -218,6 +248,7 @@ namespace TrafficReport
         
         protected override void OnDisable()
         {
+            gui.activeSegmentIndicator.SetActive(false);
             gui.SetReport(null);
             base.OnDisable();
         }

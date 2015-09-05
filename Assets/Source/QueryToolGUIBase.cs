@@ -7,7 +7,20 @@ using System.IO;
 
 namespace TrafficReport
 {
+    public class Billboard : MonoBehaviour
+    {
+        void Start() {
 
+        }
+
+        void Update() {
+            Vector3 currentCameraPos = Camera.main.transform.position;
+            Vector3 fwd = (gameObject.transform.position - currentCameraPos).normalized;
+            fwd.y = 0;
+            gameObject.transform.LookAt(gameObject.transform.position + fwd, Vector3.up);
+            
+        }
+    }
 
 	public class QueryToolGUIBase : MonoBehaviour
 	{
@@ -25,15 +38,19 @@ namespace TrafficReport
 		Config config;
 		//int lastWidth;
 
-		GameObject[] visualizations;
+		GameObject[] pathsVisualizations, vehicleIcons;
 		Material lineMaterial;
 		Material lineMaterialHighlight;
+
+        Material vehicleIndicator, vehicleIndicatorHighlight;
+
+        public GameObject activeSegmentIndicator;
 
 		Dictionary<string,int> highlightBreakdown;
 
 		Dictionary<string, HashSet<uint>> typeMap;
 
-		Report currentReport;
+		protected Report currentReport;
 		uint currentHighlight;
 		HighlightType currentHighlightType;
 
@@ -96,8 +113,31 @@ namespace TrafficReport
 
 			highlightBreakdown = new Dictionary<string,int>();
 
+            activeSegmentIndicator = CreateSpriteObject(CreateSpriteMaterial("Materials/Pin.png",Color.green));
+            vehicleIndicator = CreateSpriteMaterial("Materials/Pin.png", red);
+            vehicleIndicatorHighlight = CreateSpriteMaterial("Materials/Pin.png", gold);
 
 			Log.debug ("Gui initialized");
+        }
+
+        Material CreateSpriteMaterial(string textureName, Color c)
+        {
+            Material mat = new Material(Shader.Find("Sprites/Default"));
+            mat.color = c;
+            mat.mainTexture = ResourceLoader.loadTexture(256,512,textureName);
+
+            return mat;
+        }
+
+        GameObject CreateSpriteObject(Material icon)
+        {   
+            GameObject newSprite = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            newSprite.AddComponent<Billboard>();
+            newSprite.transform.localScale = new Vector3(10, 10, 10);
+            newSprite.name = "sprite";
+            newSprite.GetComponent<MeshRenderer>().material = icon;
+
+            return newSprite;
         }
 
 		void MakeSkin() {
@@ -153,7 +193,6 @@ namespace TrafficReport
 				lastScreenHeight = Screen.height;
 			}
 
-
 			Vector2 pos = Input.mousePosition;
 			pos.x = pos.x * 1440.0f / Screen.height;
 			pos.y = (Screen.height - pos.y) * 1440.0f / Screen.height;
@@ -178,6 +217,14 @@ namespace TrafficReport
 			if (toolActive && Input.GetKeyUp(KeyCode.Escape)) {
 				toolActive = false;
 			}
+
+            if (currentReport != null)
+            {
+                for (int i = 0; i < currentReport.allEntities.Length; i++)
+                {
+                    vehicleIcons[i].transform.position = GetPositionForReportEntity(i) +Vector3.up*20.0f;
+                }
+            }
 		}
 
 		public void OnGUI()
@@ -230,31 +277,42 @@ namespace TrafficReport
 
 
 		void ReportSummary (int id)
-		{			
+		{
+            try
+            {
+                GUILayout.Space(35);
 
-			GUILayout.Space (35);
-			
-			int remaining = currentReport.allEntities.Length;
-			foreach (VehicleDisplay t in config.vehicleTypes) {
+                int remaining = currentReport.allEntities.Length;
+                foreach (VehicleDisplay t in config.vehicleTypes)
+                {
 
-				int count = 0;
-				if(typeMap.ContainsKey(t.id))
-					count = typeMap[t.id].Count;
+                    int count = 0;
+                    if (typeMap.ContainsKey(t.id))
+                        count = typeMap[t.id].Count;
 
-				remaining -= count;
-				if(count > 0) {
+                    remaining -= count;
+                    if (count > 0)
+                    {
 
-					if(t.onOff != GUILayout.Toggle(t.onOff, t.display + ": " + count)) {
-						SetTypeVisible(t.id, !t.onOff);
-					}
-				}
-			}
-			
-			if(remaining > 0) {
-				GUILayout.Label ("Other: " + remaining);
-			}
+                        if (t.onOff != GUILayout.Toggle(t.onOff, t.display + ": " + count))
+                        {
+                            SetTypeVisible(t.id, !t.onOff);
+                        }
+                    }
+                }
 
-			GUILayout.Label ("Total: " + currentReport.allEntities.Length,totalStyle);
+                if (remaining > 0)
+                {
+                    GUILayout.Label("Other: " + remaining);
+                }
+
+                GUILayout.Label("Total: " + currentReport.allEntities.Length, totalStyle);
+
+            }
+            catch
+            {
+
+            }
 
 		}
 
@@ -268,7 +326,8 @@ namespace TrafficReport
 
 			for (int i=0; i < currentReport.allEntities.Length; i++) {
 				if(currentReport.allEntities[i].serviceType == type) {
-					visualizations[i].GetComponent<MeshRenderer>().enabled = visible;
+					pathsVisualizations[i].SetActive(visible);
+                    vehicleIcons[i].SetActive(visible);
 				}
 			}
 
@@ -311,15 +370,14 @@ namespace TrafficReport
 				int percent = total * 100 / currentReport.allEntities.Length;
 				GUILayout.Label ("Total: " + total + "     (" + percent + "%)",totalStyle );
 
-			}catch(Exception e) {
-				Log.error (e.Message);
-				Log.error (e.StackTrace);
+			}catch {
+				
 			}
 		}
 
 		public void SetReport(Report report) {
 
-			if (visualizations != null) {
+			if (pathsVisualizations != null) {
 				RemoveAllPaths();
 				currentReport = null;
 				typeMap = null;
@@ -330,13 +388,21 @@ namespace TrafficReport
 				return;
 			}
 
-			visualizations = new GameObject[report.allEntities.Length];
+			pathsVisualizations = new GameObject[report.allEntities.Length];
+            vehicleIcons = new GameObject[report.allEntities.Length];
 			for(int i=0; i < report.allEntities.Length; i++)
 			{
                 //if (i != 34)  continue;
 
-				visualizations[i] =  CreatePathGameobject(report.allEntities[i].serviceType, report.allEntities[i].path);
-                visualizations[i].name = "Path " + i;
+                bool visible = config.IsTypeVisible(report.allEntities[i].serviceType);
+
+				pathsVisualizations[i] =  CreatePathGameobject(report.allEntities[i].serviceType, report.allEntities[i].path);
+                pathsVisualizations[i].name = "Path " + i;
+                pathsVisualizations[i].SetActive(visible);
+
+                vehicleIcons[i] = CreateSpriteObject(vehicleIndicator);
+                vehicleIcons[i].SetActive(visible);
+                
 			}
 			
 			float alpha = 30.0f / report.allEntities.Length;
@@ -346,8 +412,6 @@ namespace TrafficReport
 				alpha = 1;
 			}
 			
-			lineMaterial.color = new Color(1, 0, 0, alpha);
-
 			GenerateMaps (report);
 
 			currentReport = report;
@@ -355,6 +419,11 @@ namespace TrafficReport
 			SetSegmentHighlight(HighlightType.None, 0);
 
 		}
+
+        public virtual Vector3 GetPositionForReportEntity(int i)
+        {
+            return new Vector3();
+        }
 
 		private void GenerateMaps(Report report) {
 			typeMap = new Dictionary<string, HashSet<uint>> ();
@@ -383,9 +452,15 @@ namespace TrafficReport
 				return;
 			}
 
-			foreach (GameObject go in visualizations) {
+			foreach (GameObject go in pathsVisualizations) {
 				go.GetComponent<Renderer> ().material = lineMaterial;
 			}
+
+
+            foreach (GameObject go in vehicleIcons)
+            {
+                go.GetComponent<Renderer>().material = vehicleIndicator;
+            }
 
 			int total = 0;
 			highlightBreakdown = new Dictionary<string,int>();
@@ -398,7 +473,7 @@ namespace TrafficReport
 				case HighlightType.Segment:
 				
 					foreach(PathPoint p in currentReport.allEntities[index].path) {
-						if(p.segmentID == id) {
+						if(p.segmentId == id) {
 							highlighted = true;
 							break;
 						}
@@ -418,14 +493,15 @@ namespace TrafficReport
 					break;
 				case HighlightType.Citizen:
 					
-					if(currentReport.allEntities[index].id == id && currentReport.allEntities[index].type == EntityType.Citzen) {
+					if(currentReport.allEntities[index].id == id && currentReport.allEntities[index].type == EntityType.Citizen) {
 						highlighted = true;
 					}
 					break;
 				}
 
 				if(highlighted){
-					visualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
+					pathsVisualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
+                    vehicleIcons[index].GetComponent<Renderer>().material = vehicleIndicatorHighlight;
 					string t = currentReport.allEntities[index].serviceType;
 					int count = 0;
 					highlightBreakdown.TryGetValue(t, out count);
@@ -445,6 +521,12 @@ namespace TrafficReport
 			lineMaterial.color = new Color(1, 0, 0, 1);
 			
 			PathMeshBuilder pb = new PathMeshBuilder();
+
+            if (type == "citizen")
+            {
+                //Citizens have much tighter paths, to remove duplicate points so much
+                pb.duplicatePointThreshold = 1.0f;
+            }
 
 			pb.AddPoints(positions);
 			
@@ -469,17 +551,24 @@ namespace TrafficReport
 		
 		void RemoveAllPaths()
 		{
-			if (visualizations == null) {
+			if (pathsVisualizations == null) {
 				return;
 			}
 			
-			foreach (GameObject v in visualizations)
+			foreach (GameObject v in pathsVisualizations)
 			{
 				GameObject.Destroy(v);
 			}
-			
-			visualizations = null;
+
+            foreach (GameObject v in vehicleIcons)
+            {
+                GameObject.Destroy(v);
+            }
+
+            vehicleIcons = null;
+			pathsVisualizations = null;
 		}
-	}
+
+    }
 }
 
