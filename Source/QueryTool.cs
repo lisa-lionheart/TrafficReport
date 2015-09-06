@@ -108,11 +108,11 @@ namespace TrafficReport
 
                 Log.info("Load Cursor...");
 				m_cursor = CursorInfo.CreateInstance<CursorInfo>();
-                m_cursor.m_texture = ResourceLoader.loadTexture(32, 32, "Materials/Cursor.png");
+                m_cursor.m_texture = ResourceLoader.loadTexture("Materials/Cursor.png");
                 m_cursor.m_hotspot = new Vector2(0, 0);
 
 				loadingCursor = CursorInfo.CreateInstance<CursorInfo>();
-                loadingCursor.m_texture = ResourceLoader.loadTexture(32, 32, "Materials/Hourglass.png");
+                loadingCursor.m_texture = ResourceLoader.loadTexture("Materials/Hourglass.png");
 
                 Log.info("Create GUI...");
                 gui = new GameObject("QueryToolGUI").AddComponent<QueryToolGUI>();

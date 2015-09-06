@@ -75,8 +75,8 @@ namespace TrafficReport
         public void Awake()
         {
 
-            icon = ResourceLoader.loadTexture(80, 80, "Materials/Button.png");
-            activeIcon = ResourceLoader.loadTexture(80, 80, "Materials/Button.active.png");
+            icon = ResourceLoader.loadTexture("Materials/Button.png");
+            activeIcon = ResourceLoader.loadTexture("Materials/Button.active.png");
 
 			Log.info("Load Line Material...");
 
@@ -89,7 +89,7 @@ namespace TrafficReport
 			lineMaterial.color = red;
 			lineMaterial.SetColor("_Emission", red);
             lineMaterial.SetColor("_SpecColor", Color.black); //Disable shine effect
-			lineMaterial.mainTexture = ResourceLoader.loadTexture(100, 200, "Materials/NewSkin.png");
+			lineMaterial.mainTexture = ResourceLoader.loadTexture("Materials/NewSkin.png");
 			lineMaterial.renderQueue = 100;
 			
 			lineMaterialHighlight = new Material (lineMaterial);
@@ -99,7 +99,7 @@ namespace TrafficReport
 
 			highlightBreakdown = new Dictionary<string,int>();
 
-            Texture pin = ResourceLoader.loadTexture(256, 512, "Materials/Pin.png");
+            Texture pin = ResourceLoader.loadTexture("Materials/Pin.png");
 
             activeSegmentIndicator = Billboard.Create(Billboard.CreateSpriteMaterial(pin, Color.green));
             vehicleIndicator = Billboard.CreateSpriteMaterial(pin, red);
@@ -114,7 +114,7 @@ namespace TrafficReport
 			Color highlight = new Color (20.0f / 255, 207.0f / 255, 248.0f / 255);
 
 			uiSkin = (GUISkin)GUISkin.Instantiate (GUI.skin);
-			uiSkin.window.normal.background = ResourceLoader.loadTexture(32, 32, "Materials/UIbg.png");
+			uiSkin.window.normal.background = ResourceLoader.loadTexture("Materials/UIbg.png");
 			uiSkin.window.border = new RectOffset (16, 16, 16, 16);
 			uiSkin.window.padding = new RectOffset (12, 8, 26, 12);
 

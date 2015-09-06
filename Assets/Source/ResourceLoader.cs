@@ -46,11 +46,11 @@ namespace TrafficReport
            return System.Text.Encoding.UTF8.GetString(loadResourceData(name));
         }
 
-        public static Texture2D loadTexture(int x, int y, string filename)
+        public static Texture2D loadTexture(string filename)
         {
             try
             {
-                Texture2D texture = new Texture2D(x,y);
+                Texture2D texture = new Texture2D(100,100); //These values make no difference
                 texture.LoadImage(loadResourceData(filename));
                 return texture;
             }
