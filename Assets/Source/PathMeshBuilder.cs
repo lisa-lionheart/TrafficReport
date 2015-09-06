@@ -15,6 +15,11 @@ namespace TrafficReport
 		public float lineScale = 0.5f;
 
         public float duplicatePointThreshold = 5.0f;
+        public float pathBreakThreshold = 100.0f;
+
+        public float normalScaleFactor = 0.3f;
+        public float tightNormalScaleFactor = 0.5f;
+
 
 
 		List<Vector3> verts = new List<Vector3> ();
@@ -82,19 +87,28 @@ namespace TrafficReport
                 Vector3 thisPointPos = thisPoint.pos;
                 Vector3 nextPointPos = nextPoint.pos;
 
-
                 float angle = Vector3.Angle(thisPoint.forwards, nextPoint.forwards);
                 float segementLength = (thisPointPos - nextPointPos).magnitude;
 
+                if (segementLength > pathBreakThreshold)
+                {
+                    AddVertexPair(thisPoint.pos, thisPoint.forwards.normalized,false);
+                    AddEndStop(thisPoint.pos, thisPoint.forwards.normalized, true);
+                    AddEndStop(nextPoint.pos, nextPoint.forwards.normalized, false);
+                    AddVertexPair(nextPoint.pos, nextPoint.forwards.normalized);
+
+                    continue;
+                }
+
                 Vector3 p0 = thisPointPos;
-                Vector3 p1 = thisPointPos + thisPoint.forwards / 3.0f;
-                Vector3 p2 = nextPointPos + nextPoint.backwards / 3.0f;
+                Vector3 p1 = thisPointPos + thisPoint.forwards * normalScaleFactor;
+                Vector3 p2 = nextPointPos + nextPoint.backwards * normalScaleFactor;
 
                 //Seperate logic for tight turns
                 if (segementLength < 30.0f)
                 {
-                    p1 = thisPointPos + thisPoint.forwards.normalized * segementLength / 2.0f;
-                    p2 = nextPointPos + nextPoint.backwards.normalized * segementLength / 2.0f;
+                    p1 = thisPointPos + thisPoint.forwards.normalized * segementLength * tightNormalScaleFactor;
+                    p2 = nextPointPos + nextPoint.backwards.normalized * segementLength * tightNormalScaleFactor;
                 }
 
                 Vector3 p3 = nextPointPos;
@@ -146,9 +160,9 @@ namespace TrafficReport
 
 
             //End the last segement
-            AddVertexPair(points[points.Count - 1].pos, points[points.Count - 1].forwards.normalized);
+            AddVertexPair(points[points.Count - 1].pos, points[points.Count - 1].forwards.normalized, false);
 
-			GenerateIndiciesAsLineStrip ();
+			//GenerateIndiciesAsLineStrip ();
 
             AddEndStop(points[0].pos, points[0].forwards.normalized, false);
             AddEndStop(points[points.Count - 1].pos, points[points.Count - 1].forwards.normalized, true);
@@ -216,20 +230,11 @@ namespace TrafficReport
 			}
 
 		}
-
-		void AddSegment(Vector3 start, Vector3 end) {
-
-			Vector3 fwd = (end - start).normalized;
-
-			textureOffset = 0;
-			AddVertexPair (start, fwd);
-			textureOffset = Mathf.Floor ((end - start).magnitude * lineScale / width);
-			AddVertexPair (end, fwd);
-
-		}
-
-		void AddVertexPair(Vector3 point, Vector3 fwd) {
+        
+		void AddVertexPair(Vector3 point, Vector3 fwd, bool addFaces = true) {
 			Vector3 offset = Vector3.Cross(fwd, Vector3.up).normalized ;
+
+            int i = verts.Count;
 
 			verts.Add (point - offset * (width /2));              
 			verts.Add (point + offset * (width /2));
@@ -237,6 +242,24 @@ namespace TrafficReport
 			uvs.Add (new Vector2 (textureOffset, 0.6f));
 			uvs.Add (new Vector2 (textureOffset, 0.9f));
 
+            if(addFaces) {
+
+                triangles.Add(i);
+                triangles.Add(i + 2);
+                triangles.Add(i + 1);
+
+                triangles.Add(i + 1);
+                triangles.Add(i + 2);
+                triangles.Add(i);
+
+                triangles.Add(i + 1);
+                triangles.Add(i + 2);
+                triangles.Add(i + 3);
+
+                triangles.Add(i + 3);
+                triangles.Add(i + 2);
+                triangles.Add(i + 1);
+            }
 			lastPoint = point;
 
             //Debug.DrawLine(point, point + fwd,Color.green,20000);

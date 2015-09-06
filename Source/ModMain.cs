@@ -16,19 +16,10 @@ namespace TrafficReport
     {
 
 		QueryTool queryTool;
-    /*
-        public TrafficReportMod() {
-
-            Assembly ass = Assembly.GetAssembly(typeof(TrafficReportMod));
-			Log.info("Traffic Report Loaded " + DateTime.Now.ToString() + "  " + ass.ToString());
-
-
-
-		}
-        */
+    
         public string Name
         {
-            get { return "Traffic Report Tool 1.5"; }
+            get { return "Traffic Report Tool 1.6"; }
         }
         public string Description
         {

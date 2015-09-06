@@ -84,7 +84,7 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Citizen;
 					info.id = id;
-                    info.path = this.GatherPathVerticies(citizens[id].m_path);
+                    info.path = this.GatherPathVerticies(citizens[id].m_path, true);
 					info.serviceType = "citizen";
 					
 					info.sourceBuilding = citizens[id].m_sourceBuilding;
@@ -219,7 +219,7 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Citizen;
 					info.id = i;
-                    info.path = this.GatherPathVerticies(citizens[i].m_path);
+                    info.path = this.GatherPathVerticies(citizens[i].m_path,true);
 					info.serviceType = "citizen";
 					info.sourceBuilding = citizens[i].m_sourceBuilding;
 					info.targetBuilding = citizens[i].m_targetBuilding;
@@ -293,7 +293,7 @@ namespace TrafficReport
                     EntityInfo info;
                     info.type = EntityType.Citizen;
                     info.id = i;
-                    info.path = this.GatherPathVerticies(citizens[i].m_path);
+                    info.path = this.GatherPathVerticies(citizens[i].m_path,true);
                     info.serviceType = "citizen";
 
                     info.sourceBuilding = citizens[i].m_sourceBuilding;
@@ -372,7 +372,7 @@ namespace TrafficReport
             return Singleton<PathManager>.instance.m_pathUnits.m_buffer[id];
         }
 
-        PathUnit.Position[] GatherPathPositions(uint pathID)
+        PathUnit.Position[] GatherPathPositions(uint pathID, bool isPed)
         {
             //Log.debug("Gathering path positions ...");
 
@@ -398,10 +398,16 @@ namespace TrafficReport
                 }
 
                 pathID = paths[pathID].m_nextPathUnit;
+
+                //Bail once a pedestrian embarks on a bus
+                if (isPed && (paths[pathID].m_vehicleTypes & (byte)VehicleInfo.VehicleType.Metro) > 0)
+                {
+                    return positions.ToArray();
+                }
             }
         }
 
-		PathPoint[] GatherPathVerticies(uint pathID)
+		PathPoint[] GatherPathVerticies(uint pathID, bool isPed = false)
         {
 			List<PathPoint> path = new List<PathPoint>();
 
@@ -415,7 +421,7 @@ namespace TrafficReport
 			startNode = segments[segment].m_startNode;
 
 
-            PathUnit.Position[] positions = GatherPathPositions(pathID);
+            PathUnit.Position[] positions = GatherPathPositions(pathID, isPed);
 
             //Log.debug("Generating verticies...");
 
@@ -524,9 +530,10 @@ namespace TrafficReport
 
 
             NetNode start = nodes[segment.m_startNode];
-            NetNode end = nodes[segment.m_startNode];
+            NetNode end = nodes[segment.m_endNode];
 
-            return Beizer.CalculateBezierPoint(0.5f, start.m_position, start.m_position + segment.m_startDirection, end.m_position + segment.m_endDirection, end.m_position);       
+            //return Vector3.Lerp(start.m_position, end.m_position, 0.5f);
+            return Beizer.CalculateBezierPoint(0.5f, start.m_position, start.m_position + segment.m_startDirection/3.0f, end.m_position + segment.m_endDirection/3.0f, end.m_position);       
         }
     }
 }

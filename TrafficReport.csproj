@@ -34,6 +34,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="Assets\Source\Billboard.cs" />
     <Compile Include="Assets\TestQueryToolGUI.cs" />
     <Compile Include="Source\AssemblyInfo.cs" />
     <Compile Include="Source\ModMain.cs" />

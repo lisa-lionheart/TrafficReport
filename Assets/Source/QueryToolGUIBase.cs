@@ -7,21 +7,6 @@ using System.IO;
 
 namespace TrafficReport
 {
-    public class Billboard : MonoBehaviour
-    {
-        void Start() {
-
-        }
-
-        void Update() {
-            Vector3 currentCameraPos = Camera.main.transform.position;
-            Vector3 fwd = (gameObject.transform.position - currentCameraPos).normalized;
-            fwd.y = 0;
-            gameObject.transform.LookAt(gameObject.transform.position + fwd, Vector3.up);
-            
-        }
-    }
-
 	public class QueryToolGUIBase : MonoBehaviour
 	{
 		public enum HighlightType {
@@ -38,13 +23,14 @@ namespace TrafficReport
 		Config config;
 		//int lastWidth;
 
-		GameObject[] pathsVisualizations, vehicleIcons;
+        GameObject[] pathsVisualizations;
+        Billboard[] vehicleIcons;
 		Material lineMaterial;
 		Material lineMaterialHighlight;
 
         Material vehicleIndicator, vehicleIndicatorHighlight;
 
-        public GameObject activeSegmentIndicator;
+        public Billboard activeSegmentIndicator;
 
 		Dictionary<string,int> highlightBreakdown;
 
@@ -113,32 +99,15 @@ namespace TrafficReport
 
 			highlightBreakdown = new Dictionary<string,int>();
 
-            activeSegmentIndicator = CreateSpriteObject(CreateSpriteMaterial("Materials/Pin.png",Color.green));
-            vehicleIndicator = CreateSpriteMaterial("Materials/Pin.png", red);
-            vehicleIndicatorHighlight = CreateSpriteMaterial("Materials/Pin.png", gold);
+            Texture pin = ResourceLoader.loadTexture(256, 512, "Materials/Pin.png");
+
+            activeSegmentIndicator = Billboard.Create(Billboard.CreateSpriteMaterial(pin, Color.green));
+            vehicleIndicator = Billboard.CreateSpriteMaterial(pin, red);
+            vehicleIndicatorHighlight = Billboard.CreateSpriteMaterial(pin, gold);
 
 			Log.debug ("Gui initialized");
         }
 
-        Material CreateSpriteMaterial(string textureName, Color c)
-        {
-            Material mat = new Material(Shader.Find("Sprites/Default"));
-            mat.color = c;
-            mat.mainTexture = ResourceLoader.loadTexture(256,512,textureName);
-
-            return mat;
-        }
-
-        GameObject CreateSpriteObject(Material icon)
-        {   
-            GameObject newSprite = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            newSprite.AddComponent<Billboard>();
-            newSprite.transform.localScale = new Vector3(10, 10, 10);
-            newSprite.name = "sprite";
-            newSprite.GetComponent<MeshRenderer>().material = icon;
-
-            return newSprite;
-        }
 
 		void MakeSkin() {
 
@@ -222,7 +191,7 @@ namespace TrafficReport
             {
                 for (int i = 0; i < currentReport.allEntities.Length; i++)
                 {
-                    vehicleIcons[i].transform.position = GetPositionForReportEntity(i) +Vector3.up*20.0f;
+                    vehicleIcons[i].position = GetPositionForReportEntity(i) + Vector3.up * 10.0f;
                 }
             }
 		}
@@ -327,7 +296,7 @@ namespace TrafficReport
 			for (int i=0; i < currentReport.allEntities.Length; i++) {
 				if(currentReport.allEntities[i].serviceType == type) {
 					pathsVisualizations[i].SetActive(visible);
-                    vehicleIcons[i].SetActive(visible);
+                    vehicleIcons[i].gameObject.SetActive(visible);
 				}
 			}
 
@@ -389,7 +358,7 @@ namespace TrafficReport
 			}
 
 			pathsVisualizations = new GameObject[report.allEntities.Length];
-            vehicleIcons = new GameObject[report.allEntities.Length];
+            vehicleIcons = new Billboard[report.allEntities.Length];
 			for(int i=0; i < report.allEntities.Length; i++)
 			{
                 //if (i != 34)  continue;
@@ -400,8 +369,8 @@ namespace TrafficReport
                 pathsVisualizations[i].name = "Path " + i;
                 pathsVisualizations[i].SetActive(visible);
 
-                vehicleIcons[i] = CreateSpriteObject(vehicleIndicator);
-                vehicleIcons[i].SetActive(visible);
+                vehicleIcons[i] = Billboard.Create(vehicleIndicator);
+                vehicleIcons[i].gameObject.SetActive(visible);
                 
 			}
 			
@@ -457,9 +426,9 @@ namespace TrafficReport
 			}
 
 
-            foreach (GameObject go in vehicleIcons)
+            foreach (Billboard bb in vehicleIcons)
             {
-                go.GetComponent<Renderer>().material = vehicleIndicator;
+                bb.material = vehicleIndicator;
             }
 
 			int total = 0;
@@ -526,6 +495,8 @@ namespace TrafficReport
             {
                 //Citizens have much tighter paths, to remove duplicate points so much
                 pb.duplicatePointThreshold = 1.0f;
+                //pb.normalScaleFactor = 0.01f;
+                pb.tightNormalScaleFactor = 0.05f;
             }
 
 			pb.AddPoints(positions);
@@ -560,9 +531,9 @@ namespace TrafficReport
 				GameObject.Destroy(v);
 			}
 
-            foreach (GameObject v in vehicleIcons)
+            foreach (Billboard v in vehicleIcons)
             {
-                GameObject.Destroy(v);
+                GameObject.Destroy(v.gameObject);
             }
 
             vehicleIcons = null;
