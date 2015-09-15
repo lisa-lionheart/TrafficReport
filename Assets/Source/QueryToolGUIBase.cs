@@ -21,20 +21,21 @@ namespace TrafficReport
 		Texture activeIcon;
 
 		Config config;
-		//int lastWidth;
 
+
+		//In game visualizations
         GameObject[] pathsVisualizations;
         Billboard[] vehicleIcons;
+        Billboard activeSegmentIndicator;
+
 		Material lineMaterial;
 		Material lineMaterialHighlight;
-
         Material vehicleIndicator, vehicleIndicatorHighlight;
+        
 
-        public Billboard activeSegmentIndicator;
-
-		Dictionary<string,int> highlightBreakdown;
-
+        //Stores the indexes of paths based on type
 		Dictionary<string, HashSet<uint>> typeMap;
+        Dictionary<string, int> highlightBreakdown;
 
 		protected Report currentReport;
 		uint currentHighlight;
@@ -53,6 +54,10 @@ namespace TrafficReport
 		int lastScreenHeight;
 
 
+        public Billboard ActiveSegmentIndicator
+        {
+            get { return activeSegmentIndicator; }
+        }
 
 		public QueryToolGUIBase()
 		{   
@@ -411,6 +416,11 @@ namespace TrafficReport
 
 		}
 
+        public void SetTypeHighlight(String serviceType)
+        {
+
+        }
+
 		public void SetSegmentHighlight(HighlightType type, uint id){
 
 			if (currentReport == null) {
@@ -497,6 +507,7 @@ namespace TrafficReport
                 pb.duplicatePointThreshold = 1.0f;
                 //pb.normalScaleFactor = 0.01f;
                 pb.tightNormalScaleFactor = 0.05f;
+                pb.pathBreakThreshold = 150.0f;
             }
 
 			pb.AddPoints(positions);

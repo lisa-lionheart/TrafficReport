@@ -50,7 +50,8 @@ namespace TrafficReport
         {
             try
             {
-                Texture2D texture = new Texture2D(100,100); //These values make no difference
+                Texture2D texture = new Texture2D(100,100, TextureFormat.ARGB32, true); //These values make no difference
+                texture.filterMode = FilterMode.Trilinear;
                 texture.LoadImage(loadResourceData(filename));
                 return texture;
             }

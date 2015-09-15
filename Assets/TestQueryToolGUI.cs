@@ -25,7 +25,7 @@ public class TestQueryToolGUI : QueryToolGUIBase {
 
         r.Save("Report2.xml");
 
-        activeSegmentIndicator.transform.localPosition = r.allEntities[0].path[0].pos;
+        //activeSegmentIndicator.transform.localPosition = r.allEntities[0].path[0].pos;
 	
 		SetReport (r);
 		SetSegmentHighlight (QueryToolGUIBase.HighlightType.Segment, 23080);

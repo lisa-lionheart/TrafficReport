@@ -149,7 +149,7 @@ namespace TrafficReport
 
 
 
-                        gui.activeSegmentIndicator.gameObject.SetActive(false);
+                        gui.ActiveSegmentIndicator.gameObject.SetActive(false);
 
 						if (hoverInstance.Type == InstanceType.Vehicle) {
 							gui.SetReport(null);
@@ -161,11 +161,11 @@ namespace TrafficReport
 							gui.SetReport(null);
 							base.ToolCursor = loadingCursor;
 
-                            gui.activeSegmentIndicator.gameObject.SetActive(true);
+                            gui.ActiveSegmentIndicator.gameObject.SetActive(true);
 
                             Vector3 pos = analyzer.GetSegmentMidPoint(hoverInstance.NetSegment) + Vector3.up * 20;
                             Log.debug("Segment pos: " + pos.ToString());
-                            gui.activeSegmentIndicator.position = pos;
+                            gui.ActiveSegmentIndicator.position = pos;
 							analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Both);
 						}
 
@@ -248,7 +248,7 @@ namespace TrafficReport
         
         protected override void OnDisable()
         {
-            gui.activeSegmentIndicator.gameObject.SetActive(false);
+            gui.ActiveSegmentIndicator.gameObject.SetActive(false);
             gui.SetReport(null);
             base.OnDisable();
         }

@@ -15,7 +15,7 @@ namespace TrafficReport
 		public float lineScale = 0.5f;
 
         public float duplicatePointThreshold = 5.0f;
-        public float pathBreakThreshold = 100.0f;
+        public float pathBreakThreshold = 1000.0f;
 
         public float normalScaleFactor = 0.3f;
         public float tightNormalScaleFactor = 0.5f;
@@ -135,7 +135,7 @@ namespace TrafficReport
 
                 // Make each segment tile a whole number of texture repeats so that
                 // overlaping paths line up
-                int textureRepeats = (int)Math.Floor(realLength / (width * 2));
+                int textureRepeats = (int)Math.Floor(realLength / (width * 4));
 
                 textureOffset = (float)Math.Round(textureOffset);
 
