@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.IO;
 using TrafficReport.Util;
+using TrafficReport.Assets.Source.UI;
 
 namespace TrafficReport
 {
@@ -18,11 +19,7 @@ namespace TrafficReport
 			Citizen
 		}
 
-		Texture icon;
-		Texture activeIcon;
-
-		Config config;
-
+        ReportButton toggleButton;
 
 		//In game visualizations
         GameObject[] pathsVisualizations;
@@ -62,13 +59,14 @@ namespace TrafficReport
 
 		public QueryToolGUIBase()
 		{   
-			config = Config.Load ();
 			currentHighlightType = HighlightType.None;
 		}
 
 		public virtual bool toolActive {
-			get { return true; }
-			set  { 
+			get {
+                return true;
+            }
+			set  {
 				Log.error("Function not overidden");
 			}
 		}
@@ -80,10 +78,9 @@ namespace TrafficReport
 
         public void Awake()
         {
-
-            icon = ResourceLoader.loadTexture("Materials/Button.png");
-            activeIcon = ResourceLoader.loadTexture("Materials/Button.active.png");
-
+            toggleButton = ReportButton.Create();
+            toggleButton.eventClick += toggleButton_eventClick;
+                        
 			Log.info("Load Line Material...");
 
 			Color red = new Color (1, 0, 0);
@@ -112,6 +109,11 @@ namespace TrafficReport
             vehicleIndicatorHighlight = Billboard.CreateSpriteMaterial(pin, gold);
 
 			Log.debug ("Gui initialized");
+        }
+
+        void toggleButton_eventClick(ColossalFramework.UI.UIComponent component, ColossalFramework.UI.UIMouseEventParameter eventParam)
+        {
+            toolActive = !toolActive;
         }
 
 
@@ -157,7 +159,8 @@ namespace TrafficReport
 
 		void Update() {
 
-
+            toggleButton.ToggleState = toolActive;
+            
 			//Animate the traffic lines
 			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
@@ -172,19 +175,19 @@ namespace TrafficReport
 			pos.x = pos.x * 1440.0f / Screen.height;
 			pos.y = (Screen.height - pos.y) * 1440.0f / Screen.height;
 
-			if (!inDrag && Input.GetMouseButtonDown (1) && config.buttonRect.Contains(pos) ) {
+			if (!inDrag && Input.GetMouseButtonDown (1) && Config.instance.buttonRect.Contains(pos) ) {
 				inDrag = true;
-				dragOffset = pos-config.buttonPosition;
+				dragOffset = pos-Config.instance.buttonPosition;
 
 			} else if (inDrag) {
-				config.buttonPosition = pos-dragOffset;
+				Config.instance.buttonPosition = pos-dragOffset;
 				if(Input.GetMouseButtonUp(1)){
 					inDrag=false;
-					config.Save();
+					Config.instance.Save();
 				}
 			}
 			
-			if (Input.GetKeyUp(config.keyCode)){
+			if (Input.GetKeyUp(Config.instance.keyCode)){
 				Log.info ("Toggling tool");
 				toolActive = !toolActive;
 			}
@@ -223,11 +226,7 @@ namespace TrafficReport
 
 			try 
 			{
-				if(GUI.Button(config.buttonRect, toolActive ? activeIcon : icon) && !inDrag) {
-					Log.info ("Toggling tool");
-					toolActive = !toolActive;
-				}
-
+				
 				if (toolActive && currentReport != null) {
 
 					Rect r = GUILayout.Window (50199, new Rect (20, 100, 200, 100), ReportSummary, "All Selected");
@@ -258,7 +257,7 @@ namespace TrafficReport
                 GUILayout.Space(35);
 
                 int remaining = currentReport.allEntities.Length;
-                foreach (VehicleDisplay t in config.vehicleTypes)
+                foreach (VehicleDisplay t in Config.instance.vehicleTypes)
                 {
 
                     int count = 0;
@@ -293,9 +292,9 @@ namespace TrafficReport
 
 		void SetTypeVisible(string type, bool visible) {
 
-			for(int i=0; i < config.vehicleTypes.Length; i++) {
-				if(config.vehicleTypes[i].id == type) {
-					config.vehicleTypes[i].onOff = visible;
+			for(int i=0; i < Config.instance.vehicleTypes.Length; i++) {
+				if(Config.instance.vehicleTypes[i].id == type) {
+					Config.instance.vehicleTypes[i].onOff = visible;
 				}
 			}
 
@@ -306,7 +305,7 @@ namespace TrafficReport
 				}
 			}
 
-			config.Save ();
+			Config.instance.Save ();
 		}
 
 		void HighlightSummary (int id)
@@ -328,7 +327,7 @@ namespace TrafficReport
 				int remaining = highlightBreakdown ["total"];
 				int total = remaining;
 
-				foreach (VehicleDisplay t in config.vehicleTypes) {
+				foreach (VehicleDisplay t in Config.instance.vehicleTypes) {
 					
 					int count = 0;
 					highlightBreakdown.TryGetValue(t.id, out count);
@@ -369,7 +368,7 @@ namespace TrafficReport
 			{
                 //if (i != 34)  continue;
 
-                bool visible = config.IsTypeVisible(report.allEntities[i].serviceType);
+                bool visible = Config.instance.IsTypeVisible(report.allEntities[i].serviceType);
 
 				pathsVisualizations[i] =  CreatePathGameobject(report.allEntities[i].serviceType, report.allEntities[i].path);
                 pathsVisualizations[i].name = "Path " + i;
@@ -522,7 +521,7 @@ namespace TrafficReport
 			go.GetComponent<MeshRenderer>().material = lineMaterial;
 			go.transform.localPosition = new Vector3(0, 3, 0);
 
-			foreach(VehicleDisplay t in config.vehicleTypes) {
+			foreach(VehicleDisplay t in Config.instance.vehicleTypes) {
 
 				if(t.id == type) {
 					go.GetComponent<MeshRenderer>().enabled = t.onOff;

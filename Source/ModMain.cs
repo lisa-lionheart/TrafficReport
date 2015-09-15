@@ -9,6 +9,7 @@ using ColossalFramework.UI;
 using System.Reflection;
 using System;
 using TrafficReport.Util;
+using TrafficReport.Assets.Source.UI;
 
 namespace TrafficReport
 {
@@ -24,7 +25,20 @@ namespace TrafficReport
         }
         public string Description
         {
-            get { return "Display traffic information for a single vehicle, a section of road or a building"; }
+            get {
+
+                ReportButton btn = ReportButton.Create();
+
+                
+                btn.eventClick += (UIComponent c, UIMouseEventParameter e) =>
+                {
+                    btn.ToggleState = !btn.ToggleState;
+                };
+    
+                
+                return "Display traffic information for a single vehicle, a section of road or a building"; 
+            
+            }
         }
 
 
