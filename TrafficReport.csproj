@@ -41,11 +41,11 @@
     <Compile Include="Source\QueryTool.cs" />
     <Compile Include="Source\TrafficAnalyzer.cs" />
     <Compile Include="Assets\Source\Beizer.cs" />
-    <Compile Include="Assets\Source\Log.cs" />
+    <Compile Include="Assets\Source\Util\Log.cs" />
     <Compile Include="Assets\Source\PathMeshBuilder.cs" />
     <Compile Include="Assets\Source\QueryToolGUIBase.cs" />
     <Compile Include="Assets\Source\Report.cs" />
-    <Compile Include="Assets\Source\ResourceLoader.cs" />
+    <Compile Include="Assets\Source\Util\ResourceLoader.cs" />
     <Compile Include="Assets\Source\Config.cs" />
   </ItemGroup>
   <ItemGroup>

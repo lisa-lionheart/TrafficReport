@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace TrafficReport
+namespace TrafficReport.Util
 {
     public class ResourceLoader
     {

@@ -3,6 +3,7 @@ using ColossalFramework.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TrafficReport.Util;
 using UnityEngine;
 
 namespace TrafficReport

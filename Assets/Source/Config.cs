@@ -4,6 +4,7 @@ using TrafficReport;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.IO;
+using TrafficReport.Util;
 
 namespace TrafficReport
 {	

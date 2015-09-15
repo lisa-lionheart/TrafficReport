@@ -8,6 +8,7 @@ using ColossalFramework.UI;
 
 using System.Reflection;
 using System;
+using TrafficReport.Util;
 
 namespace TrafficReport
 {

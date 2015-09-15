@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Xml.Serialization;
 using System.IO;
+using TrafficReport.Util;
 
 namespace TrafficReport
 {

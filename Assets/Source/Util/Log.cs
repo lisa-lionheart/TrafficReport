@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace TrafficReport
+namespace TrafficReport.Util
 {
     public class Log
     {
