@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using System.IO;
 using TrafficReport.Util;
 using TrafficReport.Assets.Source.UI;
+using ColossalFramework.UI;
 
 namespace TrafficReport
 {
@@ -20,6 +21,7 @@ namespace TrafficReport
 		}
 
         ReportButton toggleButton;
+        ReportUI reportUi;
 
 		//In game visualizations
         GameObject[] pathsVisualizations;
@@ -30,26 +32,11 @@ namespace TrafficReport
 		Material lineMaterialHighlight;
         Material vehicleIndicator, vehicleIndicatorHighlight;
         
-
-        //Stores the indexes of paths based on type
-		Dictionary<string, HashSet<uint>> typeMap;
-        Dictionary<string, int> highlightBreakdown;
-
 		protected Report currentReport;
 		uint currentHighlight;
 		HighlightType currentHighlightType;
 
-		public GUISkin uiSkin;
-		public GUIStyle totalStyle;
-		public GUIStyle buttonStyle;
-
 		public bool leftHandDrive;
-
-		Matrix4x4 guiScale;
-
-		bool inDrag;
-		Vector2 dragOffset;
-		int lastScreenHeight;
 
 
         public Billboard ActiveSegmentIndicator
@@ -80,6 +67,16 @@ namespace TrafficReport
         {
             toggleButton = ReportButton.Create();
             toggleButton.eventClick += toggleButton_eventClick;
+
+            Config.instance.eventConfigChanged += instance_eventConfigChanged;
+
+            GameObject go = new GameObject();
+            go.transform.localPosition = Vector3.zero;
+
+            reportUi = go.AddComponent<ReportUI>();
+            UIView.GetAView().AttachUIComponent(go);
+
+            reportUi.eventHighlightType += (String s) => { SetTypeHighlight(s); };
                         
 			Log.info("Load Line Material...");
 
@@ -100,7 +97,6 @@ namespace TrafficReport
 			lineMaterialHighlight.SetColor("_Emission", gold);
 			lineMaterial.renderQueue = 101;
 
-			highlightBreakdown = new Dictionary<string,int>();
 
             Texture pin = ResourceLoader.loadTexture("Materials/Pin.png");
 
@@ -111,81 +107,38 @@ namespace TrafficReport
 			Log.debug ("Gui initialized");
         }
 
+        void instance_eventConfigChanged()
+        {
+            if (currentReport == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < currentReport.allEntities.Length; i++)
+            {
+                bool visible = Config.instance.IsTypeVisible(currentReport.allEntities[i].serviceType);
+                vehicleIcons[i].gameObject.SetActive(visible);
+                pathsVisualizations[i].SetActive(visible);
+            }
+        }
+
         void toggleButton_eventClick(ColossalFramework.UI.UIComponent component, ColossalFramework.UI.UIMouseEventParameter eventParam)
         {
             toolActive = !toolActive;
+            
         }
 
 
-		void MakeSkin() {
-
-			Color highlight = new Color (20.0f / 255, 207.0f / 255, 248.0f / 255);
-
-			uiSkin = (GUISkin)GUISkin.Instantiate (GUI.skin);
-			uiSkin.window.normal.background = ResourceLoader.loadTexture("Materials/UIbg.png");
-			uiSkin.window.border = new RectOffset (16, 16, 16, 16);
-			uiSkin.window.padding = new RectOffset (12, 8, 26, 12);
-
-			uiSkin.window.normal.textColor = highlight;
-			uiSkin.window.alignment = TextAnchor.UpperCenter;
-			uiSkin.window.fontSize = 30;
-			uiSkin.window.fontStyle = FontStyle.Bold;
-
-			uiSkin.window.onNormal = uiSkin.window.normal;
-			uiSkin.window.onFocused = uiSkin.window.onNormal;
-			uiSkin.window.onHover = uiSkin.window.onNormal;
-			uiSkin.window.onActive = uiSkin.window.onNormal;
-
-			uiSkin.button = new GUIStyle ();
-
-
-			uiSkin.label.normal.textColor = Color.white;
-			uiSkin.label.fontSize = 18;
-			uiSkin.label.fontStyle = FontStyle.Bold;
-			uiSkin.label.padding = new RectOffset (0, 0, 5, 5);
-
-			uiSkin.toggle.normal.textColor = Color.white;
-			uiSkin.toggle.fontSize = 18;
-			uiSkin.toggle.fontStyle = FontStyle.Bold;
-			uiSkin.toggle.padding = new RectOffset (20, 0, 0, 10);
-
-			totalStyle = new GUIStyle (uiSkin.label);
-			totalStyle.normal.textColor = highlight;
-			totalStyle.fontSize = 20;
-			totalStyle.fontStyle = FontStyle.Bold;
-
-
-		}
 
 		void Update() {
 
-            toggleButton.ToggleState = toolActive;
+            toggleButton.ToggleState = !toolActive;
+            reportUi.isVisible = toolActive;
             
 			//Animate the traffic lines
 			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 
-			if (lastScreenHeight != Screen.height) {
-				float s = Screen.height / 1440.0f;
-				guiScale = Matrix4x4.Scale (new Vector3 (s, s, s));
-				lastScreenHeight = Screen.height;
-			}
-
-			Vector2 pos = Input.mousePosition;
-			pos.x = pos.x * 1440.0f / Screen.height;
-			pos.y = (Screen.height - pos.y) * 1440.0f / Screen.height;
-
-			if (!inDrag && Input.GetMouseButtonDown (1) && Config.instance.buttonRect.Contains(pos) ) {
-				inDrag = true;
-				dragOffset = pos-Config.instance.buttonPosition;
-
-			} else if (inDrag) {
-				Config.instance.buttonPosition = pos-dragOffset;
-				if(Input.GetMouseButtonUp(1)){
-					inDrag=false;
-					Config.instance.Save();
-				}
-			}
 			
 			if (Input.GetKeyUp(Config.instance.keyCode)){
 				Log.info ("Toggling tool");
@@ -204,163 +157,26 @@ namespace TrafficReport
                 }
             }
 		}
-
-		public void OnGUI()
-		{
-			if (!guiVisible) {
-				return;
-			}
-
-			GUI.backgroundColor = Color.white;
-			GUI.color = Color.white;
-			GUI.contentColor = Color.white;
-
-			GUI.matrix = guiScale;
-
-			if (uiSkin == null) {
-				MakeSkin();
-			}
-
-			GUI.skin = uiSkin;
-
-
-			try 
-			{
-				
-				if (toolActive && currentReport != null) {
-
-					Rect r = GUILayout.Window (50199, new Rect (20, 100, 200, 100), ReportSummary, "All Selected");
-					if(currentHighlightType != HighlightType.None) {
-						GUILayout.Window (50198, new Rect (240,100, 200, 100), HighlightSummary, "Highlighted");
-					}
-				}
-			
-			} catch(Exception e) {
-				Log.error (e.Message);
-				Log.error(e.StackTrace);
-			}
-			
-			GUI.matrix = Matrix4x4.identity;
-			GUI.skin = null;
-
-		}
-		
+	
 		void OnRenderObject() {
 
-		}
-
-
-		void ReportSummary (int id)
-		{
-            try
-            {
-                GUILayout.Space(35);
-
-                int remaining = currentReport.allEntities.Length;
-                foreach (VehicleDisplay t in Config.instance.vehicleTypes)
-                {
-
-                    int count = 0;
-                    if (typeMap.ContainsKey(t.id))
-                        count = typeMap[t.id].Count;
-
-                    remaining -= count;
-                    if (count > 0)
-                    {
-
-                        if (t.onOff != GUILayout.Toggle(t.onOff, t.display + ": " + count))
-                        {
-                            SetTypeVisible(t.id, !t.onOff);
-                        }
-                    }
-                }
-
-                if (remaining > 0)
-                {
-                    GUILayout.Label("Other: " + remaining);
-                }
-
-                GUILayout.Label("Total: " + currentReport.allEntities.Length, totalStyle);
-
-            }
-            catch
-            {
-
-            }
-
-		}
-
-		void SetTypeVisible(string type, bool visible) {
-
-			for(int i=0; i < Config.instance.vehicleTypes.Length; i++) {
-				if(Config.instance.vehicleTypes[i].id == type) {
-					Config.instance.vehicleTypes[i].onOff = visible;
-				}
-			}
-
-			for (int i=0; i < currentReport.allEntities.Length; i++) {
-				if(currentReport.allEntities[i].serviceType == type) {
-					pathsVisualizations[i].SetActive(visible);
-                    vehicleIcons[i].gameObject.SetActive(visible);
-				}
-			}
-
-			Config.instance.Save ();
-		}
-
-		void HighlightSummary (int id)
-		{			
-			try 
-			{
-				if (currentReport == null || currentReport.allEntities == null) {
-					return;
-				}
-
-				GUILayout.Space (35);
-
-				if(currentHighlightType == HighlightType.None || currentReport.allEntities.Length == 0) {
-					GUILayout.Label("Nothing");
-					return;
-				}
-
-							
-				int remaining = highlightBreakdown ["total"];
-				int total = remaining;
-
-				foreach (VehicleDisplay t in Config.instance.vehicleTypes) {
-					
-					int count = 0;
-					highlightBreakdown.TryGetValue(t.id, out count);
-					if(count > 0) {
-						remaining -= count;
-						GUILayout.Label (t.display + ": " + count);
-					}				
-				}
-
-				if(remaining > 0) {
-					GUILayout.Label ("Other: " + remaining);
-				}
-
-				int percent = total * 100 / currentReport.allEntities.Length;
-				GUILayout.Label ("Total: " + total + "     (" + percent + "%)",totalStyle );
-
-			}catch {
-				
-			}
 		}
 
 		public void SetReport(Report report) {
 
 			if (pathsVisualizations != null) {
 				RemoveAllPaths();
-				currentReport = null;
-				typeMap = null;
+				currentReport = null;          
 			}
 
 			if (report == null || report.allEntities == null) {
 				Log.debug ("Report NULL");
+                reportUi.SetSelectedData(null);
+                reportUi.SetHighlightData(null,0);
 				return;
 			}
+
+            int[] typeCounts = new int[Config.instance.vehicleTypes.Length];
 
 			pathsVisualizations = new GameObject[report.allEntities.Length];
             vehicleIcons = new Billboard[report.allEntities.Length];
@@ -376,7 +192,14 @@ namespace TrafficReport
 
                 vehicleIcons[i] = Billboard.Create(vehicleIndicator);
                 vehicleIcons[i].gameObject.SetActive(visible);
-                
+
+                for (int j = 0; j < typeCounts.Length; j++)
+                {
+                    if (Config.instance.vehicleTypes[j].id == report.allEntities[i].serviceType)
+                    {
+                        typeCounts[j]++;
+                    }
+                }
 			}
 			
 			float alpha = 30.0f / report.allEntities.Length;
@@ -386,10 +209,10 @@ namespace TrafficReport
 				alpha = 1;
 			}
 			
-			GenerateMaps (report);
 
 			currentReport = report;
 
+            reportUi.SetSelectedData(typeCounts);
 			SetSegmentHighlight(HighlightType.None, 0);
 
 		}
@@ -399,26 +222,31 @@ namespace TrafficReport
             return new Vector3();
         }
 
-		private void GenerateMaps(Report report) {
-			typeMap = new Dictionary<string, HashSet<uint>> ();
-
-			for (uint i =0; i < report.allEntities.Length; i++) {
-
-				string t = report.allEntities[i].serviceType;
-				if(t == null){
-					continue;
-				}
-				if(!typeMap.ContainsKey(t)){
-					typeMap[t] = new HashSet<uint>();
-				}
-				typeMap[t].Add(i);
-			}
-
-		}
-
+		
         public void SetTypeHighlight(String serviceType)
         {
 
+            if (currentReport == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < currentReport.allEntities.Length; i++)
+            {
+                bool highlighted = currentReport.allEntities[i].serviceType.Equals(serviceType);
+
+                if (highlighted)
+                {
+                    pathsVisualizations[i].GetComponent<Renderer>().material = lineMaterialHighlight;
+                    vehicleIcons[i].GetComponent<Renderer>().material = vehicleIndicatorHighlight;
+                }
+                else
+                {
+                    pathsVisualizations[i].GetComponent<Renderer>().material = lineMaterial;
+                    vehicleIcons[i].GetComponent<Renderer>().material = vehicleIndicator;
+                }
+
+            }
         }
 
 		public void SetSegmentHighlight(HighlightType type, uint id){
@@ -442,8 +270,8 @@ namespace TrafficReport
             }
 
 			int total = 0;
-			highlightBreakdown = new Dictionary<string,int>();
 
+            int[] typeCount = new int[Config.instance.vehicleTypes.Length];
 			
 			for(int index=0; index < currentReport.allEntities.Length; index++) {
 
@@ -482,15 +310,20 @@ namespace TrafficReport
 					pathsVisualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
                     vehicleIcons[index].GetComponent<Renderer>().material = vehicleIndicatorHighlight;
 					string t = currentReport.allEntities[index].serviceType;
-					int count = 0;
-					highlightBreakdown.TryGetValue(t, out count);
-					count++;
-					highlightBreakdown[t]=count;	
 					total++;
+
+                    for (int j = 0; j < typeCount.Length; j++)
+                    {
+                        if (Config.instance.vehicleTypes[j].id == currentReport.allEntities[index].serviceType)
+                        {
+                            typeCount[j]++;
+                        }
+                    }
 				}
 			}
 
-			highlightBreakdown ["total"] = total;
+            reportUi.SetHighlightData(typeCount, total);
+
 			currentHighlight = id;
 			currentHighlightType = type;
 		}
@@ -524,7 +357,7 @@ namespace TrafficReport
 			foreach(VehicleDisplay t in Config.instance.vehicleTypes) {
 
 				if(t.id == type) {
-					go.GetComponent<MeshRenderer>().enabled = t.onOff;
+					go.SetActive(t.onOff);
 				}
 			}
 			return go;

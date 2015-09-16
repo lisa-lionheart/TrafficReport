@@ -56,30 +56,37 @@ namespace TrafficReport.Assets.Source.UI
             Texture2D texture = ResourceLoader.loadTexture("Materials/Sprite.png");
             atlas.material.mainTexture = texture;
 
-            atlas.AddSprites( new UITextureAtlas.SpriteInfo[]{
+
+            UITextureAtlas.SpriteInfo[] sprites = {
 
                 new UITextureAtlas.SpriteInfo() {
                     name = "BgHover",
-                    region = new Rect(0,0,0.5f,0.5f),
-                    texture = texture
+                    region = new Rect(0.0f,0.0f,0.5f,0.5f)
                 },
                 new UITextureAtlas.SpriteInfo() {
                     name = "BgActive",
-                    region = new Rect(0.5f,0.5f,0.5f,0.5f),
-                    texture = texture
+                    region = new Rect(0.5f,0.5f,0.5f,0.5f)
                 },
                 new UITextureAtlas.SpriteInfo() {
                     name = "BgNormal",
-                    region = new Rect(0,0.5f,0.5f,0.5f),
-                    texture = texture
+                    region = new Rect(0.0f,0.5f,0.5f,0.5f)
                 },
                 new UITextureAtlas.SpriteInfo() {
                     name = "Icon",
-                    region = new Rect(0.5f,0,0.5f,0.5f),
-                    texture = texture
+                    region = new Rect(0.5f,0.0f,0.5f,0.5f)
                 }
-            });
-      
+            };
+
+            foreach (UITextureAtlas.SpriteInfo s in sprites)
+            {
+                Texture2D t = new Texture2D(50, 50);
+                t.SetPixels(texture.GetPixels((int)(100 * s.region.x), (int)(100 * s.region.y), (int)(100 * s.region.width), (int)(100 * s.region.height)));
+                s.texture = t;
+                atlas.AddSprite(s);
+            }
+
+            playAudioEvents = true;
+            tooltip = "Traffic Report Tool";
             normalBgSprite = "BgNormal";
             hoveredBgSprite = "BgHover";
             pressedBgSprite = "BgActive";
@@ -99,7 +106,7 @@ namespace TrafficReport.Assets.Source.UI
         {
             Debug.Log("Position changed: " + transform.localPosition);
             Config.instance.newButtonPos = transform.localPosition;
-            Config.instance.Save();
+            Config.instance.NotifyChange();
             base.OnPositionChanged();
         }
 

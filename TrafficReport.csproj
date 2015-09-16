@@ -35,6 +35,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Compile Include="Assets\Source\Billboard.cs" />
+    <Compile Include="Assets\Source\UI\ReportButton.cs" />
+    <Compile Include="Assets\Source\UI\ReportUI.cs" />
     <Compile Include="Assets\TestQueryToolGUI.cs" />
     <Compile Include="Source\AssemblyInfo.cs" />
     <Compile Include="Source\ModMain.cs" />
@@ -50,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Materials\Pin.png" />
+    <EmbeddedResource Include="Assets\Materials\Sprite.png" />
     <Content Include="Assets\report.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -66,8 +69,6 @@
     <None Include="run_game.ps1" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\Materials\Button.active.png" />
-    <EmbeddedResource Include="Assets\Materials\Button.png" />
     <EmbeddedResource Include="Assets\Materials\Cursor.png" />
     <EmbeddedResource Include="Assets\Materials\Hourglass.png" />
     <EmbeddedResource Include="Assets\Materials\NewSkin.png" />

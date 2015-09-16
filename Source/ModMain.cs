@@ -27,14 +27,24 @@ namespace TrafficReport
         {
             get {
 
-                ReportButton btn = ReportButton.Create();
+                //ReportButton btn = ReportButton.Create();
 
                 
-                btn.eventClick += (UIComponent c, UIMouseEventParameter e) =>
-                {
-                    btn.ToggleState = !btn.ToggleState;
-                };
-    
+                //btn.eventClick += (UIComponent c, UIMouseEventParameter e) =>
+                //{
+                //    btn.ToggleState = !btn.ToggleState;
+                //};
+
+                GameObject go = new GameObject();
+
+                go.transform.localPosition = Vector3.zero;
+                ReportUI ui = go.AddComponent<ReportUI>();
+                UIView.GetAView().AttachUIComponent(go);
+
+                ui.SetSelectedData(new int[]{
+                    10,13,345,10,100,324,23,346,457,10,34,23,0,0
+                });
+                
                 
                 return "Display traffic information for a single vehicle, a section of road or a building"; 
             

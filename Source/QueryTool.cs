@@ -4,6 +4,8 @@ using ColossalFramework.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using TrafficReport.Assets.Source.UI;
 using TrafficReport.Util;
 using UnityEngine;
 
@@ -41,11 +43,30 @@ namespace TrafficReport
             }
             set
             {
+                InfoManager infoManger = GameObject.FindObjectOfType<InfoManager>();
+
+
+                FieldInfo mode = typeof(InfoManager).GetField("m_currentMode", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                //MethodInfo SetInfoMode = typeof(InfoManager).GetMethod("SetMode", BindingFlags.NonPublic | BindingFlags.Instance);
+
+
                 if (value)
                 {
+                    UIView.library.Hide("CityInfoPanel");
+
+                    Debug.Log("Type:" + mode.GetType().ToString());
+                    Debug.Log("Mode is:" + mode.GetValue(infoManger).ToString());
+                    Debug.Log("Changing info mode");
+                    mode.SetValue(infoManger, InfoManager.InfoMode.Traffic);
+                    Debug.Log("Mode set to:" + infoManger.NextMode);
+                    infoManger.UpdateInfoMode();
+                     
+                  //  SetInfoMode.Invoke(infoManger, new object[] { InfoManager.InfoMode.Traffic, InfoManager.SubInfoMode.Default });
+
                     ToolsModifierControl.toolController.CurrentTool = queryTool;
                 } else {
 					SetReport(null);
+                    infoManger.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
 					ToolsModifierControl.SetTool<DefaultTool>();
                 }
             }
@@ -116,6 +137,7 @@ namespace TrafficReport
                 loadingCursor.m_texture = ResourceLoader.loadTexture("Materials/Hourglass.png");
 
                 Log.info("Create GUI...");
+
                 gui = new GameObject("QueryToolGUI").AddComponent<QueryToolGUI>();
                 gui.queryTool = this;
 
