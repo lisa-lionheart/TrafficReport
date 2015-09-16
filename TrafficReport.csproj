@@ -37,7 +37,6 @@
     <Compile Include="Assets\Source\Billboard.cs" />
     <Compile Include="Assets\Source\UI\ReportButton.cs" />
     <Compile Include="Assets\Source\UI\ReportUI.cs" />
-    <Compile Include="Assets\TestQueryToolGUI.cs" />
     <Compile Include="Source\AssemblyInfo.cs" />
     <Compile Include="Source\ModMain.cs" />
     <Compile Include="Source\QueryTool.cs" />
@@ -45,7 +44,7 @@
     <Compile Include="Assets\Source\Beizer.cs" />
     <Compile Include="Assets\Source\Util\Log.cs" />
     <Compile Include="Assets\Source\PathMeshBuilder.cs" />
-    <Compile Include="Assets\Source\QueryToolGUIBase.cs" />
+    <Compile Include="Assets\Source\ReportVisualizer.cs" />
     <Compile Include="Assets\Source\Report.cs" />
     <Compile Include="Assets\Source\Util\ResourceLoader.cs" />
     <Compile Include="Assets\Source\Config.cs" />

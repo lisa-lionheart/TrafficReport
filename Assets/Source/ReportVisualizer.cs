@@ -7,10 +7,12 @@ using System.IO;
 using TrafficReport.Util;
 using TrafficReport.Assets.Source.UI;
 using ColossalFramework.UI;
+using ColossalFramework;
+using System.Reflection;
 
 namespace TrafficReport
 {
-	public class QueryToolGUIBase : MonoBehaviour
+	public class ReportVisualizer : MonoBehaviour
 	{
 		public enum HighlightType {
 			None,
@@ -20,6 +22,8 @@ namespace TrafficReport
 			Citizen
 		}
 
+        //Implent logic that interfaces with Colossal code
+        public QueryTool queryTool;
         ReportButton toggleButton;
         ReportUI reportUi;
 
@@ -44,19 +48,49 @@ namespace TrafficReport
             get { return activeSegmentIndicator; }
         }
 
-		public QueryToolGUIBase()
+		public ReportVisualizer()
 		{   
 			currentHighlightType = HighlightType.None;
 		}
 
-		public virtual bool toolActive {
-			get {
-                return true;
+		public bool toolActive {
+            get
+            {
+                return ToolsModifierControl.toolController.CurrentTool == queryTool;
             }
-			set  {
-				Log.error("Function not overidden");
-			}
+            set
+            {
+                InfoManager infoManger = GameObject.FindObjectOfType<InfoManager>();
+
+
+                FieldInfo mode = typeof(InfoManager).GetField("m_currentMode", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                //MethodInfo SetInfoMode = typeof(InfoManager).GetMethod("SetMode", BindingFlags.NonPublic | BindingFlags.Instance);
+
+
+                if (value)
+                {
+                    UIView.library.Hide("CityInfoPanel");
+
+                    Debug.Log("Type:" + mode.GetType().ToString());
+                    Debug.Log("Mode is:" + mode.GetValue(infoManger).ToString());
+                    Debug.Log("Changing info mode");
+                    mode.SetValue(infoManger, InfoManager.InfoMode.Traffic);
+                    Debug.Log("Mode set to:" + infoManger.NextMode);
+                    infoManger.UpdateInfoMode();
+
+                    //  SetInfoMode.Invoke(infoManger, new object[] { InfoManager.InfoMode.Traffic, InfoManager.SubInfoMode.Default });
+
+                    ToolsModifierControl.toolController.CurrentTool = queryTool;
+                }
+                else
+                {
+                    SetReport(null);
+                    infoManger.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
+                    ToolsModifierControl.SetTool<DefaultTool>();
+                }
+            }
 		}
+
 
         public virtual bool guiVisible
         {
@@ -217,8 +251,23 @@ namespace TrafficReport
 
 		}
 
-        public virtual Vector3 GetPositionForReportEntity(int i)
+        private  Vector3 GetPositionForReportEntity(int i)
         {
+
+            if (this.currentReport.allEntities[i].type == EntityType.Vehicle)
+            {
+                //return Singleton<VehicleManager>.instance.GetS
+                uint id = currentReport.allEntities[i].id;
+                //return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id].GetLastFramePosition();                
+                return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id].GetSmoothPosition((ushort)id);
+            }
+
+
+            if (this.currentReport.allEntities[i].type == EntityType.Citizen)
+            {
+                uint id = currentReport.allEntities[i].id;
+                return Singleton<CitizenManager>.instance.m_instances.m_buffer[id].GetSmoothPosition((ushort)id);
+            }
             return new Vector3();
         }
 

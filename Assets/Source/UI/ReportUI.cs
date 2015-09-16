@@ -272,10 +272,7 @@ namespace TrafficReport.Assets.Source.UI
 
         void Awake()
         {
-
-
-            //backgroundSprite = "MenuPanel";
-            area = new Vector4(0, 0, 100, 100);
+            area = new Vector4(0, 0, 5, 5);
             anchor = UIAnchorStyle.Top | UIAnchorStyle.Left;
 
             helpBg = AddUIComponent<UIPanel>();

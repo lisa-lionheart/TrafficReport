@@ -14,101 +14,6 @@ using UnityEngine;
 namespace TrafficReport
 {
 
-	public class QueryToolGUI : QueryToolGUIBase {
-
-		//Implent logic that interfaces with Colossal code
-        public QueryTool queryTool;
-
-		private Camera uiCamera;
-        UIView ui;
-        public QueryToolGUI()
-        {
-            ui = UnityEngine.Object.FindObjectOfType<UIView>();
-			leftHandDrive = (Singleton<SimulationManager>.instance.m_metaData.m_invertTraffic == SimulationMetaData.MetaBool.True);
-
-			//Ripped from the bowls of HideUI
-			foreach (Camera c in UnityEngine.Object.FindObjectsOfType<Camera>()) {
-				if (c.name == "UIView"){
-					uiCamera = c;
-					break;
-				}
-			}
-        }
-
-        public override bool toolActive
-        {
-            get
-            {
-                return ToolsModifierControl.toolController.CurrentTool == queryTool;
-            }
-            set
-            {
-                InfoManager infoManger = GameObject.FindObjectOfType<InfoManager>();
-
-
-                FieldInfo mode = typeof(InfoManager).GetField("m_currentMode", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                //MethodInfo SetInfoMode = typeof(InfoManager).GetMethod("SetMode", BindingFlags.NonPublic | BindingFlags.Instance);
-
-
-                if (value)
-                {
-                    UIView.library.Hide("CityInfoPanel");
-
-                    Debug.Log("Type:" + mode.GetType().ToString());
-                    Debug.Log("Mode is:" + mode.GetValue(infoManger).ToString());
-                    Debug.Log("Changing info mode");
-                    mode.SetValue(infoManger, InfoManager.InfoMode.Traffic);
-                    Debug.Log("Mode set to:" + infoManger.NextMode);
-                    infoManger.UpdateInfoMode();
-                     
-                  //  SetInfoMode.Invoke(infoManger, new object[] { InfoManager.InfoMode.Traffic, InfoManager.SubInfoMode.Default });
-
-                    ToolsModifierControl.toolController.CurrentTool = queryTool;
-                } else {
-					SetReport(null);
-                    infoManger.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
-					ToolsModifierControl.SetTool<DefaultTool>();
-                }
-            }
-        }
-
-        public override bool guiVisible
-        {
-            get { 
-				if(!ui.enabled){
-					return false;
-				}
-
-				if(!uiCamera.enabled){
-					return false;
-				}
-
-				return true;
-			}
-        }
-
-
-        public override Vector3 GetPositionForReportEntity(int i)
-        {
-
-            if (this.currentReport.allEntities[i].type == EntityType.Vehicle)
-            {
-                //return Singleton<VehicleManager>.instance.GetS
-                uint id = currentReport.allEntities[i].id;
-                //return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id].GetLastFramePosition();                
-                return Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id].GetSmoothPosition((ushort)id);  
-            }
-
-
-            if (this.currentReport.allEntities[i].type == EntityType.Citizen)
-            {
-                uint id = currentReport.allEntities[i].id;
-                return Singleton<CitizenManager>.instance.m_instances.m_buffer[id].GetSmoothPosition((ushort)id);
-            }
-            return new Vector3();
-        }
-
-	}
 
     public class QueryTool : DefaultTool
     {
@@ -116,16 +21,12 @@ namespace TrafficReport
         TrafficAnalyzer analyzer;
 
 		CursorInfo loadingCursor;
-		QueryToolGUI gui;
+		ReportVisualizer gui;
         
         protected override void Awake()
-        {
-
-
-
+        {   
             try
             {
-
                 analyzer = new TrafficAnalyzer(this);
 
                 Log.info("Load Cursor...");
@@ -138,7 +39,9 @@ namespace TrafficReport
 
                 Log.info("Create GUI...");
 
-                gui = new GameObject("QueryToolGUI").AddComponent<QueryToolGUI>();
+                //gui = new GameObject("ReportVisualizer").AddComponent<ReportVisualizer>();
+
+                gui = gameObject.AddComponent<ReportVisualizer>();
                 gui.queryTool = this;
 
                 Log.info("QueryTool awoken");
@@ -235,15 +138,15 @@ namespace TrafficReport
 			} else {
 				
 				if (hoverInstance.Type == InstanceType.NetSegment) {
-					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Segment,(uint)hoverInstance.NetSegment);
+					gui.SetSegmentHighlight (ReportVisualizer.HighlightType.Segment,(uint)hoverInstance.NetSegment);
 				} else if (hoverInstance.Type == InstanceType.Building) {
-					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Building,(uint)hoverInstance.Building);
+					gui.SetSegmentHighlight (ReportVisualizer.HighlightType.Building,(uint)hoverInstance.Building);
 				} else if (hoverInstance.Type == InstanceType.Vehicle) {
-					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Vehicle,(uint)hoverInstance.Vehicle);
+					gui.SetSegmentHighlight (ReportVisualizer.HighlightType.Vehicle,(uint)hoverInstance.Vehicle);
 				} else if (hoverInstance.Type == InstanceType.Citizen) {
-					gui.SetSegmentHighlight (QueryToolGUIBase.HighlightType.Citizen,(uint)hoverInstance.Vehicle);
+					gui.SetSegmentHighlight (ReportVisualizer.HighlightType.Citizen,(uint)hoverInstance.Vehicle);
 				} else {
-					gui.SetSegmentHighlight(QueryToolGUIBase.HighlightType.None, 0);
+					gui.SetSegmentHighlight(ReportVisualizer.HighlightType.None, 0);
 				}
 			}
             base.OnToolGUI();
