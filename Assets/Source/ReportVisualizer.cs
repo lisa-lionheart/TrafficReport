@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace TrafficReport
 {
-	public class ReportVisualizer : MonoBehaviour
+	public class ReportVisualizer
 	{
 		public enum HighlightType {
 			None,
@@ -22,9 +22,7 @@ namespace TrafficReport
 			Citizen
 		}
 
-        //Implent logic that interfaces with Colossal code
-        public QueryTool queryTool;
-        ReportButton toggleButton;
+        QueryTool queryTool;
         ReportUI reportUi;
 
 		//In game visualizations
@@ -36,100 +34,48 @@ namespace TrafficReport
 		Material lineMaterialHighlight;
         Material vehicleIndicator, vehicleIndicatorHighlight;
         
-		protected Report currentReport;
+		Report currentReport;
 		uint currentHighlight;
 		HighlightType currentHighlightType;
-
-		public bool leftHandDrive;
-
-
+        
         public Billboard ActiveSegmentIndicator
         {
             get { return activeSegmentIndicator; }
         }
 
-		public ReportVisualizer()
-		{   
-			currentHighlightType = HighlightType.None;
-		}
+		public ReportVisualizer(QueryTool tool)
+		{
+            queryTool = tool;
+            currentHighlightType = HighlightType.None;
+        }
 
-		public bool toolActive {
-            get
-            {
-                return ToolsModifierControl.toolController.CurrentTool == queryTool;
-            }
-            set
-            {
-                InfoManager infoManger = GameObject.FindObjectOfType<InfoManager>();
+        public void Init() {
 
 
-                FieldInfo mode = typeof(InfoManager).GetField("m_currentMode", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                //MethodInfo SetInfoMode = typeof(InfoManager).GetMethod("SetMode", BindingFlags.NonPublic | BindingFlags.Instance);
-
-
-                if (value)
-                {
-                    UIView.library.Hide("CityInfoPanel");
-
-                    Debug.Log("Type:" + mode.GetType().ToString());
-                    Debug.Log("Mode is:" + mode.GetValue(infoManger).ToString());
-                    Debug.Log("Changing info mode");
-                    mode.SetValue(infoManger, InfoManager.InfoMode.Traffic);
-                    Debug.Log("Mode set to:" + infoManger.NextMode);
-                    infoManger.UpdateInfoMode();
-
-                    //  SetInfoMode.Invoke(infoManger, new object[] { InfoManager.InfoMode.Traffic, InfoManager.SubInfoMode.Default });
-
-                    ToolsModifierControl.toolController.CurrentTool = queryTool;
-                }
-                else
-                {
-                    SetReport(null);
-                    infoManger.SetCurrentMode(InfoManager.InfoMode.None, InfoManager.SubInfoMode.Default);
-                    ToolsModifierControl.SetTool<DefaultTool>();
-                }
-            }
-		}
-
-
-        public virtual bool guiVisible
-        {
-			get { return true; }
-		}
-
-        public void Awake()
-        {
-            toggleButton = ReportButton.Create();
-            toggleButton.eventClick += toggleButton_eventClick;
-
-            Config.instance.eventConfigChanged += instance_eventConfigChanged;
-
-            GameObject go = new GameObject();
-            go.transform.localPosition = Vector3.zero;
-
-            reportUi = go.AddComponent<ReportUI>();
-            UIView.GetAView().AttachUIComponent(go);
-
+            reportUi = ReportUI.Create();
             reportUi.eventHighlightType += (String s) => { SetTypeHighlight(s); };
-                        
-			Log.info("Load Line Material...");
+            reportUi.enabled = false;
 
-			Color red = new Color (1, 0, 0);
-			Color gold = new Color (1, 0.9f, 0);
+            Config.instance.eventConfigChanged += OnConfigChanged;
 
-			string lineShader = ResourceLoader.loadResourceString ("Materials/Shaders/TransparentVertexLit.shader");
+            Log.info("Load Line Material...");
 
-			lineMaterial = new Material (lineShader);
-			lineMaterial.color = red;
-			lineMaterial.SetColor("_Emission", red);
+            Color red = new Color(1, 0, 0);
+            Color gold = new Color(1, 0.9f, 0);
+
+            string lineShader = ResourceLoader.loadResourceString("Materials/Shaders/TransparentVertexLit.shader");
+
+            lineMaterial = new Material(lineShader);
+            lineMaterial.color = red;
+            lineMaterial.SetColor("_Emission", red);
             lineMaterial.SetColor("_SpecColor", Color.black); //Disable shine effect
-			lineMaterial.mainTexture = ResourceLoader.loadTexture("Materials/NewSkin.png");
-			lineMaterial.renderQueue = 100;
-			
-			lineMaterialHighlight = new Material (lineMaterial);
-			lineMaterialHighlight.color = gold;
-			lineMaterialHighlight.SetColor("_Emission", gold);
-			lineMaterial.renderQueue = 101;
+            lineMaterial.mainTexture = ResourceLoader.loadTexture("Materials/NewSkin.png");
+            lineMaterial.renderQueue = 100;
+
+            lineMaterialHighlight = new Material(lineMaterial);
+            lineMaterialHighlight.color = gold;
+            lineMaterialHighlight.SetColor("_Emission", gold);
+            lineMaterial.renderQueue = 101;
 
 
             Texture pin = ResourceLoader.loadTexture("Materials/Pin.png");
@@ -138,10 +84,10 @@ namespace TrafficReport
             vehicleIndicator = Billboard.CreateSpriteMaterial(pin, red);
             vehicleIndicatorHighlight = Billboard.CreateSpriteMaterial(pin, gold);
 
-			Log.debug ("Gui initialized");
-        }
-
-        void instance_eventConfigChanged()
+            Log.debug("Gui initialized");
+		}
+ 
+        void OnConfigChanged()
         {
             if (currentReport == null)
             {
@@ -156,32 +102,15 @@ namespace TrafficReport
             }
         }
 
-        void toggleButton_eventClick(ColossalFramework.UI.UIComponent component, ColossalFramework.UI.UIMouseEventParameter eventParam)
-        {
-            toolActive = !toolActive;
-            
-        }
 
 
+		public void Update() {
 
-		void Update() {
-
-            toggleButton.ToggleState = !toolActive;
-            reportUi.isVisible = toolActive;
+            reportUi.enabled = queryTool.toolActive;
             
 			//Animate the traffic lines
 			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
-
-			
-			if (Input.GetKeyUp(Config.instance.keyCode)){
-				Log.info ("Toggling tool");
-				toolActive = !toolActive;
-			}
-
-			if (toolActive && Input.GetKeyUp(KeyCode.Escape)) {
-				toolActive = false;
-			}
 
             if (currentReport != null)
             {
@@ -192,13 +121,11 @@ namespace TrafficReport
             }
 		}
 	
-		void OnRenderObject() {
-
-		}
 
 		public void SetReport(Report report) {
 
 			if (pathsVisualizations != null) {
+                
 				RemoveAllPaths();
 				currentReport = null;          
 			}
@@ -206,7 +133,7 @@ namespace TrafficReport
 			if (report == null || report.allEntities == null) {
 				Log.debug ("Report NULL");
                 reportUi.SetSelectedData(null);
-                reportUi.SetHighlightData(null,0);
+                reportUi.SetHighlightData(null,0);                
 				return;
 			}
 
@@ -247,6 +174,7 @@ namespace TrafficReport
 			currentReport = report;
 
             reportUi.SetSelectedData(typeCounts);
+
 			SetSegmentHighlight(HighlightType.None, 0);
 
 		}

@@ -21,8 +21,8 @@ namespace TrafficReport.Assets.Source.UI
 
                 if (toggleState != value)
                 {
-                    normalBgSprite = toggleState ? "BgActive" : "BgNormal";
-                    hoveredBgSprite = toggleState ? "BgActive" : "BgHover";
+                    normalBgSprite = !toggleState ? "BgActive" : "BgNormal";
+                    hoveredBgSprite = !toggleState ? "BgActive" : "BgHover";
                     toggleState = value;
                 }
             }
@@ -31,13 +31,9 @@ namespace TrafficReport.Assets.Source.UI
         public static ReportButton Create()
         {
 
-            GameObject go = new GameObject();
-            
+            GameObject go = new GameObject("TrafficReportButton");
             go.transform.localPosition = Vector3.zero;
-
-
             ReportButton report =  go.AddComponent<ReportButton>();
-
 
             UIView.GetAView().AttachUIComponent(go);
 

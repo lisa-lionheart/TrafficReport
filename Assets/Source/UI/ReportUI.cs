@@ -270,6 +270,15 @@ namespace TrafficReport.Assets.Source.UI
 
         public event TypeHighlightEvent eventHighlightType;
 
+        public static ReportUI Create()
+        {
+            GameObject go = new GameObject("TrafficReportUI");
+            go.transform.localPosition = Vector3.zero;
+            ReportUI reportUI = go.AddComponent<ReportUI>();
+            UIView.GetAView().AttachUIComponent(go);
+            return reportUI;
+        }
+
         void Awake()
         {
             area = new Vector4(0, 0, 5, 5);
