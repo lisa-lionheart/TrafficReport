@@ -86,7 +86,14 @@ namespace TrafficReport
                     info.type = EntityType.Citizen;
 					info.id = id;
                     info.path = this.GatherPathVerticies(citizens[id].m_path, true);
-					info.serviceType = "citizen";
+                    if ((citizens[id].m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
+                    {
+                        info.serviceType = "Citizen/Cycle";
+                    }
+                    else
+                    {
+                        info.serviceType = "Citizen/Foot";
+                    }
 					
 					info.sourceBuilding = citizens[id].m_sourceBuilding;
 					info.targetBuilding = citizens[id].m_targetBuilding;
@@ -221,7 +228,14 @@ namespace TrafficReport
                     info.type = EntityType.Citizen;
 					info.id = i;
                     info.path = this.GatherPathVerticies(citizens[i].m_path,true);
-					info.serviceType = "citizen";
+                    if ((citizens[i].m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
+                    {
+                        info.serviceType = "Citizen/Cycle";
+                    }
+                    else
+                    {
+                        info.serviceType = "Citizen/Foot";
+                    }
 					info.sourceBuilding = citizens[i].m_sourceBuilding;
 					info.targetBuilding = citizens[i].m_targetBuilding;
 
@@ -295,7 +309,14 @@ namespace TrafficReport
                     info.type = EntityType.Citizen;
                     info.id = i;
                     info.path = this.GatherPathVerticies(citizens[i].m_path,true);
-                    info.serviceType = "citizen";
+                    if ((citizens[i].m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
+                    {
+                        info.serviceType = "Citizen/Cycle";
+                    }
+                    else
+                    {
+                        info.serviceType = "Citizen/Foot";
+                    }
 
                     info.sourceBuilding = citizens[i].m_sourceBuilding;
                     info.targetBuilding = citizens[i].m_targetBuilding;
@@ -355,7 +376,7 @@ namespace TrafficReport
 							return true;
 						}
 //						} else if ((laneDir != NetInfo.Direction.Forward) && (laneDir != NetInfo.Direction.Backward)) {
-		//					Debug.Log("laneDir = " + laneDir);
+		//					Log.debug("laneDir = " + laneDir);
 		//				}
 					}
 				}

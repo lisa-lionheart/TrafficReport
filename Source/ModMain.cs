@@ -10,6 +10,7 @@ using System.Reflection;
 using System;
 using TrafficReport.Util;
 using TrafficReport.Assets.Source.UI;
+using System.Collections.Generic;
 
 namespace TrafficReport
 {
@@ -35,11 +36,18 @@ namespace TrafficReport
                 //    btn.ToggleState = !btn.ToggleState;
                 //};
 
-                //ReportUI ui = ReportUI.Create();
+                ReportUI ui = ReportUI.Create();
 
-                //ui.SetSelectedData(new int[]{
-                //    10,13,345,10,100,324,23,346,457,10,34,23,0,0
-                //});
+                Dictionary<String,int> vals = new Dictionary<String,int>();
+
+                vals["citizen"] = 10;
+                vals["Residential/ResidentialLow"] = 20;
+                vals["Industrial/IndustrialOre"] = 30;
+                vals["Industrial/IndustrialOil"] = 35;
+
+                vals["something"] = 0;
+
+                ui.SetSelectedData(vals);
                 //ReportButton btn = ReportButton.Create();
                 
                 
@@ -48,63 +56,8 @@ namespace TrafficReport
             }
         }
 
-
-        void DeRegister()
-        {
-            
-            GameObject gameController = GameObject.FindWithTag("GameController");
-            if (gameController)
-            {
-                try
-                {
-                    Component existing = gameController.GetComponent("TrafficReportMod");
-                    if (existing)
-                    {
-                        Log.info("Query tool already registed, removing");
-                        GameObject.Destroy(existing);
-                    }
-                    
-                    GameObject existinggui = GameObject.FindGameObjectWithTag("QueryToolGUI");
-                    if (existinggui)
-                    {
-                        Log.info("Query tool already registed, removing");
-                        GameObject.Destroy(existinggui);
-                    }
-                }
-                catch (UnityException)
-                {
-                    Log.info("No gui exist yet");
-                }
-
-            }
-        }
-
-
-        void RegisterTool()
-        {
-
-            DeRegister(); 
-            
-            try {
-                GameObject gameController = GameObject.FindWithTag("GameController");
-                if (gameController)
-                {
-                    Log.debug(gameController.ToString());
-                    queryTool = gameController.AddComponent<QueryTool>();
-                    ToolsModifierControl.SetTool<DefaultTool>();
-
-                }
-            }
-            catch (Exception e)
-            {
-                Log.error(e.ToString());
-            }
-        }
-
-
-		public override void OnCreated(ILoading loading) {
-            RegisterTool();
-			Log.info ("onLoaded");
+        public override void OnCreated(ILoading loading) {
+        	Log.info ("onLoaded");
 		}
 
 		public override void OnReleased() {
@@ -113,9 +66,14 @@ namespace TrafficReport
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            RegisterTool();
+            GameObject gameController = GameObject.FindWithTag("GameController");
+            if (gameController)
+            {
+                Log.debug(gameController.ToString());
+                queryTool = gameController.AddComponent<QueryTool>();
+                ToolsModifierControl.SetTool<DefaultTool>();
 
-
+            }
            
         }
 

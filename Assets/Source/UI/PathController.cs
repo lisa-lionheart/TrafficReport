@@ -12,18 +12,9 @@ using System.Reflection;
 
 namespace TrafficReport
 {
-	public class ReportVisualizer
+	public class PathController
 	{
-		public enum HighlightType {
-			None,
-			Segment,
-			Vehicle,
-			Building,
-			Citizen
-		}
-
         QueryTool queryTool;
-        ReportUI reportUi;
 
 		//In game visualizations
         GameObject[] pathsVisualizations;
@@ -43,20 +34,12 @@ namespace TrafficReport
             get { return activeSegmentIndicator; }
         }
 
-		public ReportVisualizer(QueryTool tool)
+		public PathController(QueryTool tool)
 		{
             queryTool = tool;
             currentHighlightType = HighlightType.None;
-        }
 
-        public void Init() {
-
-
-            reportUi = ReportUI.Create();
-            reportUi.eventHighlightType += (String s) => { SetTypeHighlight(s); };
-            reportUi.enabled = false;
-
-            Config.instance.eventConfigChanged += OnConfigChanged;
+            Config.instance.eventConfigChanged += () => { OnConfigChanged(); };
 
             Log.info("Load Line Material...");
 
@@ -84,7 +67,7 @@ namespace TrafficReport
             vehicleIndicator = Billboard.CreateSpriteMaterial(pin, red);
             vehicleIndicatorHighlight = Billboard.CreateSpriteMaterial(pin, gold);
 
-            Log.debug("Gui initialized");
+            Log.debug("PathController initialized");
 		}
  
         void OnConfigChanged()
@@ -101,13 +84,9 @@ namespace TrafficReport
                 pathsVisualizations[i].SetActive(visible);
             }
         }
-
-
-
+        
 		public void Update() {
 
-            reportUi.enabled = queryTool.toolActive;
-            
 			//Animate the traffic lines
 			lineMaterial.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
 			lineMaterialHighlight.SetTextureOffset("_MainTex", new Vector2(Time.time * -0.5f, 0));
@@ -131,14 +110,11 @@ namespace TrafficReport
 			}
 
 			if (report == null || report.allEntities == null) {
-				Log.debug ("Report NULL");
-                reportUi.SetSelectedData(null);
-                reportUi.SetHighlightData(null,0);                
+				Log.debug ("Report NULL");             
 				return;
 			}
 
-            int[] typeCounts = new int[Config.instance.vehicleTypes.Length];
-
+            
 			pathsVisualizations = new GameObject[report.allEntities.Length];
             vehicleIcons = new Billboard[report.allEntities.Length];
 			for(int i=0; i < report.allEntities.Length; i++)
@@ -154,13 +130,6 @@ namespace TrafficReport
                 vehicleIcons[i] = Billboard.Create(vehicleIndicator);
                 vehicleIcons[i].gameObject.SetActive(visible);
 
-                for (int j = 0; j < typeCounts.Length; j++)
-                {
-                    if (Config.instance.vehicleTypes[j].id == report.allEntities[i].serviceType)
-                    {
-                        typeCounts[j]++;
-                    }
-                }
 			}
 			
 			float alpha = 30.0f / report.allEntities.Length;
@@ -171,11 +140,8 @@ namespace TrafficReport
 			}
 			
 
-			currentReport = report;
-
-            reportUi.SetSelectedData(typeCounts);
-
-			SetSegmentHighlight(HighlightType.None, 0);
+			currentReport = report;            
+			SetHighlight(HighlightType.None, 0);
 
 		}
 
@@ -200,7 +166,7 @@ namespace TrafficReport
         }
 
 		
-        public void SetTypeHighlight(String serviceType)
+        public void SetHighlight(String serviceType)
         {
 
             if (currentReport == null)
@@ -211,22 +177,12 @@ namespace TrafficReport
             for (int i = 0; i < currentReport.allEntities.Length; i++)
             {
                 bool highlighted = currentReport.allEntities[i].serviceType.Equals(serviceType);
-
-                if (highlighted)
-                {
-                    pathsVisualizations[i].GetComponent<Renderer>().material = lineMaterialHighlight;
-                    vehicleIcons[i].GetComponent<Renderer>().material = vehicleIndicatorHighlight;
-                }
-                else
-                {
-                    pathsVisualizations[i].GetComponent<Renderer>().material = lineMaterial;
-                    vehicleIcons[i].GetComponent<Renderer>().material = vehicleIndicator;
-                }
-
+                pathsVisualizations[i].GetComponent<Renderer>().material = highlighted ? lineMaterialHighlight : lineMaterial;
+                vehicleIcons[i].GetComponent<Renderer>().material = highlighted ? vehicleIndicatorHighlight : vehicleIndicator;                
             }
         }
 
-		public void SetSegmentHighlight(HighlightType type, uint id){
+		public void SetHighlight(HighlightType type, uint id){
 
 			if (currentReport == null) {
 				return;
@@ -236,71 +192,12 @@ namespace TrafficReport
 				return;
 			}
 
-			foreach (GameObject go in pathsVisualizations) {
-				go.GetComponent<Renderer> ().material = lineMaterial;
-			}
-
-
-            foreach (Billboard bb in vehicleIcons)
-            {
-                bb.material = vehicleIndicator;
-            }
-
-			int total = 0;
-
-            int[] typeCount = new int[Config.instance.vehicleTypes.Length];
-			
 			for(int index=0; index < currentReport.allEntities.Length; index++) {
-
-				bool highlighted = false;
-				switch(type){
-				case HighlightType.Segment:
-				
-					foreach(PathPoint p in currentReport.allEntities[index].path) {
-						if(p.segmentId == id) {
-							highlighted = true;
-							break;
-						}
-					}
-
-					break;
-				case HighlightType.Building:
-					if(currentReport.allEntities[index].sourceBuilding == id || currentReport.allEntities[index].targetBuilding == id) {
-
-						highlighted = true;
-					}
-					break;
-				case HighlightType.Vehicle:
-					if(currentReport.allEntities[index].id == id && currentReport.allEntities[index].type == EntityType.Vehicle) {
-						highlighted = true;
-					}
-					break;
-				case HighlightType.Citizen:
-					
-					if(currentReport.allEntities[index].id == id && currentReport.allEntities[index].type == EntityType.Citizen) {
-						highlighted = true;
-					}
-					break;
-				}
-
-				if(highlighted){
-					pathsVisualizations [index].GetComponent<Renderer> ().material = lineMaterialHighlight;
-                    vehicleIcons[index].GetComponent<Renderer>().material = vehicleIndicatorHighlight;
-					string t = currentReport.allEntities[index].serviceType;
-					total++;
-
-                    for (int j = 0; j < typeCount.Length; j++)
-                    {
-                        if (Config.instance.vehicleTypes[j].id == currentReport.allEntities[index].serviceType)
-                        {
-                            typeCount[j]++;
-                        }
-                    }
-				}
+				bool match = currentReport.allEntities[index].MatchesHighlight(type,id);
+                pathsVisualizations[index].GetComponent<Renderer>().material = match ? lineMaterialHighlight : lineMaterial;
+                vehicleIcons[index].GetComponent<Renderer>().material = match ? vehicleIndicatorHighlight : vehicleIndicator;				
 			}
-
-            reportUi.SetHighlightData(typeCount, total);
-
+            
 			currentHighlight = id;
 			currentHighlightType = type;
 		}
@@ -311,13 +208,13 @@ namespace TrafficReport
 			
 			PathMeshBuilder pb = new PathMeshBuilder();
 
-            if (type == "citizen")
+            if (type == "Citizen/Foot" || type == "Citizen/Cycle")
             {
                 //Citizens have much tighter paths, to remove duplicate points so much
                 pb.duplicatePointThreshold = 1.0f;
                 //pb.normalScaleFactor = 0.01f;
                 pb.tightNormalScaleFactor = 0.05f;
-                pb.pathBreakThreshold = 150.0f;
+                pb.pathBreakThreshold = 150.0f;  //If a path segemnt is longer than this they are riding a bus/metro/train
             }
 
 			pb.AddPoints(positions);
@@ -331,12 +228,8 @@ namespace TrafficReport
 			go.GetComponent<MeshRenderer>().material = lineMaterial;
 			go.transform.localPosition = new Vector3(0, 3, 0);
 
-			foreach(VehicleDisplay t in Config.instance.vehicleTypes) {
-
-				if(t.id == type) {
-					go.SetActive(t.onOff);
-				}
-			}
+			go.SetActive(Config.instance.IsTypeVisible(type));
+			
 			return go;
 		}
 		

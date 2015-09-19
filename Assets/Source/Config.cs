@@ -34,8 +34,10 @@ namespace TrafficReport
 		public Vector2 buttonPosition  = new Vector2(80, 5);
 		public KeyCode keyCode = KeyCode.Slash;
 
-		public VehicleDisplay[] vehicleTypes = {
-			new VehicleDisplay { id =  "citizen", display = "Pedestrian", onOff=true, color = new Color32(1,255,216,255) },
+
+        private VehicleDisplay[] vehicleTypes = {
+			new VehicleDisplay { id =  "Citizen/Foot", display = "Pedestrian", onOff=true, color = new Color32(1,255,216,255) },
+            new VehicleDisplay { id =  "Citizen/Cycle", display = "Cyclist", onOff=true, color = new Color32(1,255,216,255) },
 			
 			new VehicleDisplay { id =  "Residential/ResidentialLow", display = "Car", onOff=true , color = new Color32(35,100,90,255) },
 			
@@ -51,12 +53,12 @@ namespace TrafficReport
 			new VehicleDisplay { id =  "PoliceDepartment/None", display = "Police Car", onOff=true , color = new Color32(24,19,249,255)   },
 			new VehicleDisplay { id =  "FireDepartment/None", display = "Fire truck", onOff=true , color = new Color32(255,0,0,255)  },
 			
-			
-			new VehicleDisplay { id =  "PublicTransport/PublicTransportBus", display = "Bus", onOff=true , color = new Color32(170,57,249,255)  },
-			new VehicleDisplay { id =  "PublicTransport/Train", display = "Train / Subway", onOff=true , color = new Color32(113,24,176,255)  },
-			
-		};
-
+            new VehicleDisplay { id =  "PublicTransport/PublicTransportMetro", display = "Metro", onOff=true, color = new Color32(255,150,0,255)  },
+            new VehicleDisplay { id =  "PublicTransport/PublicTransportTrain", display = "Train", onOff=true, color = new Color32(255,150,0,255)  },
+            
+			new VehicleDisplay { id =  "PublicTransport/PublicTransportBus", display = "Bus", onOff=true, color = new Color32(170,57,249,255)  },
+            new VehicleDisplay { id =  "PublicTransport/PublicTransportTaxi", display = "Taxi", onOff=true, color = new Color32(100,57,249,255)  }
+	    };
 
 		[XmlIgnore]
 		public Rect buttonRect {
@@ -84,8 +86,8 @@ namespace TrafficReport
                     c.configVersion = CONFIG_VERSION;
                     return c;
                 }
-				
-				return config;
+
+      			return config;
 			} catch {
 				return new Config();
 			} 
@@ -112,6 +114,43 @@ namespace TrafficReport
                 }
             }
             return true;
+        }
+
+
+        internal void ToggleVisibility(string p)
+        {
+            foreach (VehicleDisplay v in vehicleTypes)
+            {
+                if (v.id == p)
+                {
+                    v.onOff = !v.onOff;
+                }
+            }
+            NotifyChange();
+        }
+
+        internal Color32 GetTypeColor(string type)
+        {
+            foreach (VehicleDisplay v in vehicleTypes)
+            {
+                if (v.id == type)
+                {
+                    return v.color;
+                }
+            }
+            return new Color32();
+        }
+
+        internal String GetTypeDisplay(string type)
+        {
+            foreach (VehicleDisplay v in vehicleTypes)
+            {
+                if (v.id == type)
+                {
+                    return v.display;
+                }
+            }
+            return type;
         }
     }
 }

@@ -21,28 +21,36 @@ namespace TrafficReport
         TrafficAnalyzer analyzer;
 
 		CursorInfo loadingCursor;
-		ReportVisualizer visualization;
 
+		PathController paths;
+        ReportUI ui;
         ReportButton toggleButton;
-        
+
+        Report currentReport;
+
         protected override void Awake()
         {
-
+            Log.debug("Create Button");
             toggleButton = ReportButton.Create();
             toggleButton.eventClick += OnButtonToggled;
 
-            analyzer = new TrafficAnalyzer(this);
-            visualization = new ReportVisualizer(this);
+            Log.debug("Create UI...");
+            ui = ReportUI.Create();
+            ui.enabled = false;
+            ui.eventHighlightType += (String s) => { SetHighlight(s); };
 
-            Debug.Log("Init vis");
-            visualization.Init();
+            Log.debug("Create Analyzer...");
+            analyzer = new TrafficAnalyzer(this);
+
+            Log.debug("Create Path Controller...");
+            paths = new PathController(this);
 
             Log.info("Load Cursor...");
-			m_cursor = CursorInfo.CreateInstance<CursorInfo>();
+            m_cursor = CursorInfo.CreateInstance<CursorInfo>();
             m_cursor.m_texture = ResourceLoader.loadTexture("Materials/Cursor.png");
             m_cursor.m_hotspot = new Vector2(0, 0);
 
-			loadingCursor = CursorInfo.CreateInstance<CursorInfo>();
+            loadingCursor = CursorInfo.CreateInstance<CursorInfo>();
             loadingCursor.m_texture = ResourceLoader.loadTexture("Materials/Hourglass.png");
 
             Log.info("QueryTool awoken");
@@ -55,10 +63,112 @@ namespace TrafficReport
             toolActive = !toolActive;
         }
 
+        void HandleLeftClick()
+        {
+            try
+            {
+                Log.debug("You clicked on " + m_hoverInstance.ToString());
+                Log.debug(m_hoverInstance.Type.ToString());
+
+                paths.ActiveSegmentIndicator.gameObject.SetActive(false);
+
+
+                paths.SetReport(null);
+                currentReport = null;
+
+                if (m_hoverInstance.Type == InstanceType.Vehicle)
+                {
+                    base.ToolCursor = loadingCursor;
+                    analyzer.ReportOnVehicle(m_hoverInstance.Vehicle);
+                }
+
+                if (m_hoverInstance.Type == InstanceType.NetSegment)
+                {
+                    base.ToolCursor = loadingCursor;
+
+                    paths.ActiveSegmentIndicator.gameObject.SetActive(true);
+
+                    Vector3 pos = analyzer.GetSegmentMidPoint(m_hoverInstance.NetSegment) + Vector3.up * 20;
+                    Log.debug("Segment pos: " + pos.ToString());
+                    paths.ActiveSegmentIndicator.position = pos;
+                    analyzer.ReportOnSegment(m_hoverInstance.NetSegment, NetInfo.Direction.Both);
+                }
+
+                if (m_hoverInstance.Type == InstanceType.Building)
+                {
+                    base.ToolCursor = loadingCursor;
+                    analyzer.ReportOnBuilding(m_hoverInstance.Building);
+                }
+
+
+                if (m_hoverInstance.Type == InstanceType.CitizenInstance)
+                {
+                    base.ToolCursor = loadingCursor;
+                    analyzer.ReportOnCitizen(m_hoverInstance.CitizenInstance);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Log.error(e.ToString());
+                Log.error(e.StackTrace);
+            }
+        }
+
+        void HandleRightClick()
+        {
+            try
+            {
+                Log.debug("You clicked on " + m_hoverInstance.ToString());
+                Log.debug(m_hoverInstance.Type.ToString());
+
+                if (m_hoverInstance.Type == InstanceType.NetSegment)
+                {
+                    paths.SetReport(null);
+                    base.ToolCursor = loadingCursor;
+
+                    if (Event.current.modifiers == EventModifiers.Shift)
+                    {
+                        analyzer.ReportOnSegment(m_hoverInstance.NetSegment, NetInfo.Direction.Forward);
+                    }
+                    else
+                    {
+                        analyzer.ReportOnSegment(m_hoverInstance.NetSegment, NetInfo.Direction.Backward);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.error(e.ToString());
+                Log.error(e.StackTrace);
+            }
+        }
+
+        void HandleHover()
+        {
+            if (m_hoverInstance != null) { 
+                switch(m_hoverInstance.Type){
+                    case InstanceType.NetSegment:
+                        SetHighlight(HighlightType.Segment, (uint)m_hoverInstance.NetSegment);
+                        return;
+                    case InstanceType.Building:
+                        SetHighlight(HighlightType.Building, (uint)m_hoverInstance.Building);
+                        return;
+                    case InstanceType.Vehicle:                         
+                        SetHighlight(HighlightType.Vehicle, (uint)m_hoverInstance.Vehicle);
+                        return;
+                    case InstanceType.Citizen:
+                        SetHighlight(HighlightType.Citizen, (uint)m_hoverInstance.Vehicle);
+                        return;
+                }                
+            }
+            SetHighlight(HighlightType.None, 0);
+        }
+
+
+
         protected override void OnToolGUI()
         {
-
-
             if (Input.GetKeyUp(Config.instance.keyCode))
             {
                 Log.info("Toggling tool");
@@ -68,106 +178,75 @@ namespace TrafficReport
             if (toolActive && Input.GetKeyUp(KeyCode.Escape))
             {
                 toolActive = false;
-            }
-
-            visualization.Update();
-                
-			if (this.m_toolController.IsInsideUI)
-            {
                 return;
             }
-			
-			InstanceID hoverInstance = this.m_hoverInstance;			
-            Event current = Event.current; 
-
-            if (current.type == EventType.MouseDown) {
-				if (current.button == 0) {
-
-					//Log.info(m_mousePosition.ToString());
-
-					try {
-						Log.debug("You clicked on " + hoverInstance.ToString());
-						Log.debug(hoverInstance.Type.ToString());
 
 
+            if (paths != null)
+            {
+                paths.Update();
+            }
+            else
+            {
+                Log.debug("paths was NULL");
+                base.OnToolGUI();
+                return;
+            }
 
-                        visualization.ActiveSegmentIndicator.gameObject.SetActive(false);
+            if (ToolsModifierControl.toolController.IsInsideUI)
+                return;
 
-						if (hoverInstance.Type == InstanceType.Vehicle) {
-							visualization.SetReport(null);
-							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnVehicle(hoverInstance.Vehicle);
-						}
+            if (Event.current.type == EventType.MouseDown)
+            {
 
-						if (hoverInstance.Type == InstanceType.NetSegment) {
-							visualization.SetReport(null);
-							base.ToolCursor = loadingCursor;
+                if (m_hoverInstance == null)
+                {
+                    currentReport = null;
+                    ui.SetSelectedData(null);
+                    ui.SetHighlightData(null,0);
+                    paths.SetReport(null);
+                }
+                
+                if (Event.current.button == 0)
+                {
+                    HandleLeftClick();
+                }
+                else if (Event.current.button == 1)
+                {
+                    HandleRightClick();
+                }
+            }
+            else
+            {
+                HandleHover();
+            }
 
-                            visualization.ActiveSegmentIndicator.gameObject.SetActive(true);
-
-                            Vector3 pos = analyzer.GetSegmentMidPoint(hoverInstance.NetSegment) + Vector3.up * 20;
-                            Log.debug("Segment pos: " + pos.ToString());
-                            visualization.ActiveSegmentIndicator.position = pos;
-							analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Both);
-						}
-
-						if (hoverInstance.Type == InstanceType.Building) {
-							visualization.SetReport(null);
-							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnBuilding(hoverInstance.Building);
-						}
-
-
-						if (hoverInstance.Type == InstanceType.CitizenInstance) {
-							visualization.SetReport(null);
-							base.ToolCursor = loadingCursor;
-							analyzer.ReportOnCitizen(hoverInstance.CitizenInstance);
-						}
-
-					} catch (Exception e) {
-						Log.error(e.ToString());
-						Log.error(e.StackTrace);
-					}						
-				} else if (current.button == 1) {
-					try {
-						Log.debug("You clicked on " + hoverInstance.ToString());
-						Log.debug(hoverInstance.Type.ToString());
-
-						if (hoverInstance.Type == InstanceType.NetSegment) {
-							visualization.SetReport(null);
-							base.ToolCursor = loadingCursor;
-
-                            if (current.modifiers == EventModifiers.Shift)
-                            {
-                                analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Forward);
-                            }
-                            else
-                            {
-                                analyzer.ReportOnSegment(hoverInstance.NetSegment, NetInfo.Direction.Backward);
-                            }
-						}
-					} catch (Exception e) {
-						Log.error(e.ToString());
-						Log.error(e.StackTrace);
-					}
-				}
-			} else {
-				
-				if (hoverInstance.Type == InstanceType.NetSegment) {
-					visualization.SetSegmentHighlight (ReportVisualizer.HighlightType.Segment,(uint)hoverInstance.NetSegment);
-				} else if (hoverInstance.Type == InstanceType.Building) {
-					visualization.SetSegmentHighlight (ReportVisualizer.HighlightType.Building,(uint)hoverInstance.Building);
-				} else if (hoverInstance.Type == InstanceType.Vehicle) {
-					visualization.SetSegmentHighlight (ReportVisualizer.HighlightType.Vehicle,(uint)hoverInstance.Vehicle);
-				} else if (hoverInstance.Type == InstanceType.Citizen) {
-					visualization.SetSegmentHighlight (ReportVisualizer.HighlightType.Citizen,(uint)hoverInstance.Vehicle);
-				} else {
-					visualization.SetSegmentHighlight(ReportVisualizer.HighlightType.None, 0);
-				}
-			}
-            base.OnToolGUI();
         }
 
+        public void SetHighlight(HighlightType type, uint thingId) {
+
+            if (currentReport != null)
+            {
+                paths.SetHighlight(type, thingId);
+                if (type == HighlightType.None)
+                {
+                    ui.SetHighlightData(null, 0);
+                }
+                else
+                {
+                    ui.SetHighlightData(currentReport.CountEntiesTypes(type, thingId), currentReport.allEntities.Length);
+                }
+            }
+        }
+
+        public void SetHighlight(String serviceType)
+        {
+            if (currentReport != null)
+            {
+                paths.SetHighlight(serviceType);
+                ui.SetHighlightData(null, 0);
+            }
+        }
         
         public override NetSegment.Flags GetSegmentIgnoreFlags()
         {
@@ -176,13 +255,14 @@ namespace TrafficReport
 
         internal void OnGotReport(Report report)
         {
-
+            currentReport = report;
             base.ToolCursor = m_cursor;
-			visualization.SetReport (report);
-            			
-			#if DEBUG
-			report.Save ("report.xml");
-			#endif
+            paths.SetReport(report);
+            ui.SetSelectedData(report.CountEntiesTypes());
+
+#if DEBUG
+            report.Save("report.xml");
+#endif
         }
 
         public bool toolActive
@@ -202,8 +282,19 @@ namespace TrafficReport
         {
 
             toggleButton.ToggleState = false;
-            visualization.ActiveSegmentIndicator.gameObject.SetActive(false);
-            visualization.SetReport(null);
+            if (paths != null)
+            {
+                paths.ActiveSegmentIndicator.gameObject.SetActive(false);
+                paths.SetReport(null);
+            }
+
+            if (ui != null)
+            {
+                ui.enabled = false;
+                ui.SetHighlightData(null, 0);
+                ui.SetSelectedData(null);
+            }
+
             base.OnDisable();
         }
 
@@ -212,18 +303,19 @@ namespace TrafficReport
             InfoManager infoManger = GameObject.FindObjectOfType<InfoManager>();
 
             FieldInfo mode = typeof(InfoManager).GetField("m_currentMode", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-              
+
             toggleButton.ToggleState = true;
+            ui.enabled = true;
 
             UIView.library.Hide("CityInfoPanel");
 
-            Debug.Log("Type:" + mode.GetType().ToString());
-            Debug.Log("Mode is:" + mode.GetValue(infoManger).ToString());
-            Debug.Log("Changing info mode");
+            Log.debug("Type:" + mode.GetType().ToString());
+            Log.debug("Mode is:" + mode.GetValue(infoManger).ToString());
+            Log.debug("Changing info mode");
             mode.SetValue(infoManger, InfoManager.InfoMode.Traffic);
-            Debug.Log("Mode set to:" + infoManger.NextMode);
+            Log.debug("Mode set to:" + infoManger.NextMode);
             infoManger.UpdateInfoMode();
-                        
+
             base.OnEnable();
         }
 

@@ -41,7 +41,7 @@ namespace TrafficReport.Assets.Source.UI
         }
 
 
-        public void Start()
+        public override void Start()
         {
             
             transform.localPosition = Config.instance.newButtonPos;
@@ -96,11 +96,13 @@ namespace TrafficReport.Assets.Source.UI
             var drag = dragGo.AddComponent<UIDragHandle>();
             drag.width = width;
             drag.height = height;
+
+            base.Start();
         }
 
         protected override void OnPositionChanged()
         {
-            Debug.Log("Position changed: " + transform.localPosition);
+            Log.debug("Position changed: " + transform.localPosition);
             Config.instance.newButtonPos = transform.localPosition;
             Config.instance.NotifyChange();
             base.OnPositionChanged();

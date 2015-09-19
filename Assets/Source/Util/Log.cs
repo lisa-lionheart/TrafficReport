@@ -27,7 +27,7 @@ namespace TrafficReport.Util
             logFile.WriteLine(level + ": " + message);
             logFile.Flush();
 #else
-            Debug.Log(message);
+            Log.debug(message);
 #endif
         }
 
@@ -44,7 +44,9 @@ namespace TrafficReport.Util
 
         public static void debug(string message)
         {
+#if DEBUG
             Write("DEBUG", message);
+#endif
         }
 
         public static void warn(string message)

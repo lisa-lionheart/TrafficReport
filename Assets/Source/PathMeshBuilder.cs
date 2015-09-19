@@ -81,7 +81,7 @@ namespace TrafficReport
                 PathPoint nextPoint = points[i + 1];
 
                 
-               // Debug.Log(i + ":" + "Angle:" + Vector3.Angle(thisPoint.normal, nextPoint.normal) + " Magnitude: " + (thisPoint.pos - nextPoint.pos).magnitude);
+               // Log.debug(i + ":" + "Angle:" + Vector3.Angle(thisPoint.normal, nextPoint.normal) + " Magnitude: " + (thisPoint.pos - nextPoint.pos).magnitude);
                                 
 
                 Vector3 thisPointPos = thisPoint.pos;

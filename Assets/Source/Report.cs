@@ -5,6 +5,19 @@ using System.Xml.Serialization;
 using System.IO;
 using TrafficReport.Util;
 
+
+
+public enum HighlightType
+{
+    None,
+    All,
+    Segment,
+    Vehicle,
+    Building,
+    Citizen
+}
+
+
 namespace TrafficReport
 {
 	
@@ -32,6 +45,41 @@ namespace TrafficReport
 		public uint targetBuilding;
 
 		public string serviceType;
+
+
+        public bool MatchesHighlight(HighlightType highlightType, uint thingId)
+        {
+            switch (highlightType)
+            {
+                case HighlightType.None:
+                    return false;
+                case HighlightType.All:
+                    return true;
+                case HighlightType.Segment:
+
+                    foreach (PathPoint p in path)
+                    {
+                        if (p.segmentId == thingId)
+                            return true;
+                    }
+
+                    break;
+                case HighlightType.Building:
+                    if (sourceBuilding == thingId || targetBuilding == id)
+                        return true;
+                    break;
+                case HighlightType.Vehicle:
+                    if (id == thingId && type == EntityType.Vehicle)
+                        return true;
+                    break;
+                case HighlightType.Citizen:
+
+                    if (id == thingId && type == EntityType.Citizen)
+                        return true;
+                    break;
+            }
+            return false;
+        }
 
 	}
 
@@ -75,6 +123,22 @@ namespace TrafficReport
         {
 			XmlSerializer xml = new XmlSerializer (typeof(Report));
 			return xml.Deserialize(new FileStream(name, FileMode.Open, FileAccess.Read)) as Report;
+        }
+
+        public Dictionary<string, int> CountEntiesTypes(HighlightType type = HighlightType.All, uint id = 0)
+        {
+            Dictionary<string,int> typeCounts = new Dictionary<string,int>();
+            for (int i = 0; i < allEntities.Length; i++)
+            {
+                if (!allEntities[i].MatchesHighlight(type, id))
+                    continue;
+
+                int val = 0;
+                typeCounts.TryGetValue(allEntities[i].serviceType, out val);
+                typeCounts[allEntities[i].serviceType] = val+1;
+            }
+
+            return typeCounts;
         }
 
     }
