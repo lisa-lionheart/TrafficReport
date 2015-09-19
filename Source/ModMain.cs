@@ -36,19 +36,19 @@ namespace TrafficReport
                 //    btn.ToggleState = !btn.ToggleState;
                 //};
 
-                ReportUI ui = ReportUI.Create();
+                //ReportUI ui = ReportUI.Create();
 
-                Dictionary<String,int> vals = new Dictionary<String,int>();
+                //Dictionary<String,int> vals = new Dictionary<String,int>();
 
-                vals["citizen"] = 10;
-                vals["Residential/ResidentialLow"] = 20;
-                vals["Industrial/IndustrialOre"] = 30;
-                vals["Industrial/IndustrialOil"] = 35;
+                //vals["citizen"] = 10;
+                //vals["Residential/ResidentialLow"] = 20;
+                //vals["Industrial/IndustrialOre"] = 30;
+                //vals["Industrial/IndustrialOil"] = 35;
 
-                vals["something"] = 0;
+                //vals["something"] = 0;
 
-                ui.SetSelectedData(vals);
-                //ReportButton btn = ReportButton.Create();
+                //ui.SetSelectedData(vals);
+                ////ReportButton btn = ReportButton.Create();
                 
                 
                 return "Display traffic information for a single vehicle, a section of road or a building"; 

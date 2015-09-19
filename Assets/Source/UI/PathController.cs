@@ -103,16 +103,21 @@ namespace TrafficReport
 
 		public void SetReport(Report report) {
 
-			if (pathsVisualizations != null) {
-                
+			if (pathsVisualizations != null) {                
 				RemoveAllPaths();
 				currentReport = null;          
 			}
 
-			if (report == null || report.allEntities == null) {
+			if (report == null) {
 				Log.debug ("Report NULL");             
 				return;
 			}
+
+            if (report.allEntities == null)
+            {
+                Log.debug("Report NULL");
+                return;
+            }
 
             
 			pathsVisualizations = new GameObject[report.allEntities.Length];
@@ -211,10 +216,10 @@ namespace TrafficReport
             if (type == "Citizen/Foot" || type == "Citizen/Cycle")
             {
                 //Citizens have much tighter paths, to remove duplicate points so much
-                pb.duplicatePointThreshold = 1.0f;
-                //pb.normalScaleFactor = 0.01f;
+                //pb.duplicatePointThreshold = 0.0f;
                 pb.tightNormalScaleFactor = 0.05f;
-                pb.pathBreakThreshold = 150.0f;  //If a path segemnt is longer than this they are riding a bus/metro/train
+                pb.pathBreakThreshold = 300.0f;  //If a path segemnt is longer than this they are riding a bus/metro/train
+                pb.maxNormalSize = 30.0f;
             }
 
 			pb.AddPoints(positions);

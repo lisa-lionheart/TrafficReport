@@ -20,6 +20,7 @@ namespace TrafficReport
         public float normalScaleFactor = 0.3f;
         public float tightNormalScaleFactor = 0.5f;
 
+        public float maxNormalSize = 1000.0f;
 
 
 		List<Vector3> verts = new List<Vector3> ();
@@ -90,15 +91,11 @@ namespace TrafficReport
                 float angle = Vector3.Angle(thisPoint.forwards, nextPoint.forwards);
                 float segementLength = (thisPointPos - nextPointPos).magnitude;
 
-                if (segementLength > pathBreakThreshold)
-                {
-                    AddVertexPair(thisPoint.pos, thisPoint.forwards.normalized,false);
-                    AddEndStop(thisPoint.pos, thisPoint.forwards.normalized, true);
-                    AddEndStop(nextPoint.pos, nextPoint.forwards.normalized, false);
-                    AddVertexPair(nextPoint.pos, nextPoint.forwards.normalized);
+                if (thisPoint.forwards.magnitude > maxNormalSize)
+                    thisPoint.forwards = thisPoint.forwards.normalized * maxNormalSize;
 
-                    continue;
-                }
+                if (thisPoint.backwards.magnitude > maxNormalSize)
+                    thisPoint.backwards = thisPoint.backwards.normalized * maxNormalSize;
 
                 Vector3 p0 = thisPointPos;
                 Vector3 p1 = thisPointPos + thisPoint.forwards * normalScaleFactor;
@@ -110,6 +107,8 @@ namespace TrafficReport
                     p1 = thisPointPos + thisPoint.forwards.normalized * segementLength * tightNormalScaleFactor;
                     p2 = nextPointPos + nextPoint.backwards.normalized * segementLength * tightNormalScaleFactor;
                 }
+
+                
 
                 Vector3 p3 = nextPointPos;
 
@@ -132,6 +131,17 @@ namespace TrafficReport
 
                     realLength += (pointA - pointB).magnitude;
                 }
+
+                if (realLength > pathBreakThreshold)
+                {
+                    AddVertexPair(thisPoint.pos, thisPoint.forwards.normalized, false);
+                    AddEndStop(thisPoint.pos, thisPoint.forwards.normalized, true);
+                    AddEndStop(nextPoint.pos, nextPoint.forwards.normalized, false);
+                    AddVertexPair(nextPoint.pos, nextPoint.forwards.normalized);
+
+                    continue;
+                }
+
 
                 // Make each segment tile a whole number of texture repeats so that
                 // overlaping paths line up

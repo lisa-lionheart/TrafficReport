@@ -40,7 +40,8 @@ namespace TrafficReport
             ui.eventHighlightType += (String s) => { SetHighlight(s); };
 
             Log.debug("Create Analyzer...");
-            analyzer = new TrafficAnalyzer(this);
+            analyzer = new TrafficAnalyzer();
+            analyzer.OnReport += OnGotReport;
 
             Log.debug("Create Path Controller...");
             paths = new PathController(this);
@@ -258,11 +259,24 @@ namespace TrafficReport
             currentReport = report;
             base.ToolCursor = m_cursor;
             paths.SetReport(report);
-            ui.SetSelectedData(report.CountEntiesTypes());
+
+            if (report == null)
+            {
+                ui.SetSelectedData(null);
+                ui.SetHighlightData(null, 0);
+            }
+            else
+            {
+                ui.SetSelectedData(report.CountEntiesTypes());
 
 #if DEBUG
-            report.Save("report.xml");
+                report.Save("report.xml");
 #endif
+            }
+
+            
+
+
         }
 
         public bool toolActive

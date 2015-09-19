@@ -39,7 +39,8 @@ namespace TrafficReport
 			new VehicleDisplay { id =  "Citizen/Foot", display = "Pedestrian", onOff=true, color = new Color32(1,255,216,255) },
             new VehicleDisplay { id =  "Citizen/Cycle", display = "Cyclist", onOff=true, color = new Color32(1,255,216,255) },
 			
-			new VehicleDisplay { id =  "Residential/ResidentialLow", display = "Car", onOff=true , color = new Color32(35,100,90,255) },
+			new VehicleDisplay { id =  "Citizen/Car", display = "Car", onOff=true , color = new Color32(35,100,90,255) },
+            new VehicleDisplay { id =  "Citizen/Scooter", display = "Scooter", onOff=true , color = new Color32(70,120,100,255) },
 			
 			new VehicleDisplay { id =  "Industrial/IndustrialGeneric", display = "Cargo truck", onOff=true , color = new Color32(154,92,59,255)  },
 			new VehicleDisplay { id =  "Industrial/IndustrialOil", display = "Oil Tanker", onOff=true , color = new Color32(46,39,35,255) },

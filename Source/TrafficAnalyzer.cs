@@ -8,160 +8,120 @@ using UnityEngine;
 
 namespace TrafficReport
 {
+    delegate void ReportGeneratedHandler(Report theReport);
+
     class TrafficAnalyzer 
     {
         VehicleManager vehicleManager = Singleton<VehicleManager>.instance;
         NetManager netMan = Singleton<NetManager>.instance;
-        QueryTool tool;
+
+
+        CitizenInstance[] citizensInstances = Singleton<CitizenManager>.instance.m_instances.m_buffer;
+        Citizen[] citizens = Singleton<CitizenManager>.instance.m_citizens.m_buffer;
+        CitizenUnit[] citizenUnits = Singleton<CitizenManager>.instance.m_units.m_buffer;
+        Vehicle[] vehicles = Singleton<VehicleManager>.instance.m_vehicles.m_buffer;
+
+
+
         bool working;
 
-        public TrafficAnalyzer(QueryTool _tool)
+        public event ReportGeneratedHandler OnReport;
+
+        public TrafficAnalyzer()
         {
             working = false;
-            tool = _tool;
         }
 
         public void ReportOnVehicle(ushort id)
         {
-            if (working)
-            {
-                Log.warn("Job in progress bailing!");
-                return;
-            }
-            Log.info("badger");
-
-            working = true;
-
-            Singleton<SimulationManager>.instance.AddAction(() =>
-            {
-                try
-                {
-                    Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
-
-
-					EntityInfo info;
-                    info.type = EntityType.Vehicle;
-					info.id = id;
-                    info.path = this.GatherPathVerticies(vehicles[id].m_path);
-					info.serviceType = vehicles[id].Info.GetService().ToString() + "/" +  vehicles[id].Info.GetSubService().ToString();
-					
-					info.sourceBuilding = vehicles[id].m_sourceBuilding;
-					info.targetBuilding = vehicles[id].m_targetBuilding;
-
-                    Report report = new Report(info);
-
-                    working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
-
-                }
-                catch (Exception e)
-                {
-                    Log.error(e.Message);
-                    Log.error(e.StackTrace);
-                }
-            });
-            
+            DispatchWorkAsync(() => DoReportOnVehicle(id));                        
         }
 
         internal void ReportOnCitizen(ushort id)
         {
-
-            if (working)
-            {
-                Log.warn("Job in progress bailing!");
-                return;
-            }
-            Log.info("badger");
-
-            working = true;
-
-            Singleton<SimulationManager>.instance.AddAction(() =>
-            {
-                try
-                {
-                    CitizenInstance[] citizens =  Singleton<CitizenManager>.instance.m_instances.m_buffer;
-
-
-                    EntityInfo info;
-                    info.type = EntityType.Citizen;
-					info.id = id;
-                    info.path = this.GatherPathVerticies(citizens[id].m_path, true);
-                    if ((citizens[id].m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
-                    {
-                        info.serviceType = "Citizen/Cycle";
-                    }
-                    else
-                    {
-                        info.serviceType = "Citizen/Foot";
-                    }
-					
-					info.sourceBuilding = citizens[id].m_sourceBuilding;
-					info.targetBuilding = citizens[id].m_targetBuilding;
-
-                    Report report = new Report(info);
-
-                    working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
-
-                }
-                catch (Exception e)
-                {
-                    Log.error(e.Message);
-                    Log.error(e.StackTrace);
-                }
-            });
+            DispatchWorkAsync(() => DoReportOnCitizen(id));
         }
 
 		public void ReportOnSegment(ushort segmentID, NetInfo.Direction dir)
         {
-            if (working)
-            {
-                Log.warn("Job in progress bailing!");
-                return;
-            }
-
-            working = true;
-
-            Singleton<SimulationManager>.instance.AddAction(() =>
-            {
-                try //
-                {
-                    Report report = this.DoReportOnSegment(segmentID, dir);
-                    working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
-                }
-                catch (Exception e)
-                {
-                    Log.error(e.Message);
-                    Log.error(e.StackTrace);
-                }                
-            });
+            DispatchWorkAsync(() => DoReportOnSegment(segmentID, dir));
         }
 
         public void ReportOnBuilding(ushort buildingID)
         {
+            DispatchWorkAsync(() => DoReportOnBuilding(buildingID));
+        }
+        
+        
+        private void DispatchWorkAsync(Func<Report> work) {
             if (working)
             {
                 Log.warn("Job in progress bailing!");
                 return;
             }
-
             working = true;
-
             Singleton<SimulationManager>.instance.AddAction(() =>
             {
+                Report report = null;
                 try
                 {
-                    Report report = this.DoReportOnBuilding(buildingID);
-                    working = false;
-                    ThreadHelper.dispatcher.Dispatch(() => tool.OnGotReport(report));
+                    report = work();
                 }
                 catch (Exception e)
                 {
                     Log.error(e.Message);
                     Log.error(e.StackTrace);
                 }
+                finally
+                {    
+                    ThreadHelper.dispatcher.Dispatch(() => OnReport(report));
+                    working = false;
+                }
             });
+        }
+
+        private Report DoReportOnVehicle(ushort id) {
+
+            if (vehicles[id].m_leadingVehicle != 0)
+                id = vehicles[id].m_leadingVehicle;
+
+
+            if (vehicles[id].Info.m_vehicleType == VehicleInfo.VehicleType.Bicycle) {
+
+                //Revisit when CO introduce tandum bicycles
+                uint citizen = citizenUnits[vehicles[id].m_citizenUnits].GetCitizen(0);
+                ushort citizenInstance = citizens[citizen].m_instance;
+                Report r  = DoReportOnCitizen(citizenInstance);
+                r.allEntities[0].id = id;
+                return r;
+            }
+
+            if (!IsValid(ref vehicles[id]))
+                return null;
+                    
+			EntityInfo info;
+            info.type = EntityType.Vehicle;
+			info.id = id;
+            info.path = this.GatherPathVerticies(vehicles[id].m_path);
+            info.serviceType = GetServiceType(ref vehicles[id]);					
+			info.sourceBuilding = vehicles[id].m_sourceBuilding;
+			info.targetBuilding = vehicles[id].m_targetBuilding;
+
+            return new Report(info);
+        }
+
+        private Report DoReportOnCitizen(ushort id)
+        {
+
+            EntityInfo info;
+            info.type = EntityType.Citizen;
+            info.id = id;
+            info.path = this.GatherPathVerticies(citizensInstances[id].m_path, true);
+            info.serviceType = GetServiceType(ref citizensInstances[id]);
+            info.sourceBuilding = citizensInstances[id].m_sourceBuilding;
+            info.targetBuilding = citizensInstances[id].m_targetBuilding;
+
+            return new Report(info);
         }
 
 		private Report DoReportOnSegment(ushort segmentID, NetInfo.Direction dir)
@@ -173,18 +133,11 @@ namespace TrafficReport
             Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
             for (uint i = 0; i < vehicles.Length; i++)
             {
+                
+                if (!IsValid(ref vehicles[i])) continue;
 
-                if ((vehicles[i].m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
-                {
+                if (vehicles[i].m_leadingVehicle != 0) //This will be picked when it visits that vehicle
                     continue;
-                }
-
-                //Log.debug("Analyzing vehicle" + vehicles[i].Info.GetLocalizedDescriptionShort());
-
-                if (vehicles[i].m_path == 0)
-                {
-                    continue;
-                }
 
                 //Log.info("Vehcile valid, checking if path intersects segment...");
 
@@ -200,7 +153,7 @@ namespace TrafficReport
 					info.sourceBuilding = vehicles[i].m_sourceBuilding;
 					info.targetBuilding = vehicles[i].m_targetBuilding;
 
-					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
+					info.serviceType = GetServiceType(ref vehicles[i]);
                     enities.Add(info);
                 }
             }
@@ -208,36 +161,21 @@ namespace TrafficReport
             Log.debug("found " + enities.Count + " entities");
 
             Log.debug("Looking at citizens...");
-            CitizenInstance[] citizens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
-            for (uint i = 0; i < citizens.Length; i++)
+            for (uint i = 0; i < citizensInstances.Length; i++)
             {
-                if((citizens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None) {
-                    continue;
-                }
+                if(!IsValid(ref citizensInstances[i])) continue;                
 
-                if (citizens[i].m_path == 0)
-                {
-                    continue;
-                }
-
-				if (this.PathContainsSegment(citizens[i].m_path, segmentID, dir))					
+				if (this.PathContainsSegment(citizensInstances[i].m_path, segmentID, dir))					
                 {
                     //Log.info("Found citizen on segemnt, getting path....");
 
                     EntityInfo info;
                     info.type = EntityType.Citizen;
 					info.id = i;
-                    info.path = this.GatherPathVerticies(citizens[i].m_path,true);
-                    if ((citizens[i].m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
-                    {
-                        info.serviceType = "Citizen/Cycle";
-                    }
-                    else
-                    {
-                        info.serviceType = "Citizen/Foot";
-                    }
-					info.sourceBuilding = citizens[i].m_sourceBuilding;
-					info.targetBuilding = citizens[i].m_targetBuilding;
+                    info.path = this.GatherPathVerticies(citizensInstances[i].m_path,true);
+                    info.serviceType = GetServiceType(ref citizensInstances[i]);
+					info.sourceBuilding = citizensInstances[i].m_sourceBuilding;
+					info.targetBuilding = citizensInstances[i].m_targetBuilding;
 
                     enities.Add(info);
                 }
@@ -256,24 +194,12 @@ namespace TrafficReport
         {
             List<EntityInfo> enities = new List<EntityInfo>();
 
-            Vehicle[] vehicles = vehicleManager.m_vehicles.m_buffer;
-
             for (uint i = 0; i < vehicles.Length; i++)
             {
 
-                if ((vehicles[i].m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
-                {
-                    continue;
-                }
-                
-                if (vehicles[i].m_path == 0)
-                {
-                    continue;
-                }
+                if (!IsValid(ref vehicles[i])) continue;
 
                 //Log.info("Vehcile valid, checking if path intersects segment...");
-
-
                 if (vehicles[i].m_sourceBuilding == buildingID || vehicles[i].m_targetBuilding == buildingID)
                 {
 
@@ -283,69 +209,93 @@ namespace TrafficReport
                     info.path = this.GatherPathVerticies(vehicles[i].m_path);
 					info.sourceBuilding = vehicles[i].m_sourceBuilding;
 					info.targetBuilding = vehicles[i].m_targetBuilding;
-					
-					info.serviceType = vehicles[i].Info.GetService().ToString() + "/" +  vehicles[i].Info.GetSubService().ToString();
+
+                    info.serviceType = GetServiceType(ref vehicles[i]);
                     enities.Add(info);
                 }
             }
 
-            CitizenInstance[] citizens = Singleton<CitizenManager>.instance.m_instances.m_buffer;
-            for (uint i = 0; i < citizens.Length; i++)
+            for (uint i = 0; i < citizensInstances.Length; i++)
             {
-                if ((citizens[i].m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None)
-                {
-                    continue;
-                }
-
-                if (citizens[i].m_path == 0)
-                {
-                    continue;
-                }
-
-
-
-                if(citizens[i].m_sourceBuilding == buildingID || citizens[i].m_targetBuilding == buildingID) {
+                if (!IsValid(ref citizensInstances[i])) continue;
+                               
+                if(citizensInstances[i].m_sourceBuilding == buildingID || citizensInstances[i].m_targetBuilding == buildingID) {
                     EntityInfo info;
                     info.type = EntityType.Citizen;
                     info.id = i;
-                    info.path = this.GatherPathVerticies(citizens[i].m_path,true);
-                    if ((citizens[i].m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
-                    {
-                        info.serviceType = "Citizen/Cycle";
-                    }
-                    else
-                    {
-                        info.serviceType = "Citizen/Foot";
-                    }
+                    info.path = this.GatherPathVerticies(citizensInstances[i].m_path,true);
+                    info.serviceType = GetServiceType(ref citizensInstances[i]);
 
-                    info.sourceBuilding = citizens[i].m_sourceBuilding;
-                    info.targetBuilding = citizens[i].m_targetBuilding;
+                    info.sourceBuilding = citizensInstances[i].m_sourceBuilding;
+                    info.targetBuilding = citizensInstances[i].m_targetBuilding;
 
                     enities.Add(info);
+                }
+            }
+
+            //Find all citizens commuting to and from that building
+            for (UInt32 i = 0; i < citizens.Length; i++)
+            {
+                //They are either a resident a, worker or a visitor to this building
+                if(citizens[i].m_homeBuilding == buildingID || 
+                    citizens[i].m_visitBuilding == buildingID || 
+                    citizens[i].m_workBuilding == buildingID)
+                {
+
+                    ushort vId = citizens[i].m_vehicle;
+                    if (vId != 0)
+                    {
+                        if (IsValid(ref vehicles[vId]))
+                        {
+                            EntityInfo info;
+                            info.type = EntityType.Vehicle;
+                            info.id = vId;
+                            info.path = this.GatherPathVerticies(vehicles[vId].m_path);
+                            info.sourceBuilding = vehicles[vId].m_sourceBuilding;
+                            info.targetBuilding = vehicles[vId].m_targetBuilding;
+
+                            info.serviceType = GetServiceType(ref vehicles[vId]);
+                            enities.Add(info);
+                        }
+                    }
+
+                    ushort instanceId = citizens[i].m_instance;
+                    if (instanceId != 0)
+                    {
+                        if (IsValid(ref citizensInstances[instanceId]))
+                        {
+                            EntityInfo info;
+                            info.type = EntityType.Citizen;
+                            info.id = instanceId;
+                            info.path = this.GatherPathVerticies(citizensInstances[instanceId].m_path, true);
+                            info.serviceType = GetServiceType(ref citizensInstances[instanceId]);
+
+                            info.sourceBuilding = citizensInstances[instanceId].m_sourceBuilding;
+                            info.targetBuilding = citizensInstances[instanceId].m_targetBuilding;
+
+                            enities.Add(info);
+                        }
+                    }
+
                 }
 
             }
 
+
             return new Report(enities.ToArray());
         }
-		
-		
+	
 
 		private bool PathContainsSegment(uint pathID, ushort segmentID, NetInfo.Direction dir)
 		{
-            
-
-			NetManager instance = Singleton<NetManager>.instance;
 			PathUnit path = this.getPath(pathID);
-
             
-
 			while (true) {
                 // HACK: Dont inlude last segment as it will show vechicles arriving for both directions
 				for (int i = 0; i < path.m_positionCount-1; i++) {
 
                     PathUnit.Position p = path.GetPosition(i);
-                    NetSegment segment = instance.m_segments.m_buffer[(int)p.m_segment];
+                    NetSegment segment = netMan.m_segments.m_buffer[(int)p.m_segment];
 
                     // Exclude paths with deleted segments
                     if (PathManager.GetLaneID(p) == 0 || (segment.m_flags & NetSegment.Flags.Deleted) != 0)
@@ -360,7 +310,7 @@ namespace TrafficReport
 							return true;
 						}
 
-						NetInfo info = instance.m_segments.m_buffer[(int)p.m_segment].Info;
+						NetInfo info = netMan.m_segments.m_buffer[(int)p.m_segment].Info;
 						NetInfo.Direction laneDir = NetInfo.Direction.None;
 
 						if (info.m_lanes.Length > (int)p.m_lane) {
@@ -539,13 +489,8 @@ namespace TrafficReport
             fs.Close();
         }
 
-
-
-
         internal Vector3 GetSegmentMidPoint(ushort segmentId)
         {
-
-
             NetSegment segment = netMan.m_segments.m_buffer[segmentId];
             NetLane[] lanes = netMan.m_lanes.m_buffer;
             NetNode[] nodes = netMan.m_nodes.m_buffer;
@@ -557,5 +502,67 @@ namespace TrafficReport
             //return Vector3.Lerp(start.m_position, end.m_position, 0.5f);
             return Beizer.CalculateBezierPoint(0.5f, start.m_position, start.m_position + segment.m_startDirection/3.0f, end.m_position + segment.m_endDirection/3.0f, end.m_position);       
         }
+
+
+        private string GetServiceType(ref Vehicle vehicle)
+        {
+            switch (vehicle.Info.GetService())
+            {
+                case ItemClass.Service.Residential:
+
+                    if (vehicle.Info.name == "Scooter")
+                        return "Citizen/Scooter";
+
+                    return "Citizen/Car";
+
+                default:
+                    return vehicle.Info.GetService().ToString() + "/" + vehicle.Info.GetSubService().ToString();
+            }
+
+            
+        }
+
+        private string GetServiceType(ref CitizenInstance inst)
+        {
+            if ((inst.m_flags & CitizenInstance.Flags.RidingBicycle) == CitizenInstance.Flags.RidingBicycle)
+            {
+                return "Citizen/Cycle";
+            }
+            else
+            {
+                return "Citizen/Foot";
+            }
+        }
+
+        private bool IsValid(ref Vehicle vehicle)
+        {
+            if ((vehicle.m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
+            {
+                return false;
+            }
+            
+            if (vehicle.m_path == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsValid(ref CitizenInstance citizenInstance)
+        {
+            if ((citizenInstance.m_flags & CitizenInstance.Flags.Deleted) != CitizenInstance.Flags.None)
+            {
+                return false;
+            }
+
+            if (citizenInstance.m_path == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
