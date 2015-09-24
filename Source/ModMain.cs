@@ -74,10 +74,10 @@ namespace TrafficReport
                 ToolsModifierControl.SetTool<DefaultTool>();
 
             }
-           
+                              
         }
 
-       
+
     }
 
  }

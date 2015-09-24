@@ -94,14 +94,17 @@ namespace TrafficReport.Assets.Source.UI
 
         public void SetHighlightData(Dictionary<String,int> counts, int totalCount)
         {
-            if (counts == null || totalCount == 0)
+            if (counts == null || totalCount == 0 || reportBreakDown.isVisible ==  false)
             {
                 highlightBreakDown.isVisible = false;
             }
             else
             {
-                highlightBreakDown.SetValues(counts);
-                highlightBreakDown.isVisible = true;
+                if (reportBreakDown.isVisible)
+                {
+                    highlightBreakDown.SetValues(counts);
+                    highlightBreakDown.isVisible = true;
+                }
             }
         }
     }

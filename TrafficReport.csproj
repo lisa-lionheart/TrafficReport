@@ -31,6 +31,7 @@
     <ConsolePause>False</ConsolePause>
     <NoStdLib>True</NoStdLib>
     <DefineConstants>BuildingModDll</DefineConstants>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

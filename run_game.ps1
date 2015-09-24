@@ -1,8 +1,9 @@
+param (
+	[string]$workingDir
+)
 
-
-$workingDir = "C:\Users\Lisa\Development\TrafficReport"
 $steamdir = 'C:\Program Files (x86)\Steam'
-$LogFile = "$steamdir\steamapps\common\Cities_Skylines\TrafficReport.log"
+$LogFile = "$steamdir\steamapps\common\Cities_Skylines\Cities_data\output_log.txt"
 $game = $null
 
 $appData = Get-ChildItem Env:LOCALAPPDATA
@@ -10,7 +11,7 @@ $appData = $appData.Value
 
 if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
 {   
-	Start-Process powershell -Verb runAs -ArgumentList "-File $workingDir\run_game.ps1" 
+	Start-Process powershell -Verb runAs -ArgumentList "-File $workingDir\run_game.ps1 -workingDir $workingDir" 
 	Break
 }
 

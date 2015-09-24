@@ -11,9 +11,14 @@ namespace TrafficReport
 	
 	[Serializable]
 	public class VehicleDisplay {
+
+        [XmlAttribute]
 		public string id;
+        [XmlAttribute]
 		public string display;
+        [XmlAttribute]
 		public bool onOff;
+        [XmlAttribute]
         public Color32 color;
 	}
 
@@ -24,17 +29,18 @@ namespace TrafficReport
 
         public event ConfigChangeDelegate eventConfigChanged;
 
-        public static int CONFIG_VERSION = 1;
+        public static int CONFIG_VERSION = 2;
 
         public int configVersion = -1;
 
         public static Config instance = Config.Load();
         public Vector3 newButtonPos = new Vector3(-1.670f, 0.985f);
 
-		public Vector2 buttonPosition  = new Vector2(80, 5);
 		public KeyCode keyCode = KeyCode.Slash;
 
 
+        [XmlArray(ElementName = "VehicleTypes")]
+        [XmlArrayItem(ElementName = "VehicleType")]
         private VehicleDisplay[] vehicleTypes = {
 			new VehicleDisplay { id =  "Citizen/Foot", display = "Pedestrian", onOff=true, color = new Color32(1,255,216,255) },
             new VehicleDisplay { id =  "Citizen/Cycle", display = "Cyclist", onOff=true, color = new Color32(1,255,216,255) },
@@ -60,13 +66,6 @@ namespace TrafficReport
 			new VehicleDisplay { id =  "PublicTransport/PublicTransportBus", display = "Bus", onOff=true, color = new Color32(170,57,249,255)  },
             new VehicleDisplay { id =  "PublicTransport/PublicTransportTaxi", display = "Taxi", onOff=true, color = new Color32(100,57,249,255)  }
 	    };
-
-		[XmlIgnore]
-		public Rect buttonRect {
-			get {
-				return new Rect(buttonPosition.x,buttonPosition.y,80,80);
-			}
-		}
 
         public void NotifyChange()
         {
