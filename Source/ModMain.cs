@@ -22,7 +22,7 @@ namespace TrafficReport
     
         public string Name
         {
-            get { return "Traffic Report Tool 1.6"; }
+            get { return "Traffic Report Tool 2.0"; }
         }
         public string Description
         {
@@ -35,22 +35,22 @@ namespace TrafficReport
                 //{
                 //    btn.ToggleState = !btn.ToggleState;
                 //};
+#if DEBUG
+                ReportUI ui = ReportUI.Create();
 
-                //ReportUI ui = ReportUI.Create();
+                Dictionary<String, int> vals = new Dictionary<String, int>();
 
-                //Dictionary<String,int> vals = new Dictionary<String,int>();
+                vals["citizen"] = 10;
+                vals["Residential/ResidentialLow"] = 20;
+                vals["Industrial/IndustrialOre"] = 30;
+                vals["Industrial/IndustrialOil"] = 35;
 
-                //vals["citizen"] = 10;
-                //vals["Residential/ResidentialLow"] = 20;
-                //vals["Industrial/IndustrialOre"] = 30;
-                //vals["Industrial/IndustrialOil"] = 35;
+                vals["something"] = 0;
 
-                //vals["something"] = 0;
-
-                //ui.SetSelectedData(vals);
+                ui.SetSelectedData(vals);
                 ////ReportButton btn = ReportButton.Create();
                 
-                
+#endif       
                 return "Display traffic information for a single vehicle, a section of road or a building"; 
             
             }
@@ -71,7 +71,7 @@ namespace TrafficReport
             {
                 Log.debug(gameController.ToString());
                 queryTool = gameController.AddComponent<QueryTool>();
-                ToolsModifierControl.SetTool<DefaultTool>();
+                queryTool.enabled = false;
 
             }
                               

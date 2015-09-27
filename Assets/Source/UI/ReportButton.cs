@@ -32,7 +32,6 @@ namespace TrafficReport.Assets.Source.UI
         {
 
             GameObject go = new GameObject("TrafficReportButton");
-            go.transform.localPosition = Vector3.zero;
             ReportButton report =  go.AddComponent<ReportButton>();
 
             UIView.GetAView().AttachUIComponent(go);
@@ -44,7 +43,7 @@ namespace TrafficReport.Assets.Source.UI
         public override void Start()
         {
             
-            transform.localPosition = Config.instance.newButtonPos;
+            absolutePosition = Config.instance.pos;
 
             atlas = ScriptableObject.CreateInstance<UITextureAtlas>();
 
@@ -102,8 +101,8 @@ namespace TrafficReport.Assets.Source.UI
 
         protected override void OnPositionChanged()
         {
-            Log.debug("Position changed: " + transform.localPosition);
-            Config.instance.newButtonPos = transform.localPosition;
+            Log.debug("Position changed: " + absolutePosition);
+            Config.instance.pos = absolutePosition;
             Config.instance.NotifyChange();
             base.OnPositionChanged();
         }

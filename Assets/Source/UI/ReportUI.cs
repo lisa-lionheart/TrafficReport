@@ -34,26 +34,30 @@ namespace TrafficReport.Assets.Source.UI
         public static ReportUI Create()
         {
             GameObject go = new GameObject("TrafficReportUI");
-            go.transform.localPosition = Vector3.zero;
+            
             ReportUI reportUI = go.AddComponent<ReportUI>();
+
             UIView.GetAView().AttachUIComponent(go);
+
+
+            reportUI.absolutePosition = new Vector3(0, 0, 0);            
             return reportUI;
         }
 
         public override void Awake()
         {
             size = new Vector2(5, 5);
-            anchor = UIAnchorStyle.Top | UIAnchorStyle.Left;
+            anchor = UIAnchorStyle.Top;
 
             helpBg = AddUIComponent<UIPanel>();
             helpBg.backgroundSprite = "GenericPanel";
+            
             helpBg.color = new Color32(0, 0, 120, 200);
             helpBg.area = new Vector4(10, 65, 230, 70);
             
 
-            usageText =  AddUIComponent<UILabel>();
-            usageText.autoSize = false;
-            usageText.area = new Vector4(15, 70, 250, 60);
+            usageText =  helpBg.AddUIComponent<UILabel>();
+            usageText.relativePosition = new Vector2(5, 5);
             usageText.textScale = 0.6f;
             usageText.text =
                 "Left Click to see all Trafic\n" +
@@ -89,6 +93,7 @@ namespace TrafficReport.Assets.Source.UI
             }else {
                 reportBreakDown.SetValues(counts);
                 reportBreakDown.isVisible = true;
+                
             }
         }
 

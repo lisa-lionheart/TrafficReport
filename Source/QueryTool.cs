@@ -37,6 +37,7 @@ namespace TrafficReport
             Log.debug("Create UI...");
             ui = ReportUI.Create();
             ui.enabled = false;
+            ui.absolutePosition = new Vector2(-1000, 0);
             ui.eventHighlightType += (String s) => { SetHighlight(s); };
 
             Log.debug("Create Analyzer...");
@@ -304,6 +305,7 @@ namespace TrafficReport
 
             if (ui != null)
             {
+                ui.absolutePosition = new Vector2(-1000, 0);
                 ui.enabled = false;
                 ui.SetHighlightData(null, 0);
                 ui.SetSelectedData(null);
@@ -319,6 +321,7 @@ namespace TrafficReport
             FieldInfo mode = typeof(InfoManager).GetField("m_currentMode", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             toggleButton.ToggleState = true;
+            ui.absolutePosition = new Vector2(0, 0);
             ui.enabled = true;
 
             UIView.library.Hide("CityInfoPanel");

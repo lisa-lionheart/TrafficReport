@@ -82,20 +82,21 @@ namespace TrafficReport.Assets.Source.UI
                 Invalidate();
             }
 
-            if (!m_IsComponentInvalidated)
-                return;
-;
+            if (m_IsComponentInvalidated) { 
 
-            bool onOff = Config.instance.IsTypeVisible(type);
-            Color32 currentTextColor = m_IsMouseHovering ? hoverColor : (onOff ? textColor : grey);
+                bool onOff = Config.instance.IsTypeVisible(type);
+                Color32 currentTextColor = m_IsMouseHovering ? hoverColor : (onOff ? textColor : grey);
 
-            Color32 typeColor = Config.instance.GetTypeColor(type);
+                Color32 typeColor = Config.instance.GetTypeColor(type);
 
-            block.color = onOff ? typeColor : grey;
-            percent.textColor = currentTextColor;
-            val.textColor = currentTextColor;
-            lbl.textColor = currentTextColor;
-            parent.Invalidate();
+                block.color = onOff ? typeColor : grey;
+                percent.textColor = currentTextColor;
+                val.textColor = currentTextColor;
+                lbl.textColor = currentTextColor;
+                parent.Invalidate();
+            }
+
+            base.Update();
         }
 
 

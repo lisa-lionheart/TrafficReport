@@ -34,7 +34,7 @@ namespace TrafficReport
         public int configVersion = -1;
 
         public static Config instance = Config.Load();
-        public Vector3 newButtonPos = new Vector3(-1.670f, 0.985f);
+        public Vector3 pos = new Vector3(58, 8);
 
 		public KeyCode keyCode = KeyCode.Slash;
 
