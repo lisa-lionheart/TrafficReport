@@ -169,7 +169,7 @@ namespace TrafficReport
 
 
 
-        protected override void OnToolGUI()
+        protected override void OnToolGUI(Event e)
         {
             if (Input.GetKeyUp(Config.instance.keyCode))
             {
@@ -191,7 +191,7 @@ namespace TrafficReport
             else
             {
                 Log.debug("paths was NULL");
-                base.OnToolGUI();
+                base.OnToolGUI(e);
                 return;
             }
 

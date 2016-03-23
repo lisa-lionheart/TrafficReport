@@ -11,6 +11,7 @@ using System;
 using TrafficReport.Util;
 using TrafficReport.Assets.Source.UI;
 using System.Collections.Generic;
+using ColossalFramework.Steamworks;
 
 namespace TrafficReport
 {
@@ -51,6 +52,12 @@ namespace TrafficReport
                 ////ReportButton btn = ReportButton.Create();
                 
 #endif       
+
+                foreach(Achievement a in Steam.achievements) {
+                    
+                    if(!a.achieved) Debug.Log(a.name);
+                }
+
                 return "Display traffic information for a single vehicle, a section of road or a building"; 
             
             }
