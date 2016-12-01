@@ -11,7 +11,6 @@ using System;
 using TrafficReport.Util;
 using TrafficReport.Assets.Source.UI;
 using System.Collections.Generic;
-using ColossalFramework.Steamworks;
 
 namespace TrafficReport
 {
@@ -28,35 +27,6 @@ namespace TrafficReport
         public string Description
         {
             get {
-
-                //ReportButton btn = ReportButton.Create();
-
-                
-                //btn.eventClick += (UIComponent c, UIMouseEventParameter e) =>
-                //{
-                //    btn.ToggleState = !btn.ToggleState;
-                //};
-#if DEBUG
-                ReportUI ui = ReportUI.Create();
-
-                Dictionary<String, int> vals = new Dictionary<String, int>();
-
-                vals["citizen"] = 10;
-                vals["Residential/ResidentialLow"] = 20;
-                vals["Industrial/IndustrialOre"] = 30;
-                vals["Industrial/IndustrialOil"] = 35;
-
-                vals["something"] = 0;
-
-                ui.SetSelectedData(vals);
-                ////ReportButton btn = ReportButton.Create();
-                
-#endif       
-
-                foreach(Achievement a in Steam.achievements) {
-                    
-                    if(!a.achieved) Debug.Log(a.name);
-                }
 
                 return "Display traffic information for a single vehicle, a section of road or a building"; 
             

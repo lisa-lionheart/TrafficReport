@@ -1,0 +1,16 @@
+ManifestFileVersion: 0
+CRC: 323290691
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: df8bdc248c4a3e23540ed7190a06a3b4
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 80729077cb39806c86b5c10073f074fb
+HashAppended: 0
+ClassTypes:
+- Class: 48
+  Script: {instanceID: 0}
+Assets:
+- Assets/VertexLit.shader
+Dependencies: []

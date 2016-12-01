@@ -46,9 +46,8 @@ namespace TrafficReport
             Color red = new Color(1, 0, 0);
             Color gold = new Color(1, 0.9f, 0);
 
-            string lineShader = ResourceLoader.loadResourceString("Materials/Shaders/TransparentVertexLit.shader");
-
-            lineMaterial = new Material(lineShader);
+            Shader shader = ResourceLoader.loadShader();
+            lineMaterial = new Material(shader);
             lineMaterial.color = red;
             lineMaterial.SetColor("_Emission", red);
             lineMaterial.SetColor("_SpecColor", Color.black); //Disable shine effect

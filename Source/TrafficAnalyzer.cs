@@ -536,7 +536,7 @@ namespace TrafficReport
 
         private bool IsValid(ref Vehicle vehicle)
         {
-            if ((vehicle.m_flags & Vehicle.Flags.Deleted) != Vehicle.Flags.None)
+            if ((vehicle.m_flags & Vehicle.Flags.Deleted) == Vehicle.Flags.Deleted)
             {
                 return false;
             }
